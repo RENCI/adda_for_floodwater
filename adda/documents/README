@@ -1,0 +1,44 @@
+##
+## Example invocations of the ADDA application
+##
+
+# Set up the env to find AST
+export PYTHONPATH=/projects/sequence_analysis/vol1/prediction_work/AST:/projects/sequence_analysis/vol1/prediction_work/EDSASTAPPS
+export RUNTIMEDIR=.
+
+# try a few launches.
+
+python adda.py  --instance_name 'hsofs-nam-bob-2021' --ndays -4  --timeout '2022-02-20 00:00:00' --return_sample_min 60 --gridname 'hsofs' --ensemble='nowcast' --fort63_style --map_file './supporting_data/grid_to_stationfile_maps.yml'
+
+python adda.py  --instance_name 'hsofs-nam-bob-2021' --ndays -4  --timeout '2022-02-20 00:00:00' --return_sample_min 60 --gridname 'hsofs' --ensemble='nowcast' --map_file './supporting_data/grid_to_stationfile_maps.yml'
+
+python adda.py  --instance_name 'hsofs-nam-bob-2021' --ndays -4  --timeout '2022-02-20 00:00:00' --return_sample_min 60 --gridname 'hsofs' --ensemble='nowcast' --fort63_style --map_file './supporting_data/grid_to_stationfile_maps.yml'
+
+# Provide non defaults for all files
+
+# If you wish to clne the AST_gridstations repo into some arbitrary location, ef /data/github/AST_gridstations, inside your working ./adda directory 
+# simply add the symlink: ln -s /data/github/AST_gridstations AST_gridstations. Then you would launch the adda jobs as follows:
+#
+
+python adda.py  --instance_name 'hsofs-nam-bob-2021' --ndays -4  --timeout '2022-02-20 00:00:00' --return_sample_min 60 --gridname 'hsofs' --ensemble='nowcast' --fort63_style --map_file './supporting_data/grid_to_stationfile_maps.yml'
+
+
+python adda.py  --instance_name 'hsofs-nam-bob-2021' --ndays -4  --timeout '2022-02-20 00:00:00' --return_sample_min 60 --gridname 'hsofs' --ensemble='nowcast' --fort63_style --map_file './AST_gridstations/full_stationlist/grid_to_stationfile_maps.yml'
+
+python ../adda.py --instance_name hsofs-nam-bob-2021 --ndays -2  --return_sample_min 60 --gridname hsofs --ensemble=nowcast --fort63_style --map_file /home/bblanton/GitHub/RENCI/AST_gridstations/interpolation_stationlist/grid_to_stationfile_maps.yml --config_name /projects/sequence_analysis/vol1/prediction_work/EDSASTAPPS/adda/secrets/url_framework.yml  --timeout '2022-01-09 00:00:00'
+
+# For comparison to BB's new adda runs
+# ls /projects/ncfs-dev/hsofs-nam-bob-2021/asgs6711/2022032000/nowcast
+
+
+python ../adda.py --instance_name hsofs-nam-bob-2021 --ndays -4  --return_sample_min 60 --gridname hsofs --ensemble=nowcast --fort63_style --map_file /home/bblanton/GitHub/RENCI/AST_gridstations/interpolation_stationlist/grid_to_stationfile_maps.yml --config_name /projects/sequence_analysis/vol1/prediction_work/EDSASTAPPS/adda/secrets/url_framework.yml  --timeout '2022-03-20 00:00:00'
+
+#
+# Hurricane test using a url approach
+#
+ python adda.py --input_url "http://tds.renci.org/thredds/dodsC/2021/al09/11/hsofs/hatteras.renci.org/hsofs-al09-bob/nhcOfcl/fort.63.nc" --ndays -4 --gridname 'hsofs' --map_file ./AST_gridstations/interpolation_stationlist/grid_to_stationfile_maps.yml --ensemble 'nhcOfcl' --fort63_style
+
+#
+# More examples
+
+python adda.py --input_url "http://tds.renci.org/thredds/dodsC/2022/al09/12/hsofs/hatteras.renci.org/hsofs-al09-bob/nowcast.nodwlc/fort.63.nc" --ndays -4 --gridname 'hsofs' --map_file ./AST_gridstations/interpolation_stationlist/grid_to_stationfile_maps.yml --ensemble 'nowcast.nodwlc' --fort63_style

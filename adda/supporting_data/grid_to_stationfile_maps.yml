@@ -1,0 +1,38 @@
+GRIDMAP: &gridmap
+ HSOFS:
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/CERA_NOAA_HSOFS_stations_V2.csv"
+    CONTRAILS_RIVERS: "../MAIN_GRID_DEFINITIONS/contrails_stations_rivers.csv"
+    CONTRAILS_COASTAL: "../MAIN_GRID_DEFINITIONS/contrails_stations_coastal.csv"
+    NDBC_BUOYS: "../MAIN_GRID_DEFINITIONS/ndbc_buoys.csv"
+    LANDCONTROL: "../MAIN_GRID_DEFINITIONS/land_controls_interpolation.csv"
+    WATERCONTROL: "../MAIN_GRID_DEFINITIONS/water_controls_interpolation.csv"
+ EC95D:
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/ec95d_stations.V1.csv" 
+    LANDCONTROL: "../MAIN_GRID_DEFINITIONS/land_controls_interpolation.csv"
+    WATERCONTROL: "../MAIN_GRID_DEFINITIONS/water_controls_interpolation.csv"
+    CONTRAILS_RIVERS: "../MAIN_GRID_DEFINITIONS/contrails_stations_rivers.csv"
+    CONTRAILS_COASTAL: "../MAIN_GRID_DEFINITIONS/contrails_stations_coastal.csv"
+    NDBC_BUOYS: "../MAIN_GRID_DEFINITIONS/ndbc_buoys.csv"
+ REGION3:
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/Region3_Stations_V1.csv"
+ NC_INUNDATION_V9.99_W_RIVERS: 
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/NCV99_Stations_V1.csv"
+ NC_INUNDATION_V9.99D: 
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/NCV99_Stations_V1.csv"
+ LA_V20A-WITHUPPERATCH_CHK: 
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/LA_v20a-WithUpperAtch_chk_Stations_V1.csv"
+ URIV18: 
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/uriv18_stations_V1.csv"
+ URIV18_CL: 
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/uriv18_stations_V1.csv"
+ NCSC_SAB_V1.15: 
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/NCSC115_stations_V1.0.csv"
+ NCSC_SAB_V1.20:
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/NCSC120_stations_V1.0.csv"
+ NCSC_SAB_V1.23:
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/NCSC123_stations_V1.0.csv"
+ SABV20A: 
+    NOAA_STATIONS: "../MAIN_GRID_DEFINITIONS/SABv20a_stations_V1.0.csv"
+
+DESCRIPTION: &description
+   DESCRIBE: 'A configuration file used by the several application codes. Maps grid name to a specific station list and (opt) land/water control points'

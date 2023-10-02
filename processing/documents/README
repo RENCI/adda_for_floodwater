@@ -1,0 +1,25 @@
+##
+## Examples of invoking the mains within the AST proceesing suite
+##
+
+## 
+## Compute Errors
+##
+    ./config/main.yml
+    ./compute_error_testing/adc_wl_detailed.pkl 
+    ./compute_error_testing/obs_wl_smoothed.pkl
+    ./compute_error_testing/obs_wl_metadata.pkl
+
+python compute_error_field.py --adcdata ./compute_error_testing/adc_wl_detailed.pkl --obsdata ./compute_error_testing/obs_wl_smoothed.pkl --obsmeta ./compute_error_testing/obs_wl_metadata.pkl
+
+
+##
+## Construct field interpolation/extrapolation
+##
+    ./config/main.yml
+    ./interpolate_testing/station_errors_test_interpolation.pkl
+    ./interpolate_testing/water_controls_interpolation.csv
+    ./interpolate_testing/land_controls_interpolation.csv
+
+python interpolate_scaled_offset_field.py --land_control_file ./interpolate_testing/land_controls_interpolation.csv  --source_file ./interpolate_testing/station_errors_test_interpolation.pkl  --water_control_file ./interpolate_testing/water_controls_interpolation.csv
+

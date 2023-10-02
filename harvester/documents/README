@@ -1,0 +1,447 @@
+##
+## Examples of testing the low-,middle-level fetch routines. Note, These require most input data to have been preformed and properly formatted. These are
+## generally not intended for execution directly by calling programs
+##
+
+# 1) NOAA. Required input files are
+    ../supporting_data/noaa_stations.csv. To provide a list of stations ids
+
+a) python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAA' 
+b) python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAA' --data_product 'water_level'
+# Specify a custom station_list
+c) python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAA' --station_list '../supporting_data/noaa_stations.csv'
+
+# Get tidal predictions
+d) python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAA' --data_product 'predictions'
+
+# Specify non-default locations for the output data and metadata files
+e) python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAA' --ofile "." --ometafile "."
+
+# 1-b) NOAAWEB Required input files are
+    ../supporting_data/noaa_stations.csv. To provide a list of stations ids
+
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAAWEB' --station_list '../supporting_data/noaa_stations.csv'
+
+These will create output files such as the following. Note the filename metadata is tied to the input time selections:
+
+    1) ./noaa_stationdata_2022-02-20T00:00:00.csv
+    2) ./noaa_stationdata_meta_2022-02-20T00:00:00.csv 
+
+# Examples of using different product levels
+
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAA' --data_product 'water_level'
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAA' --data_product 'predictions'
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAA' --data_product 'air_pressure'
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAA' --data_product 'hourly_height'
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAA' --data_product 'wind_speed'
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAAWEB' --data_product 'hourly_height'
+
+# Example of calling out Pacific NorthWest Stations
+
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'NOAAWEB' --data_product 'hourly_height' --station_list '../supporting_data/pacnorthwest_stations.csv'
+
+
+
+
+# 2) CONTRAILS. Required input files
+    ../config/main.yml. To fetch the value of rootdir
+    ../secrets/contrails.yml. TO provided authentication information
+    ../supporting_data/contrails_stations_coastal.csv or ../supporting_data/contrails_stations_rivers.csv. To provide a list of stations ids
+
+a) python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'CONTRAILS' --data_product 'river_water_level' 
+b) python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'CONTRAILS' --data_product 'coastal_water_level'
+# Run while specifying non-default stationlist and auth yml files
+c) python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'CONTRAILS' --data_product 'river_water_level' --config_name '../secrets/contrails.yml' --station_list '../supporting_data/contrails_stations_rivers.csv'
+d) python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'CONTRAILS' --data_product 'river_stream_elevation'
+
+# Examples of using different product levels
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'CONTRAILS' --data_product 'river_water_level'
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'CONTRAILS' --data_product 'river_water_elevation''
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'CONTRAILS' --data_product 'coastal_water_level'
+python fetch_data.py --ndays -4 --stoptime '2022-02-20 00:00:00' --data_source 'CONTRAILS' --data_product 'air_pressure'
+python fetch_data.py --ndays -4 --stoptime '2022-10-28 00:00:00' --data_source 'CONTRAILS' --data_product 'river_flow_volume' --config_name '../secrets/contrails.yml' --station_list '../supporting_data/contrails_stations_rivers.csv'
+
+#Testing output datafiles
+    1) ./contrails_stationdata_RIVERS_2022-02-20T00:00:00.csv
+    2) ./contrails_stationdata_meta_RIVERS_2022-02-20T00:00:00.csv
+ or
+    1) ./contrails_stationdata_COASTAL_2022-02-20T00:00:00.csv
+    2) ./contrails_stationdata_meta_COASTAL_2022-02-20T00:00:00.csv
+
+# 3) NDBC. Required input files
+    ../supporting_data/ndbc_buoys.csv. To provide a list of buoy ids, names and states
+
+# NOTE: data only exist for the past 45 days. SO reset your timeout accordingly
+a) python fetch_data.py --ndays -4 --stoptime '2022-05-10 00:00:00' --data_source 'NDBC' --data_product 'wave_height'
+b) python fetch_data.py --ndays -4 --stoptime '2022-05-10 00:00:00' --data_source 'NDBC' --data_product 'air_pressure'
+c) python fetch_data.py --ndays -4 --stoptime '2022-05-10 00:00:00' --data_source 'NDBC' --data_product 'wind_speed'
+
+# 4) NDBC_HISTORIC data
+    ../supporting_data/ndbc_buoys.csv. To provide a list of buoy ids, names and states
+
+a) python fetch_data.py --ndays -4 --stoptime '2021-12-31 00:00:00' --data_source 'NDBC_HISTORIC' --data_product 'wave_height'
+
+
+#Testing output datafiles
+    1) ./ndbc_stationdata_2022-02-20T00:00:00.csv
+    2) ./ndbc_stationdata_meta_2022-02-20T00:00:00.csv
+
+#
+# Examples of running main for TDS/ADCIRC data
+# No "times" are specified. These methods replace explicit times with lists of relevant urls that should be created by the caller
+
+# 1) Required input files are
+    ../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv
+
+# a) Grab station indexing from, fort.61
+# b) Grab station indexing from input datafile and apply to fort.63.nc
+# c) Demonstrate grabbing a hurricane - fort61 style
+# d) Take Hurricane url and request associated nowcasts - fort63 style
+# e) Specify a custiom non-default stationfile location: This doesn't change the classes at all. But does better support the data_harvesting procedure for APSVIZ2
+
+a) python fetch_adcirc_data.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.61.nc" --data_source 'TDS' 
+b) python fetch_adcirc_data.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.63.nc" --fort63_style --data_source 'TDS'
+c) python fetch_adcirc_data.py --url "http://tds.renci.org/thredds/dodsC/2021/al09/11/hsofs/hatteras.renci.org/hsofs-al09-bob/nhcOfcl/fort.61.nc" --data_source 'TDS'
+d) python fetch_adcirc_data.py --url "http://tds.renci.org/thredds/dodsC/2021/al09/11/hsofs/hatteras.renci.org/hsofs-al09-bob/nhcOfcl/fort.63.nc" --fort63_style --data_source 'TDS' --convertToNowcast
+e) python fetch_adcirc_data.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.61.nc" --data_source 'TDS' --station_list '../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv' 
+f)  python fetch_adcirc_data.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.61.nc" --data_source 'TDS' --station_list '../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv' --ofile "." --ometafile "."
+
+# Can also specify a LOCAL url datafile. In this case, no scraping of the url for useful information is possible. So the final metadata object will not be very informative
+python fetch_adcirc_data.py --url "/projects/sequence_analysis/vol1/prediction_work/Projects/NOAA.Reanalysis/fr3/2018/fort.63.nc" --data_source 'TDS' --station_list '/projects/sequence_analysis/vol1/prediction_work/FR3_UNASSIMILATED_REANALYSIS_2018/supporting_data/unassimilated_stations.csv' --fort63_style --raw_local_url
+
+python fetch_adcirc_data.py --url "/projects/reanalysis/ADCIRC/ERA5/hsofs/2018/fort.63.nc" --data_source 'TDS' --station_list '../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv' --fort63_style --raw_local_url
+
+# Local files (raw vs transposed+rechunked)
+
+python fetch_adcirc_data.py --url "./fort.63.nc" --data_source 'TDS' --station_list '../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv' --fort63_style --raw_local_url
+python fetch_adcirc_data.py --url "./fort.63_transposed_and_rechunked_1024.nc" --data_source 'TDS' --station_list '../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv' --fort63_style --raw_local_url
+
+python fetch_adcirc_data.py --url "/projects/reanalysis/ADCIRC/ERA5/hsofs/2005/fort.63.nc" --data_source 'TDS' --station_list '../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv' --fort63_style --raw_local_url
+python fetch_adcirc_data.py --url "/projects/reanalysis/ADCIRC/ERA5/hsofs/2005/fort.63_transposed_and_rechunked_1024.nc" --data_source 'TDS' --station_list '../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv' --fort63_style --raw_local_url
+
+
+# Try to read a SWAN file instead. Must specify the correct variable name AND specify fort63_style as well as raw_local_url
+
+a) python fetch_adcirc_data.py --url "/projects/sequence_analysis/vol1/prediction_work/HSOFS-PRIOR-2022/2018/swan_HS.63.nc" --data_source 'TDS' --station_list '../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv' --fort63_style --variable_name 'swan_HS'  --raw_local_url
+
+b) python fetch_adcirc_data.py --url "http://tds.renci.org/thredds/dodsC/Reanalysis/ADCIRC/ERA5/hsofs/2012/swan_HS.63.nc" --data_source 'TDS' --station_list '../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv' --fort63_style --variable_name 'swan_HS'  --raw_local_url
+
+c) python fetch_adcirc_data.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022061312/NCSC_SAB_v1.23/hatteras.renci.org/ncsc123-nam-sb55.01/namforecast/swan_HS.63.nc" --data_source 'TDS' --station_list '../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv' --fort63_style --variable_name 'swan_HS' 
+
+# Output datafiles
+
+# a) and b)
+    1) ./adcirc_stationdata_meta_nowcast_HSOFS_2022-01-16T00:00:00.csv
+    2) ./adcirc_stationdata_nowcast_HSOFS_2022-01-16T00:00:00.csv
+# c)
+    1) ./adcirc_stationdata_nhcOfcl_HSOFS_11.csv
+    2) ./adcirc_stationdata_meta_nhcOfcl_HSOFS_11.csv
+# d)
+    1) ./adcirc_stationdata_nowcast_HSOFS_11.csv
+    2) .adcirc_stationdata_meta_nowcast_HSOFS_11.csv
+
+##
+## Examples of testing the high-level get routines. Note, These methods provide helper function to create properly formatted data
+##
+##    SMOOTHING is define as taking the requested resolution (6min usually) result and performing a centered rolling average of 11 values. So, if the input data are 6min, the smoothing 
+##    averages over a window of width 1 hour. If, the input data are hourly (interval='h'), then the 11-step window is of width 22 hours
+##    The smoothed data are then intepolated (polynomial) onto a (default) 60min step time
+##
+
+# 1) Required NOAA input files are
+    ../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv
+
+# a) Grab 6min WLs from NOAA stations for the desired time range
+# b) Grab HOURLY from NOAA stations for the desired time range
+
+a) python get_observations_stations.py --starttime '2022-01-01 00:00:00' --stoptime '2022-01-03 12:00:00' --data_source 'NOAA' --data_product 'water_level' 
+b) python get_observations_stations.py --starttime '2022-01-01 00:00:00' --stoptime '2022-01-03 12:00:00' --data_source 'NOAA' --data_product 'water_level' --interval 'h'
+
+python get_observations_stations.py --starttime '2022-01-01 00:00:00' --stoptime '2022-01-03 12:00:00' --data_source 'NOAAWEB' --data_product 'water_level' --interval 'h'
+
+
+# 2) Required Contrails input files
+
+    ../secrets/contrails.yml. provides authentication information
+    ../supporting_data/contrails_stations_coastal.csv or ../supporting_data/contrails_stations_rivers.csv. To provide a list of stations ids
+
+a) python get_observations_stations.py --starttime '2022-01-01 00:00:00' --stoptime '2022-01-03 12:00:00' --data_source 'CONTRAILS' --data_product 'river_water_level'
+b) python get_observations_stations.py --starttime '2022-01-01 00:00:00' --stoptime '2022-01-03 12:00:00' --data_source 'CONTRAILS' --data_product 'coastal_water_level'
+c) python get_observations_stations.py --starttime '2022-01-01 00:00:00' --stoptime '2022-01-03 12:00:00' --data_source 'CONTRAILS' --data_product 'river_water_level' --station_list /projects/sequence_analysis/vol1/prediction_work/AST/supporting_data/contrails_stations_coastal.csv
+
+d) get_observations_stations.py --starttime '2022-01-01 00:00:00' --stoptime '2022-01-03 12:00:00' --data_source 'NOAAWEB' --data_product 'hourly_height' --station_list '../supporting_data/pacnorthwest_stations.csv'
+
+
+
+# Try getting flow volumes from the augmented river list
+#
+
+python get_observations_stations.py --starttime '2022-01-01 00:00:00' --stoptime '2022-01-03 12:00:00' --data_source 'CONTRAILS' --data_product 'river_water_level' --station_list ../supporting_data/contrails_stations_rivers_largelist.csv
+
+
+
+
+# Output datafiles, Note any redundancies (eg pkl vs json) are inplace to mimic behavior of the original codes that are to be replaced 
+# NOAA/Contrails output files are the same. Viz., 
+
+    1) ./obs_wl_metadata_202201010000_202201031200.pkl
+    2) ./obs_wl_detailed_202201010000_202201031200.pkl
+    3) ./obs_wl_smoothed_202201010000_202201031200.pkl
+    4) ./obs_wl_metadata_202201010000_202201031200.json
+    5) ./obs_wl_detailed_202201010000_202201031200.json
+    6) ./obs_wl_smoothed_202201010000_202201031200.json
+
+# 3) Required NDBC input files are: Notew since NDBC only keeps about 45 days of data, you'll need to adjust the times for this example to return data
+     ../supporting_data/ndbc_buoys.csv
+
+a) python get_observations_stations.py --starttime '2022-05-01 00:00:00' --stoptime '2022-05-10 12:00:00' --data_source 'NDBC' --data_product 'wave_height' 
+b) python get_observations_stations.py --starttime '2022-05-01 00:00:00' --stoptime '2022-05-10 12:00:00' --data_source 'NDBC' --data_product 'air_pressure'
+c) python get_observations_stations.py --starttime '2022-05-01 00:00:00' --stoptime '2022-05-10 12:00:00' --data_source 'NDBC' --data_product 'wind_speed'
+
+# 4) Get sme historic data: NOTE the user must ensure the time range doesn't include dates from the CURRENT year.
+#    In this case, the dates from the CURRENT year will be EXCLUDED
+#
+python get_observations_stations.py --starttime '2020-05-10 00:00:00' --stoptime '2021-05-10 12:00:00' --data_source 'NDBC_HISTORIC' --data_product 'wave_height'
+
+##
+## Getting ADCIRC data from the TDS
+##
+
+#  In ths case, "times" have little meaning since the underlying methods require a list of URLs that span the desired time range. The construction of the URLs is performed using the
+#  methods in generate_urls_from_times.py. Testing generate_urls_from_times.py is further down in this document. 
+#  Also, times also have little meaning for Hurricane TDS data. In this case "times" are replaced with Advisories. Examples follow.
+#
+#  Secondly fetching water levels requires knowing the station ids. However, the specific ADCIRC nodes best corresponding to a station id depends on the selected GRID. So two options are provided:
+#  1) The default (fort61_style) uses only a list of station ids and uses the fort.61.nc file to elucidate the proper indexes and fetch the water levels. These are inteprolated water levels.
+#     You cannot override the resulting urls using or --gridnamem --instance variables. (ensemble can be overridden)
+#  2) The alternative fort63_style will simply read the water levels directly form a fort.63.nc file. However this requires the caller to provide the actual node lists. 
+#
+#  One can have the code generate URL lists in multiple scenarios. 
+#  a) Provide a "template" url from which the instance,grid,ensemble will be scraped.
+#  b) Provide a yml with an appropriate url_format for your local site, then also provide, the instrance, grid
+#
+# --ndays defaults to -2
+#
+#  --url URL             TDS url to fetch ADCIRC data
+#  --sources             List currently supported data sources
+#  --data_source DATA_SOURCE
+#                        choose supported data source (case independant) eg
+#                        TDS
+#  --data_product DATA_PRODUCT
+#                        choose supported data product eg water_level
+#  --return_sample_min RETURN_SAMPLE_MIN
+#                        return_sample_min is the time stepping in the final
+#                        data objects. (mins)
+#  --ndays NDAYS         Day lag (usually < 0)
+#  --timeout TIMEOUT     YYYY-mm-dd HH:MM:SS. Latest day of analysis def to
+#                        now()
+#  --config_name CONFIG_NAME
+#                        String: yml config which contains URL structural
+#                        information
+#  --instance_name INSTANCE_NAME
+#                        String: Instance value
+#  --fort63_style        Boolean: Will inform Harvester to use fort.63.methods
+#                        to get station nodesids
+#  --gridname GRIDNAME   String: Test code gridname value
+
+# LASTLY, If selecting a fort63_style, the codes will properly adjust fort.61.nc to fort.63.nc and assumes it exists.
+# NOTE: These main examples are limited in their functionality. See adda.py for a more complete usage example (eg changing ensemble values)
+#        especially as pertains to hurricane urls
+
+# 1) Required input files are
+    ../supporting_data/CERA_NOAA_HSOFS_stations_V3.1.csv
+    ../secrets/url_framework.yml
+
+## Case: Provide a template url type examples
+python get_adcirc_stations.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.61.nc" --data_source 'TDS' 
+python get_adcirc_stations.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.61.nc" --data_source 'TDS' --ndays -4
+python get_adcirc_stations.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.61.nc" --data_source 'TDS' --timeout '2022-02-26 00:00:00'
+python get_adcirc_stations.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.61.nc" --data_source 'TDS' --fort63_style
+
+# Try a hurricane
+python get_adcirc_stations.py --url "http://tds.renci.org/thredds/dodsC/2021/al09/11/hsofs/hatteras.renci.org/hsofs-al09-bob/nhcOfcl/fort.61.nc" --data_source 'TDS'
+python get_adcirc_stations.py --url "http://tds.renci.org/thredds/dodsC/2021/al09/11/hsofs/hatteras.renci.org/hsofs-al09-bob/nhcOfcl/fort.61.nc" --data_source 'TDS' --timeout 8  --fort63_style
+
+## Case: Provide a YML formatting For the given stations lists noty all grids can use fort63_style in this example
+python get_adcirc_stations.py  --config_name '../secrets/url_framework.yml' --gridname 'hsofs' --instance_name 'hsofs-nam-bob-2021' --timeout '2022-02-26 00:00:00' --data_source 'TDS'
+python get_adcirc_stations.py  --config_name '../secrets/url_framework.yml' --gridname 'hsofs' --instance_name 'hsofs-nam-bob-2021' --timeout '2022-02-26 00:00:00' --data_source 'TDS' --fort63_style
+
+# Output datafiles - representative
+    1) ./adc_wl_metadata_2022033112.pkl
+    2) ./adc_wl_detailed_2022033112.pkl
+    3) ./adc_wl_metadata_2022033112.json
+    4) ./adc_wl_detailed_2022033112.json
+
+## Case Get a swan data file using the new API
+python get_adcirc_stations.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022061312/NCSC_SAB_v1.23/hatteras.renci.org/ncsc123-nam-sb55.01/namforecast/swan_HS.63.nc" --data_source 'TDS' --timeout '2022-06-13 00:00:00' --fort63_style --ensemble 'namforecast' --variable_name 'swan_HS'
+
+
+##
+## Generating URLs
+##
+
+## NOTE: In harvester methods that can perform fort63_style and fort61_style processing. those codes make the required changes. Thus, in the following examples
+## It doesn't matter too much if you specify fort.61.nc or fort.63.nc 
+
+# This a helper method that assists in  generation of a list of proper TDS urls that span the desired time range (or advisory range). Many usage scenrios exist. This is expected to 
+# be called by high level applications (such as adda.py) and passed to underlying HARVESTER methods. 
+# This is a method that simply creates urls based on the users requirements. NO VALIDATION of the urls is performed.   
+
+#Opened yaml file /projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/utilities/../config/main.yml
+#usage: generate_urls_from_times.py [-h] [--url URL] [--ndays NDAYS]
+#                                   [--timeout TIMEOUT] [--timein TIMEIN]
+#                                   [--config_name CONFIG_NAME]
+#                                   [--instance_name INSTANCE_NAME]
+#                                   [--grid_name GRID_NAME]
+#                                   [--ensemble ENSEMBLE]
+#                                   [--hurricane_yaml_year HURRICANE_YAML_YEAR]
+#                                   [--hurricane_yaml_source HURRICANE_YAML_SOURCE]
+
+#optional arguments:
+#  -h, --help            show this help message and exit
+#  --url URL             Input URL that may be used to build new output urls
+#  --ndays NDAYS         Day lag (usually < 0)
+#  --timeout TIMEOUT     YYYY-mm-dd HH:MM:SS. Latest day of analysis
+#  --timein TIMEIN       YYYY-mm-dd HH:MM:SS .Start day of analysis.
+#  --config_name CONFIG_NAME
+#                        String: yml config which contains URL structural
+#                        information
+#  --instance_name INSTANCE_NAME
+#                        String: Choose instance name. Required if using a
+#                        YAML-based URL construction
+#  --grid_name GRID_NAME
+#                        String: Choose grid_name. Required if using a YAML-
+#                        based URL construction
+#  --ensemble ENSEMBLE   String: Specify ensemble name
+#  --hurricane_yaml_year HURRICANE_YAML_YEAR
+#                        String: Needed only for Hurricane/YML procedures
+#  --hurricane_yaml_source HURRICANE_YAML_SOURCE
+#                        String: Needed only for Hurricane/YML procedures
+
+# 1) Required input files are
+    ../secrets/url_framework.yml
+
+## Scenario 1: Using template urls to build more urls: Eg take a namforecasat and build a list of associated nowcasts
+
+python generate_urls_from_times.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.63.nc" --timein '2022-02-03 00:00:00' --timeout '2022-02-05 00:00:00'
+
+python generate_urls_from_times.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.63.nc" --ndays -3  --timeout '2022-02-05 00:00:00'
+
+python generate_urls_from_times.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/NCSC_SAB_v1.15/hatteras.renci.org/ncsc115-nam-2021/namforecast/fort.61.nc" --ndays -3  --timeout '2022-02-05 00:00:00'
+
+# Override default ensemble
+python generate_urls_from_times.py --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022011600/hsofs/hatteras.renci.org/hsofs-nam-bob-2021/nowcast/fort.63.nc" --ensemble 'namforecast' --ndays -3  --timeout '2022-02-05 00:00:00'
+
+# Apply template method to a SWAN fie
+python generate_urls_from_times.py  --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022061312/NCSC_SAB_v1.23/hatteras.renci.org/ncsc123-nam-sb55.01/namforecast/swan_HS.63.nc" --timein '2022-02-03 00:00:00' --timeout '2022-02-05 00:00:00' 
+
+# Swan and change the ensemble name
+python generate_urls_from_times.py  --url "http://tds.renci.org/thredds/dodsC/2022/nam/2022061312/NCSC_SAB_v1.23/hatteras.renci.org/ncsc123-nam-sb55.01/namforecast/swan_HS.63.nc" --timein '2022-02-03 00:00:00' --timeout '2022-02-05 00:00:00' --ensemble 'namforecast'
+
+
+# Try some Hurricane url generations - NOTE "times" are now advisories. ndays is still "days".
+
+python generate_urls_from_times.py --url "http://tds.renci.org/thredds/dodsC/2021/al09/11/ec95d/hatteras.renci.org/ec95d-al09-bob/nhcOfcl/fort.61.nc" --timein 3 --timeout 11 
+
+python generate_urls_from_times.py --url "http://tds.renci.org/thredds/dodsC/2021/al09/11/ec95d/hatteras.renci.org/ec95d-al09-bob/nhcOfcl/fort.61.nc" --ndays -4  --timeout 11
+
+python generate_urls_from_times.py --url "http://tds.renci.org/thredds/dodsC/2021/al09/11/ec95d/hatteras.renci.org/ec95d-al09-bob/nhcOfcl/fort.61.nc" --ndays -4  --timeout 11 --ensemble 'nhcOfcl'
+
+## Scenario 2: Using a yaml structural file, build urls 
+
+python generate_urls_from_times.py --timein '2022-02-03 00:00:00' --timeout '2022-02-05 00:00:00' --config_name '../secrets/url_framework.yml' --grid_name 'hsofs' --instance_name 'hsofs-nam-bob-2021' 
+
+python generate_urls_from_times.py --ndays -4 --timeout '2022-02-05 00:00:00' --config_name '../secrets/url_framework.yml' --grid_name 'hsofs' --instance_name 'hsofs-nam-bob-2021'
+
+python generate_urls_from_times.py --ndays -4 --timeout '2022-02-05 00:00:00' --config_name '../secrets/url_framework.yml' --grid_name 'hsofs' --instance_name 'hsofs-nam-bob-2021' --ensemble 'namforecast'
+
+python generate_urls_from_times.py --ndays -4 --timeout '2022-02-05 00:00:00' --config_name '../secrets/url_framework.yml' --grid_name 'LAv21a' --instance_name 'LAv21a_nam_jgf_23kcms'
+
+
+# Build a Hurricane url from the yml. Need two other bits of information though
+
+python generate_urls_from_times.py --ndays -4 --timeout 11 --config_name '../secrets/url_framework.yml' --grid_name 'ec95d' --instance_name 'ec95d-al09-bob' --hurricane_yaml_year='2021' --hurricane_yaml_source='al09'
+
+python generate_urls_from_times.py --ndays -4 --timeout 11 --config_name '../secrets/url_framework.yml' --grid_name 'ec95d' --instance_name 'ec95d-al09-bob' --hurricane_yaml_year='2021' --hurricane_yaml_source='al09' --ensemble 'nowcast'
+
+# Build a SWAN url from a new yaml and for a SWAN data file
+
+python generate_urls_from_times.py --ndays -4 --timeout '2022-02-05 00:00:00' --config_name '../secrets/swan_url_framework.yml' --grid_name 'NCSC_SAB_v1.23' --instance_name 'ncsc123-nam-sb55.01' --ensemble 'namforecast'
+
+##
+## Grid to station maps
+##
+
+# This a helper method that assists in mapping desired ADCIRC grids to available stations, and optionally land and water_control points
+# The codes DEFAULT to the map yml ../supporting_data/grid_to_stationfile_maps.yml
+# Inside are pointers to appropriate files. NOTE. In this default file, file paths are relative to the repo hierarchy. If, the user wishes to 
+# provide their own custom, then ALL filename pointers should include the fullpath
+
+#python grid_to_station_maps.py -h
+#optional arguments:
+#  -h, --help           show this help message and exit
+#  --gridname GRIDNAME  str: Select appropriate gridname Default is hsofs (case independent)
+#  --mapfile MAPFILE    str: FQFN to find an alternative mapfilename.
+
+python grid_to_station_maps.py --gridname 'hsofs'
+
+# Will list grid choices, and specific file pointers for the given map yml.
+
+##
+## UNITS and Tested products
+##
+
+These INPUT product names (keys) ARE NOT the actual names used by NOAA but, rather, are the common names used by harvester
+The code makes the required translations
+
+All Lats/Lons are returned as deg-North,deg-East, respectively.
+
+## NOAA/NOS
+#
+# For a random station on May 10, 2002: We have: The correct Product values are air_gap, air_pressure, air_temperature, conductivity, currents, currents_survey, currents_predictions, daily_mean, datums, high_low, hourly_height, humidity, monthly_mean, one_minute_water_level, predictions, salinity, visibility, water_level, water_temperature, and wind 
+
+#The native storage units for NOAA COOPS is:
+#    height in FEET
+#    pressure in MB (MilliBar) 
+#    wind speed in KNOTS
+#    Temp in F
+
+# When requested to return data in metric these become:
+#    height in METERS
+#    pressure in MB (milliBar)
+#    wind speed in m/s
+#    Temp in C
+
+# Supported NOAA Data products and return values (Relative to Datum MSL)
+#    water_level (m)
+#    predictions (m)
+#    hourly_height (m)
+#    air_pressure (mb)
+#    wind_speed (m/s)
+
+##
+## Contrails
+## The below infomration is really only specifiic to the FIMAN guages.
+## https://contrail.nc.gov
+
+
+#  height (Stage) FEET
+#  flow volume: CFS
+#  https://contrail.nc.gov/map/?view=www_fiman
+#  barometric pressure: mbar OR inHg depending on the sensor
+
+#
+# NOAA/NOS: Coops behavior for long timeranges. If you seeking to fetch lots of data from the NOAA guages, Coops breaks your time range into
+# managable chunks. Though this generally work well, some strange edge cases have been observed for our Reanalysis work
+#
+# 1: If the timerange provided is exactly 365 days, the job wil fail with a Range limit error. Eg
+#
+# python get_observations_stations.py --starttime '2018-01-01 01:00:00' --stoptime '2019-01-02 00:00:00' --data_source 'NOAA' --data_product 'hourly_height'^C
+# Will see this error repeatedly: ERROR:ast_services:NOAA/NOS data error:  Range Limit Exceeded: The size limit for data retrieval for this product is 365 days  was hourly_height
+# If you are < or > 365 you are okay. 
+#
+# 2: If you go > 365, such as te folowing example, then a different issue occurs
+# python get_observations_stations.py --starttime '2018-01-01 01:00:00' --stoptime '2019-01-03 00:00:00' --data_source 'NOAA' --data_product 'hourly_height' 
+#
+# The data returned will have DUPLICATES for the day 2019-01-01. A simple pandas.duplicate() method can remove the duplicates easily, BUT, it was necc to double check that
+# the values are correct. They are.

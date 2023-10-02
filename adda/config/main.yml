@@ -1,0 +1,9 @@
+--- # adcirc DA config file
+DEFAULT: &default
+  RDIR: $RUNTIMEDIR   
+  LOGGING: true
+  LOGLEVEL: DEBUG
+
+DESCRIPTION: &description
+   DESCRIBE: 'An AST-v2 configuration file used by the several testing codes.'
+

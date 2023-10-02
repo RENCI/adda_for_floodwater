@@ -17,7 +17,7 @@ import gridmap.grid_to_station_maps as grid_to_station_maps
 import adda_visualization_plots as adda_visualization_plots
 
 from utilities.utilities import utilities as utilities
-import io_utilities.io_utilities as io_utilities
+import utilities.io_utilities as io_utilities
 from argparse import ArgumentParser
 
 import joblib
@@ -95,33 +95,36 @@ def main(args):
             sys.exit(1)
 
     # Generate a list of URLs consistent with the desired criteria
-    print('Demonstrate URL generation spanning multiple instance values (hsofs). YAML, timeout, offset')
+#    print('Demonstrate URL generation spanning multiple instance values (hsofs). YAML, timeout, offset')
 
     #hurricane_source=None
     #hurricane_year=None
-    if args.input_url is None:
-        rpl = genurls.generate_urls_from_times(timeout=stoptime, ndays=args.ndays, grid_name=args.gridname, instance_name=args.instance_name, config_name=config_name, hurricane_yaml_year=hurricane_year,hurricane_yaml_source=hurricane_source)
-        urls = rpl.build_url_list_from_yaml_and_offset(ensemble=args.ensemble)
-    else:
-        print('Generate from URL and times ')
-        rpl = genurls.generate_urls_from_times(url=args.input_url,ndays=args.ndays)
-        urls = rpl.build_url_list_from_template_url_and_offset(ensemble=args.ensemble)
-        #urls = rpl.build_url_list_from_alternate_template_url_and_offset(ensemble=args.ensemble)
+#    if args.input_url is None:
+#        rpl = genurls.generate_urls_from_times(timeout=stoptime, ndays=args.ndays, grid_name=args.gridname, instance_name=args.instance_name, config_name=config_name, hurricane_yaml_year=hurricane_year,hurricane_yaml_source=hurricane_source)
+#        urls = rpl.build_url_list_from_yaml_and_offset(ensemble=args.ensemble)
+#    else:
+#        print('Generate from URL and times ')
+#        rpl = genurls.generate_urls_from_times(url=args.input_url,ndays=args.ndays)
+#        urls = rpl.build_url_list_from_template_url_and_offset(ensemble=args.ensemble)
+#        #urls = rpl.build_url_list_from_alternate_template_url_and_offset(ensemble=args.ensemble)
+
+    # assume "input_url" is a file of urls.
+    with open(args.input_url) as f:
+        urls = f.read().splitlines()
     print(urls)
+    utilities.log.info(f'Number of URLs is {len(urls)}') 
 
     print(station_file)
-    utilities.log.info(f'Number of URLs return is {len(urls)}') 
-
-    rpl = get_adcirc_stations.get_adcirc_stations(source='ASGS', product=args.data_product,
+    rpl = get_adcirc_stations.get_adcirc_stations(source='TDS', product=args.data_product,
                 station_list_file=station_file, 
                 knockout_dict=None, fort63_style=fort63_style )
 
     # Convert URLs to desired fort type
-    if fort63_style:
-        urls=get_adcirc_stations.convert_urls_to_63style(urls)
-    else:
-        urls=get_adcirc_stations.convert_urls_to_61style(urls)
-    utilities.log.info(f'Set of URLs to process {urls}')
+    #if fort63_style:
+    #    urls=get_adcirc_stations.convert_urls_to_63style(urls)
+    #else:
+    #    urls=get_adcirc_stations.convert_urls_to_61style(urls)
+    #utilities.log.info(f'Set of URLs to process {urls}')
 
     # Fetch best resolution and no resampling
     data_adc,meta_adc=rpl.fetch_station_product(urls, return_sample_min=args.return_sample_min, fort63_style=fort63_style  )
@@ -131,9 +134,9 @@ def main(args):
     meta_adc.replace('-99999',np.nan,inplace=True)
 
     # Grab the grid coordinates for the url 
-    urls_63 = get_adcirc_stations.convert_urls_to_63style(urls)
-    print(urls_63)
-    adc_coords = get_adcirc_stations.extract_adcirc_grid_coords( urls_63 )
+    #urls_63 = get_adcirc_stations.convert_urls_to_63style(urls)
+    #print(urls_63)
+    adc_coords = get_adcirc_stations.extract_adcirc_grid_coords( urls )
 
     #lons = adc_coords['LON']
     #lats = adc_coords['LAT']
@@ -184,8 +187,7 @@ def main(args):
         rootdir=io_utilities.construct_base_rootdir(config['DEFAULT']['RDIR'], base_dir_extra='')
         iometadata='' 
     
-    # Write the data to disk in a way that mimics ADDA
-
+    # Write the data to disk
     iosubdir='adcpkl'
     # Write selected in Pickle data 
     metapkl = io_utilities.write_pickle(meta_adc,rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_metadata',iometadata=iometadata)
@@ -366,8 +368,6 @@ def main(args):
     #df_and_controls.to_csv('/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/df_land_controls.csv')
     #df_water_controls.to_csv('/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/df_water_controls.csv')
     #ADCJson = io_utilities.write_dict_to_json(adc_plot_grid, rootdir='/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2',subdir='test_data',fileroot='adc_plot_grid',iometadata='')
-
-
 
 
 # We need to support both specifying URLs by explicit urls and by specifying time ranges.

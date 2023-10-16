@@ -25,7 +25,7 @@ from utilities.utilities import utilities as utilities
 import time as tm
 
 # Currently supported sources
-SOURCES = ['TDS']
+SOURCES = ['TDS','FILE']
 
 def get_adcirc_stations_fort63_style(fname=None)->pd.DataFrame:
     """

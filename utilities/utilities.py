@@ -55,9 +55,9 @@ class utilities:
             logger handle
         """
         # logger = logging.getLogger(__name__)
-        logger = logging.getLogger("ast_services") # We could simply add the instanceid here as well
+        logger = logging.getLogger("adda_utilities") # We could simply add the instanceid here as well
 
-        log_level = config["DEFAULT"].get('LOGLEVEL', 'DEBUG')
+        log_level = config.get('LOGLEVEL', 'DEBUG')
         logger.setLevel(log_level)
 
         if subdir is not None:
@@ -66,10 +66,7 @@ class utilities:
             Logdir = os.getenv('LOG_PATH','.')
 
         #LogName =os.getenv('LOG_NAME','logs')
-        if log_file_metadata is None:
-            LogName='AdcircSupportTools.log'
-        else:    
-            LogName=f'AdcircSupportTools_{log_file_metadata}.log'
+        LogName='adda.log'
         LogFile='/'.join([Logdir,LogName])
 
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(funcName)s : %(module)s : %(name)s : %(message)s ')

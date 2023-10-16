@@ -1,6 +1,5 @@
 --- # adcirc DA config file
 DEFAULT: &default
-  RDIR: $RUNTIMEDIR   
   LOGGING: true
   LOGLEVEL: DEBUG
 

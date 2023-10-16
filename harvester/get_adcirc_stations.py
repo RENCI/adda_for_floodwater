@@ -167,7 +167,7 @@ class get_adcirc_stations(object):
 
     # Currently supported sources and products
 
-    SOURCES = ['TDS']
+    SOURCES = ['TDS','FILE']
     TDS_PRODUCTS = ['water_level']
 
     def __init__(self, source='TDS',product='water_level',
@@ -298,6 +298,7 @@ class get_adcirc_stations(object):
             time_index=data.index.tolist()
             self.Tmin = min(time_index).strftime('%Y%m%d%H')
             self.Tmax = max(time_index).strftime('%Y%m%d%H')
+
             if self.knockout_dict is not None:
                 data = self.remove_knockout_stations(data)
                 utilities.log.info('Removing knockouts from acquired ADCIRC data')

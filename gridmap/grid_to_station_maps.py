@@ -23,10 +23,11 @@ def read_specified_filename_from_map(gridname=None, mapfile=None, datatype=None)
     Return: fullpath name of desitred file or None
     """
     if mapfile is None:
-        map_yamlname=os.path.join(os.path.dirname(__file__), '../supporting_data', 'grid_to_stationfile_maps.yml')
+        #map_yamlname=os.path.join(os.path.dirname(__file__), '../supporting_data', 'grid_to_stationfile_maps.yml')
+        map_yamlname=os.path.join(os.path.dirname(__file__), 'grid_to_stationfile_maps.yml')
     else:
         map_yamlname=mapfile
-    print(map_yamlname)
+    #print(map_yamlname)
 
     # Does mapfile exists. if not abort
     try:
@@ -50,7 +51,6 @@ def read_specified_filename_from_map(gridname=None, mapfile=None, datatype=None)
     dataFile = map_config.get('GRIDMAP',{}).get(gridname.upper(),{}).get(datatype.upper())
     if mapfile is None and dataFile is not None:
         dataFile=os.path.join(os.path.dirname(__file__), '../supporting_data', dataFile)
-    #print('data file is {}'.format(dataFile))
     return dataFile
 
 def find_station_list_from_map( gridname=None, datatype='NOAA_STATIONS', mapfile=None ):
@@ -67,7 +67,7 @@ def find_station_list_from_map( gridname=None, datatype='NOAA_STATIONS', mapfile
     User specified mapfiles, should probably include full pathnames in the yml file
     """
     stationFile = read_specified_filename_from_map(gridname, mapfile, datatype=datatype)
-    print('station file is {}'.format(stationFile))
+    #print('station file is {}'.format(stationFile))
     fort63_compliant=False
     if stationFile is not None:
         fort63_compliant = check_for_fort63_compliance(stationFile)

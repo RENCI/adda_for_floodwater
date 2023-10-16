@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 #
-
 import os,sys
 import numpy as np
 import pandas as pd
@@ -37,76 +36,57 @@ def main(args):
     It assumes the existance of a proper url_framework.yml which (optionally) can be used to create URLs
     It assumes the existance of a proper local_instance.yml which (optionally_) may be used to read customized annual Instance values
     """
-
-    #assumes the existance of a proper main.yml to get IO information
-    if args.main_yamlname is None:
-        main_yamlname=os.path.join(os.path.dirname(__file__), './config', 'main.yml')
-    else:
-        main_yamlname=args.main_yamlname
-    config = utilities.init_logging(subdir=None, config_file=main_yamlname)
+    print(args)
+    config_file=args.da_config_file
+    #=os.path.join(os.path.dirname(__file__), './config', 'main.yml')
+    config = utilities.init_logging(subdir=None, config_file=config_file)
+    print(f'config={config}')
 
     # Basic checks
-    if args.config_name is None:
-        config_name =os.path.join(os.path.dirname(__file__), './secrets', 'url_framework.yml')
-    else:
-        config_name = args.config_name
-
-#    if (args.instance_name is None) and (args.input_url is None):
-#        utilities.log.error('Instance name is missing but is mandatory for YAML-based url builds')
-#        sys.exit(1)
-
-    hurricane_source=args.hurricane_source
-    hurricane_year=args.hurricane_year
+    #if args.config_file is None:
+        #config_file =os.path.join(os.path.dirname(__file__), './secrets', 'url_framework.yml')
+    #else:
+        #config_file = args.config_file
+    #map_file=os.path.join(os.path.dirname(__file__), './supporting_data', 'grid_to_stationfile_maps.yml')
+    map_file=config['mapfile']
+    Ndays=int(-config['max_lookback_days'])
+    #print(f'mapfile={map_file}')
+    #print(f'Ndays={Ndays}')
+    rootdir=config['rundir'] 
 
     fort63_style=args.fort63_style
 
     # Set up IO env
-    utilities.log.info("Product Level Working in {}.".format(os.getcwd()))
+    #utilities.log.info("Product Level Working in {}.".format(os.getcwd()))
 
     # Set up the times information No need to worry about values for hh:mm:ssZ Subsequent resampling cleans that up
 
-    if args.timeout is None: # Set to a default of now()
-        tnow = dt.datetime.now()
-        stoptime = tnow.strftime('%Y-%m-%d %H:%M:%S')
-    else:
-        stoptime=args.timeout
+#    if args.timeout is None: # Set to a default of now()
+#        tnow = dt.datetime.now()
+#        stoptime = tnow.strftime('%Y-%m-%d %H:%M:%S')
+#    else:
+#        stoptime=args.timeout
+    tnow = dt.datetime.now()
+    stoptime = tnow.strftime('%Y-%m-%d %H:%M:%S')
 
     #dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+dt.timedelta(days=args.ndays)
     total_hours = 0 if args.ndays==0 else abs(args.ndays*24) - 1 # Ensures the final list length INCLUDES the now time as a member and is a multiple of 24 hours
 
+    #print(f'args.input_url={args.input_url}')
     if args.input_url is None:
         dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+np.sign(args.ndays)*dt.timedelta(hours=total_hours) # Should support lookback AND look forward
         starttime = dt_starttime.strftime('%Y-%m-%d %H:%M:%S')
         print('Total_hours, Starttime, Stoptime and ndays {}, {}. {}'.format(total_hours, starttime, stoptime,args.ndays))
 
 ##
-## fetch the asgs/adcirc station data
+## fetch the adcirc station data
 ##
-    #map_file=os.path.join(os.path.dirname(__file__), './supporting_data', 'grid_to_stationfile_maps.yml')
+
     #Note specifying the map_file REQUIRES the listed file to have a fullpathname
     station_file, fort63_compliant = grid_to_station_maps.find_station_list_from_map(gridname=args.gridname, mapfile=args.map_file, datatype='NOAA_STATIONS')
     file_land_controls = grid_to_station_maps.find_land_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)   # ,mapfile=map_file)
     file_water_controls = grid_to_station_maps.find_water_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)
-
-    # Specify file containing the list of stations
-    if fort63_style:
-        if not fort63_compliant:
-            utilities.log.error('Selected grid list is not fort63 compliant')
-            sys.exit(1)
-
-    # Generate a list of URLs consistent with the desired criteria
-#    print('Demonstrate URL generation spanning multiple instance values (hsofs). YAML, timeout, offset')
-
-    #hurricane_source=None
-    #hurricane_year=None
-#    if args.input_url is None:
-#        rpl = genurls.generate_urls_from_times(timeout=stoptime, ndays=args.ndays, grid_name=args.gridname, instance_name=args.instance_name, config_name=config_name, hurricane_yaml_year=hurricane_year,hurricane_yaml_source=hurricane_source)
-#        urls = rpl.build_url_list_from_yaml_and_offset(ensemble=args.ensemble)
-#    else:
-#        print('Generate from URL and times ')
-#        rpl = genurls.generate_urls_from_times(url=args.input_url,ndays=args.ndays)
-#        urls = rpl.build_url_list_from_template_url_and_offset(ensemble=args.ensemble)
-#        #urls = rpl.build_url_list_from_alternate_template_url_and_offset(ensemble=args.ensemble)
+    #print(f'station_file={station_file}')
 
     # assume "input_url" is a file of urls.
     with open(args.input_url) as f:
@@ -114,7 +94,6 @@ def main(args):
     print(urls)
     utilities.log.info(f'Number of URLs is {len(urls)}') 
 
-    print(station_file)
     rpl = get_adcirc_stations.get_adcirc_stations(source='TDS', product=args.data_product,
                 station_list_file=station_file, 
                 knockout_dict=None, fort63_style=fort63_style )
@@ -125,6 +104,8 @@ def main(args):
     #else:
     #    urls=get_adcirc_stations.convert_urls_to_61style(urls)
     #utilities.log.info(f'Set of URLs to process {urls}')
+
+    #print(f'fort63_style={fort63_style}')
 
     # Fetch best resolution and no resampling
     data_adc,meta_adc=rpl.fetch_station_product(urls, return_sample_min=args.return_sample_min, fort63_style=fort63_style  )
@@ -156,14 +137,10 @@ def main(args):
 
     # Currently being used: Derived from ndays and timeout specification
     # If a special case input_url, need to grab times form the input url incase it was a hurricane
-    if args.input_url is None:
-        obs_starttime=starttime
-        obs_endtime=stoptime
+#    if args.input_url is None:
+#        obs_starttime=starttime
+#        obs_endtime=stoptime
 
-    #
-    # This is a little tricky. If you select 0 for ndays, starttime ad stoptime are equil. which will result in no OBS data coming back
-    # If you simply grab the times from the aggregate URL ADC data, then the subsequent period-grouping may get a little off. Thus the following
-    # complicated looking code
     #
 
     # If equal fetch the min/max values of the adcirc data.
@@ -177,18 +154,22 @@ def main(args):
     print(f'Time ranges {obs_starttime} and {obs_endtime}')
 
     # Cnstruct iometadata to update all filename - want diff format
-    io_start = dt.datetime.strftime( min(data_adc.index.tolist()), '%Y%m%d%H%M')
-    io_end = dt.datetime.strftime( max(data_adc.index.tolist()), '%Y%m%d%H%M')
-    iometadata = io_start+'_'+io_end 
+    #io_start = dt.datetime.strftime( min(data_adc.index.tolist()), '%Y%m%d%H%M')
+    #io_end = dt.datetime.strftime( max(data_adc.index.tolist()), '%Y%m%d%H%M')
+    #iometadata = io_start+'_'+io_end 
 
-    if args.use_iometadata:
-        rootdir=io_utilities.construct_base_rootdir(config['DEFAULT']['RDIR'], base_dir_extra='ADDA'+'_'+iometadata)
-    else:
-        rootdir=io_utilities.construct_base_rootdir(config['DEFAULT']['RDIR'], base_dir_extra='')
-        iometadata='' 
-    
+#    if args.use_iometadata:
+#        rootdir=io_utilities.construct_base_rootdir(config['DEFAULT']['RDIR'], base_dir_extra='ADDA'+'_'+iometadata)
+#    else:
+#        rootdir=io_utilities.construct_base_rootdir(config['DEFAULT']['RDIR'], base_dir_extra='')
+#        iometadata='' 
+    iometadata='' 
+
     # Write the data to disk
     iosubdir='adcpkl'
+    if not os.path.exists(rootdir):
+        os.makedirs(rootdir)
+
     # Write selected in Pickle data 
     metapkl = io_utilities.write_pickle(meta_adc,rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_metadata',iometadata=iometadata)
     detailedpkl = io_utilities.write_pickle(data_adc, rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_detailed',iometadata=iometadata)
@@ -217,10 +198,6 @@ def main(args):
 ## set up and fetch the NOAA observations - using a time range specified by the available adcirc data set
 ##
 
-    # Could try to use contrails, too.
-    #contrails_stations=fname=os.path.join(os.path.dirname(__file__),'./supporting_data','contrails_stations_coastal.csv')
-    #contrails_stations=fname=os.path.join(os.path.dirname(__file__),'./supporting_data','contrails_stations_rivers.csv')
-
     obs = get_obs_stations.get_obs_stations(source='NOAAWEB', product='water_level',
                 contrails_yamlname='None',
                 knockout_dict=None, station_list_file=station_file)
@@ -245,11 +222,8 @@ def main(args):
     print('Finished OBS')
 
 ##
-## Perform the error computations
+## compute errors
 ##
-
-    #bound_lo='2022-02-17 06:00:00'
-    #bound_hi='2022-02-19 00:00:00'
     comp_err = compute_error_field.compute_error_field(data_obs_smoothed, data_adc, meta_obs, n_pad=1) # All default params
     comp_err._intersection_stations()
     comp_err._intersection_times()
@@ -260,9 +234,6 @@ def main(args):
 
     # Set up IO env
     utilities.log.info("Product Level Working in {}.".format(os.getcwd()))
-    ##main_yamlname=os.path.join(os.path.dirname(__file__), './config', 'main.yml')
-    ##config = utilities.load_config(main_yamlname)
-    #rootdir=utilities.fetchBasedir(config['DEFAULT']['RDIR'], basedirExtra='ADDA'+iometadata)
 
     iosubdir='errorfield'
 
@@ -369,38 +340,27 @@ def main(args):
     #df_water_controls.to_csv('/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/df_water_controls.csv')
     #ADCJson = io_utilities.write_dict_to_json(adc_plot_grid, rootdir='/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2',subdir='test_data',fileroot='adc_plot_grid',iometadata='')
 
-
 # We need to support both specifying URLs by explicit urls and by specifying time ranges.
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
-    parser.add_argument('--sources', action='store_true',
-                        help='List currently supported data sources')
-    parser.add_argument('--main_yamlname', action='store',dest='main_yamlname', default=None,
-                        help='str: Select appropriate main_yamlname')
     parser.add_argument('--data_product', action='store', dest='data_product', default='water_level', type=str,
                         help='choose supported data product eg water_level')
     parser.add_argument('--return_sample_min', action='store', dest='return_sample_min', default=60, type=int,
                         help='return_sample_min is the time stepping in the final data objects. (mins)')
     parser.add_argument('--ndays', default=-2, action='store', dest='ndays',help='Day lag (usually < 0)', type=int)
-    parser.add_argument('--timeout', default=None, action='store', dest='timeout', help='YYYY-mm-dd HH:MM:SS. Latest day of analysis def to now()', type=str)
-    parser.add_argument('--config_name', action='store', dest='config_name', default=None,
-                        help='String: yml config which contains URL structural information')
-#    parser.add_argument('--instance_name', action='store', dest='instance_name', default=None,
-#                        help='String: instance name')
-    parser.add_argument('--fort63_style', action='store_true',
+    #parser.add_argument('--timeout', default=None, action='store', dest='timeout', help='YYYY-mm-dd HH:MM:SS. Latest day of analysis def to now()', type=str)
+    parser.add_argument('--da_config_file', action='store', dest='da_config_file', default=None,
+                        help='String: yml config for DA info')
+    parser.add_argument('--fort63_style', action='store_true',default=True, 
                         help='Boolean: Will inform Harvester to use fort.63.methods to get station nodesids')
-    parser.add_argument('--hurricane_source', action='store',dest='hurricane_source', default=None,
-                        help='str: Only needed for Hurricanes AND if using YAML to specify urls')
-    parser.add_argument('--hurricane_year', action='store',dest='hurricane_year', default=None,
-                        help='str: Only needed for Hurricanes AND if using YAML to specify urls')
     parser.add_argument('--gridname', action='store',dest='gridname', default='hsofs',
                         help='str: Select appropriate gridname Default is hsofs')
-    parser.add_argument('--ensemble', action='store',dest='ensemble', default='nowcast',
-                        help='str: Select appropriate ensemble Default is nowcast')
+#    parser.add_argument('--ensemble', action='store',dest='ensemble', default='nowcast',
+#                        help='str: Select appropriate ensemble Default is nowcast')
     parser.add_argument('--map_file', action='store',dest='map_file', default=None,
-                        help='str: Select appropriate map_file ym; for grid lookup')
+                        help='str: Select appropriate map_file yml; for grid lookup')
     parser.add_argument('--cv_testing', action='store_true', dest='cv_testing', default=False,
                         help='Boolean: Invoke a CV procedure for post model CV testing')
     parser.add_argument('--use_iometadata', action='store_true', dest='use_iometadata', default=False,

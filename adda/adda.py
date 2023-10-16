@@ -21,14 +21,6 @@ from argparse import ArgumentParser
 
 import joblib
 
-# TODO validate when ndays > 0 especially the total_hours value
-
-##
-## Run the canonical ADDA approach
-##
-
-# user must coordinate the proper AST data_source (NOAA< NDBC, etc) to the chosen station list
- 
 def main(args):
     """
     A simple main method to demonstrate the use of this code
@@ -55,6 +47,7 @@ def main(args):
     rootdir=config['rundir'] 
 
     fort63_style=args.fort63_style
+    fw_arch_dir=args.fw_arch_dir
 
     # Set up IO env
     #utilities.log.info("Product Level Working in {}.".format(os.getcwd()))
@@ -74,9 +67,19 @@ def main(args):
 
     #print(f'args.input_url={args.input_url}')
     if args.input_url is None:
-        dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+np.sign(args.ndays)*dt.timedelta(hours=total_hours) # Should support lookback AND look forward
-        starttime = dt_starttime.strftime('%Y-%m-%d %H:%M:%S')
-        print('Total_hours, Starttime, Stoptime and ndays {}, {}. {}'.format(total_hours, starttime, stoptime,args.ndays))
+        # generate list of urls
+        
+        #dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+np.sign(args.ndays)*dt.timedelta(hours=total_hours) # Should support lookback AND look forward
+        #starttime = dt_starttime.strftime('%Y-%m-%d %H:%M:%S')
+        #print('Total_hours, Starttime, Stoptime and ndays {}, {}. {}'.format(total_hours, starttime, stoptime,args.ndays))
+    else:
+
+        # assume "input_url" is a file of urls.
+        with open(args.input_url) as f:
+            urls = f.read().splitlines()
+
+    print(urls)
+    utilities.log.info(f'Number of URLs is {len(urls)}') 
 
 ##
 ## fetch the adcirc station data
@@ -87,12 +90,6 @@ def main(args):
     file_land_controls = grid_to_station_maps.find_land_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)   # ,mapfile=map_file)
     file_water_controls = grid_to_station_maps.find_water_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)
     #print(f'station_file={station_file}')
-
-    # assume "input_url" is a file of urls.
-    with open(args.input_url) as f:
-        urls = f.read().splitlines()
-    print(urls)
-    utilities.log.info(f'Number of URLs is {len(urls)}') 
 
     rpl = get_adcirc_stations.get_adcirc_stations(source='TDS', product=args.data_product,
                 station_list_file=station_file, 
@@ -367,5 +364,7 @@ if __name__ == '__main__':
                         help='Boolean: Include the iometadata time range to all output files and dirs')
     parser.add_argument('--input_url', action='store', dest='input_url', default=None, type=str,
                         help='TDS url to fetch ADCIRC data')
+    parser.add_argument('--fw_arch_dir', action='store', dest='fw_arch_dir', default="./", type=str,
+                        help='Location of FloodWater archive dir for the suite.')
     args = parser.parse_args()
     sys.exit(main(args))

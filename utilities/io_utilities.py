@@ -77,7 +77,7 @@ def write_pickle(df, rootdir=None,subdir=None,fileroot=None,iometadata='')->str:
     try:
         newfilename = get_full_filename_with_subdirectory_prepended(rootdir, subdir, fileroot+'.pkl')
         df.to_pickle(newfilename)
-        print('Wrote PICKLE file {}'.format(newfilename))
+        #print('Wrote PICKLE file {}'.format(newfilename))
     except OSError:
         raise OSError("Failed to write PKL file %s" % (newfilename))
     return newfilename
@@ -100,13 +100,13 @@ def write_csv(df, rootdir=None,subdir=None,fileroot=None,iometadata='')->str:
     try:
         newfilename = get_full_filename_with_subdirectory_prepended(rootdir, subdir, fileroot+'.csv')
         df.to_csv(newfilename)
-        print('Wrote CSV file {}'.format(newfilename))
+        #print('Wrote CSV file {}'.format(newfilename))
     except OSError:
         raise OSError("Failed to write CSV file %s" % (newfilename))
     return newfilename
 
 
-def write_json(df, rootdir=None,subdir=None,fileroot=None,iometadata=None)->str:
+def write_json(df, rootdir=None,subdir=None,fileroot=None,iometadata='')->str:
     """ 
     Write the indicated dataframe to the file
     rootdir/subdir/fileroot+iometadata.json
@@ -124,13 +124,13 @@ def write_json(df, rootdir=None,subdir=None,fileroot=None,iometadata=None)->str:
     try:
         newfilename = get_full_filename_with_subdirectory_prepended(rootdir, subdir, fileroot+'.json')
         df.to_json(newfilename)
-        print('Wrote JSON file {}'.format(newfilename))
+        #print('Wrote JSON file {}'.format(newfilename))
     except OSError:
         raise OSError("Failed to write JSON file %s" % (newfilename))
     return newfilename
 
 
-def write_dict_to_json(dictdata, rootdir=None,subdir=None,fileroot=None,iometadata=None)->str:
+def write_dict_to_json(dictdata, rootdir=None,subdir=None,fileroot=None,iometadata='')->str:
     """ 
     Write the indicated dataframe to the file
     rootdir/subdir/fileroot+iometadata.json
@@ -151,7 +151,7 @@ def write_dict_to_json(dictdata, rootdir=None,subdir=None,fileroot=None,iometada
         newfilename = get_full_filename_with_subdirectory_prepended(rootdir, subdir, fileroot+'.json')
         with open(newfilename, 'w') as fp:
             json.dump(dictdata, fp)
-        print('Wrote dictdata to JSON file {}'.format(newfilename))
+        #print('Wrote dictdata to JSON file {}'.format(newfilename))
     except OSError:
         raise OSError("Failed to write dictdata to JSON file %s" % (newfilename))
     return newfilename
@@ -176,7 +176,7 @@ def write_json_file(data, filepath):
 
 # Special case output that is often used in our EDS context
 
-def write_ADCIRC_formatted_gridfield_to_Disk(df, value_name='VAL',rootdir=None,subdir=None,fileroot=None,iometadata=None)->str:
+def write_ADCIRC_formatted_gridfield_to_Disk(df, value_name='VAL',rootdir=None,subdir=None,fileroot=None,iometadata='')->str:
     """
     Write that generally is an adcirc irregular grid with values. Generally, this might be an extrapolated offset field.
     The output file is suitable for reading by ADCIRC.
@@ -201,5 +201,5 @@ def write_ADCIRC_formatted_gridfield_to_Disk(df, value_name='VAL',rootdir=None,s
         d.append(nd+','+nv)
     with open(newfilename, mode='wt', encoding='utf-8') as myfile:
         myfile.write('\n'.join(d))
-    print('Wrote current extrapolated ADCIRC grid to disk')
+    #print('Wrote current extrapolated ADCIRC grid to disk')
     return newfilename

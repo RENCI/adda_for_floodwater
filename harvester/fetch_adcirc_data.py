@@ -289,6 +289,7 @@ def strip_instance_from_url(urls)->str:
         Instance: <str>
     """
     url = grab_first_url_from_urllist(urls)
+
     try:
         words = url.split('/')
         instance=words[-3] 

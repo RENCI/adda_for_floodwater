@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 #
 import os,sys
+import glob
 import numpy as np
 import pandas as pd
 import datetime as dt
 print('\n'.join(sys.path))
 
 import harvester.fetch_adcirc_data as fetch_adcirc_data
-import harvester.generate_urls_from_times as genurls # generate_urls_from_times
 import harvester.get_adcirc_stations as get_adcirc_stations
 import harvester.get_observations_stations as get_obs_stations
 import processing.compute_error_field as compute_error_field
@@ -23,28 +23,22 @@ import joblib
 
 def main(args):
     """
-    A simple main method to demonstrate the use of this code
-    It assumes the existance of a proper main.yml to get IO information
-    It assumes the existance of a proper url_framework.yml which (optionally) can be used to create URLs
-    It assumes the existance of a proper local_instance.yml which (optionally_) may be used to read customized annual Instance values
     """
-    print(args)
+
     config_file=args.da_config_file
-    #=os.path.join(os.path.dirname(__file__), './config', 'main.yml')
     config = utilities.init_logging(subdir=None, config_file=config_file)
     print(f'config={config}')
-
-    # Basic checks
-    #if args.config_file is None:
-        #config_file =os.path.join(os.path.dirname(__file__), './secrets', 'url_framework.yml')
-    #else:
-        #config_file = args.config_file
-    #map_file=os.path.join(os.path.dirname(__file__), './supporting_data', 'grid_to_stationfile_maps.yml')
     map_file=config['mapfile']
     Ndays=int(-config['max_lookback_days'])
-    #print(f'mapfile={map_file}')
-    #print(f'Ndays={Ndays}')
     rootdir=config['rundir'] 
+
+    # Basic checks
+    if args.gridname is None:
+        utilities.log.error('Input gridname cannot be None')
+        sys.exit(1)
+    if args.fw_arch_dir is None:
+        utilities.log.error('Floodwater Arch Dir cannot be None, empty, or "./".')
+        sys.exit(1)
 
     fort63_style=args.fort63_style
     fw_arch_dir=args.fw_arch_dir
@@ -65,24 +59,28 @@ def main(args):
     #dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+dt.timedelta(days=args.ndays)
     total_hours = 0 if args.ndays==0 else abs(args.ndays*24) - 1 # Ensures the final list length INCLUDES the now time as a member and is a multiple of 24 hours
 
-    #print(f'args.input_url={args.input_url}')
     if args.input_url is None:
         # generate list of urls
-        
+        utilities.log.info('Generating list of urls based on fw_arch_dir')
+        utilities.log.info(f'fw_arch_dir={fw_arch_dir}')
+        temp=fw_arch_dir+"/archive/"
+        n=2*4+1
+        urls=glob.glob(temp + "/*/*/adcirc/analysis/fort.63.nc", recursive = True)
+        urls=urls[-(n+1):-1]
         #dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+np.sign(args.ndays)*dt.timedelta(hours=total_hours) # Should support lookback AND look forward
         #starttime = dt_starttime.strftime('%Y-%m-%d %H:%M:%S')
         #print('Total_hours, Starttime, Stoptime and ndays {}, {}. {}'.format(total_hours, starttime, stoptime,args.ndays))
     else:
-
         # assume "input_url" is a file of urls.
+        if not os.path.exists(args.input_url):
+            utilities.log.error(f'Input_url file {args.input_url} not found.') 
+            sys.exit(1)
         with open(args.input_url) as f:
             urls = f.read().splitlines()
 
-    print(urls)
-    utilities.log.info(f'Number of URLs is {len(urls)}') 
-
+    utilities.log.info(f'URL list is {urls}') 
 ##
-## fetch the adcirc station data
+## get the adcirc station data
 ##
 
     #Note specifying the map_file REQUIRES the listed file to have a fullpathname
@@ -104,7 +102,8 @@ def main(args):
 
     #print(f'fort63_style={fort63_style}')
 
-    # Fetch best resolution and no resampling
+    # Fetch best resolution and no resamplingA
+
     data_adc,meta_adc=rpl.fetch_station_product(urls, return_sample_min=args.return_sample_min, fort63_style=fort63_style  )
 
     # Revert Harvester filling of nans to -99999 back to nans
@@ -120,8 +119,8 @@ def main(args):
     #lats = adc_coords['LAT']
     #adc_coords = {'lon':lons, 'lat':lats} # This created for backward compatibility
 
-    print(f'Grid name {rpl.gridname}')
-    print(f'Instance name {rpl.instance}')
+    #print(f'Grid name {rpl.gridname}')
+    #print(f'Instance name {rpl.instance}')
 
     # Get a last piece of metadata for first url in iterable grabs either the time (%Y%m%s%H) or hurricane advisory (int)
     # Grab the adcirc time ranges for calling the observations code
@@ -168,8 +167,8 @@ def main(args):
         os.makedirs(rootdir)
 
     # Write selected in Pickle data 
-    metapkl = io_utilities.write_pickle(meta_adc,rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_metadata',iometadata=iometadata)
-    detailedpkl = io_utilities.write_pickle(data_adc, rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_detailed',iometadata=iometadata)
+    metapkl = io_utilities.write_pickle(meta_adc,rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_metadata')
+    detailedpkl = io_utilities.write_pickle(data_adc, rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_detailed')
 
     # Grab the adcirc time ranges for calling the observations code
     ##obs_starttime = dt.datetime.strftime( min(data_adc.index.tolist()), '%Y-%m-%d %H:%M:%S')
@@ -179,14 +178,14 @@ def main(args):
     #data_adc.index = data_adc.index.strftime('%Y-%m-%d %H:%M:%S')
     data_adc_4json = data_adc.copy()
     data_adc_4json.index = data_adc_4json.index.strftime('%Y-%m-%d %H:%M:%S')
-    metajson = io_utilities.write_json(meta_adc,rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_metadata',iometadata=iometadata)
-    detailedjson = io_utilities.write_json(data_adc_4json, rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_detailed',iometadata=iometadata)
+    metajson = io_utilities.write_json(meta_adc,rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_metadata')
+    detailedjson = io_utilities.write_json(data_adc_4json, rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_detailed')
    
-    print('Write out coordinates')
+    #print('Write out coordinates')
     #ADCfilecoords=utilities.write_csv(df_adc_coords, rootdir=rootdir,subdir=iosubdir,fileroot='adc_coord',iometadata=iometadata)
     #utilities.log.info('Wrote grid coords to {}'.format(ADCfilecoords))
-    print('Write out coordinates dict in JSON format')
-    ADCfilecoordsJson = io_utilities.write_dict_to_json(adc_coords, rootdir=rootdir,subdir=iosubdir,fileroot='adc_coord',iometadata=iometadata)
+    #print('Write out coordinates dict in JSON format')
+    ADCfilecoordsJson = io_utilities.write_dict_to_json(adc_coords, rootdir=rootdir,subdir=iosubdir,fileroot='adc_coord')
     #ADCfilecoordsJson = rootdir+'/adc_coord'+iometadata+'.json'
     io_utilities.write_json_file(adc_coords, ADCfilecoordsJson)
     utilities.log.info('Wrote grid coords to {}'.format(ADCfilecoordsJson))
@@ -213,9 +212,9 @@ def main(args):
     # Write the data to disk in a way that mimics ADDA
     iosubdir='obspkl'
     # Write selected in Pickle data 
-    metapkl = io_utilities.write_pickle(meta_thresholded,rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_metadata',iometadata=iometadata)
-    detailedpkl = io_utilities.write_pickle(data_thresholded, rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_detailed',iometadata=iometadata)
-    smoothpkl = io_utilities.write_pickle(data_obs_smoothed, rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_smoothed',iometadata=iometadata)
+    metapkl = io_utilities.write_pickle(meta_thresholded,rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_metadata')
+    detailedpkl = io_utilities.write_pickle(data_thresholded, rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_detailed')
+    smoothpkl = io_utilities.write_pickle(data_obs_smoothed, rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_smoothed')
     print('Finished OBS')
 
 ##
@@ -225,7 +224,7 @@ def main(args):
     comp_err._intersection_stations()
     comp_err._intersection_times()
     comp_err._tidal_transform_data()
-    print(f'COMPERR input times {obs_starttime} and {obs_endtime}')
+    #print(f'COMPERR input times {obs_starttime} and {obs_endtime}')
     comp_err._apply_time_bounds((obs_starttime,obs_endtime)) # redundant but here for illustration
     comp_err._compute_and_average_errors()
 
@@ -234,21 +233,20 @@ def main(args):
 
     iosubdir='errorfield'
 
-    # Write selected Pickle data 
-    tideTimeErrors = io_utilities.write_pickle(comp_err.diff,rootdir=rootdir,subdir=iosubdir,fileroot='tideTimeErrors',iometadata=iometadata)
+    # Write Pickle files 
+    tideTimeErrors = io_utilities.write_pickle(comp_err.diff,rootdir=rootdir,subdir=iosubdir,fileroot='tideTimeErrors')
     utilities.log.info('Wrote out Pickle {}'.format(tideTimeErrors))
 
     # Write selected in JSON format. Basically the Merged_dict data multi-index set
     data_dict = compute_error_field.combine_data_to_dict(comp_err.adc,comp_err.obs,comp_err.diff, product='WL')
-    dict_json = io_utilities.write_dict_to_json(data_dict, rootdir=rootdir,subdir=iosubdir,fileroot='adc_obs_error_merged',iometadata=iometadata)
+    dict_json = io_utilities.write_dict_to_json(data_dict, rootdir=rootdir,subdir=iosubdir,fileroot='adc_obs_error_merged')
     utilities.log.info('Wrote out JSON {}'.format(dict_json))
 
     # Write the CSV files which carry averages
-    station_summary_aves=io_utilities.write_csv(comp_err.df_final, rootdir=rootdir,subdir=iosubdir,fileroot='stationSummaryAves',iometadata=iometadata)
-    station_period_aves=io_utilities.write_csv(comp_err.df_cycle_aves, rootdir=rootdir,subdir=iosubdir,fileroot='stationPeriodAves',iometadata=iometadata)
-    utilities.log.info('Wrote out CSV cyclic averages {}'.format(station_period_aves))
+    station_summary_aves=io_utilities.write_csv(comp_err.df_final, rootdir=rootdir,subdir=iosubdir,fileroot='stationSummaryAves')
+    station_period_aves=io_utilities.write_csv(comp_err.df_cycle_aves, rootdir=rootdir,subdir=iosubdir,fileroot='stationPeriodAves')
+    #utilities.log.info('Wrote out CSV cyclic averages {}'.format(station_period_aves))
     utilities.log.info('Wrote out CSV summary averages {}'.format(station_summary_aves))
-
 ##
 ## Perform the interpolation. Must use the LinearRBF approach
 ##
@@ -288,27 +286,28 @@ def main(args):
     df_extrapolated_ADCIRC_GRID = interpolate_scaled_offset_field.interpolation_model_transform(adc_coords, model=model, input_grid_type='points',pathpoly=pathpoly)
 
     # do A TEST FIT
-    if args.cv_testing:
-        print('TEST FIT')
-        full_scores, best_scores = interpolate_scaled_offset_field.test_interpolation_fit(df_source=df_stations, df_land_controls=df_land_controls.copy(), df_water_controls=df_water_controls, cv_splits=5, nearest_neighbors=3)
-        print('ADDA')
-        print(best_scores)
-        print(full_scores)
+#    if args.cv_testing:
+#        print('TEST FIT')
+#        full_scores, best_scores = interpolate_scaled_offset_field.test_interpolation_fit(df_source=df_stations, df_land_controls=df_land_controls.copy(), df_water_controls=df_water_controls, cv_splits=5, nearest_neighbors=3)
+#        print('ADDA')
+#        print(best_scores)
+#        print(full_scores)
+
 ##
 ## Write out datafiles 
 ##
-    gridfile = io_utilities.write_ADCIRC_formatted_gridfield_to_Disk(df_extrapolated_ADCIRC_GRID, value_name='VAL', rootdir=rootdir,subdir='interpolated',fileroot='ADCIRC_interpolated_wl',iometadata=iometadata)
+    gridfile = io_utilities.write_ADCIRC_formatted_gridfield_to_Disk(df_extrapolated_ADCIRC_GRID, value_name='VAL', rootdir=rootdir,subdir='interpolated',fileroot='ADCIRC_interpolated_wl')
     utilities.log.info('Wrote ADCIRC offset field to {}'.format(gridfile))
-    adcirc_extrapolated_pkl = io_utilities.write_pickle(df_extrapolated_ADCIRC_GRID, rootdir=rootdir,subdir=iosubdir,fileroot='interpolated_wl',iometadata=iometadata)
+    adcirc_extrapolated_pkl = io_utilities.write_pickle(df_extrapolated_ADCIRC_GRID, rootdir=rootdir,subdir=iosubdir,fileroot='interpolated_wl')
     utilities.log.info('Wrote ADCIRC offset field PKL {}'.format(adcirc_extrapolated_pkl))
-    print('Finished')
+    #print('Finished')
 
     # Test using the generic grid and plot to see the generated offset surface. Use the same model as previously generated
     adc_plot_grid = interpolate_scaled_offset_field.generic_grid()
     df_plot_transformed = interpolate_scaled_offset_field.interpolation_model_transform(adc_plot_grid, model=model, input_grid_type='grid',pathpoly=pathpoly) 
 
     # Write out the model for posterity
-    newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'interpolate_linear_model'+iometadata+'.h5')
+    newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'interpolate_linear_model.h5')
     try:
         joblib.dump(model, newfilename)
         status = True
@@ -317,27 +316,12 @@ def main(args):
         utilities.log.error('Could not dump model file to disk '+ newfilename)
 
 ##
-## Optional. Apply the model to a 400x500 grid and plot, the extrapolated surface, stations, clamps
+## Apply the model to a 400x500 grid and plot the surface, stations, clamps
 ##
-
-# Choose to plot or save the plot file ?
-
     iosubdir='images'
-    newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'extrapolated_surface_plot'+iometadata+'.png')
+    newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'extrapolated_surface_plot.png')
     adda_visualization_plots.save_plot_model( adc_plot_grid=adc_plot_grid, df_surface=df_plot_transformed, df_stations=df_stations, df_land_control=df_land_controls, df_water_control=df_water_controls, filename=newfilename, plot_now=False)
     utilities.log.info('Saved IMAGE file to {}'.format(newfilename))
-
-##
-## Dump temp files for use in testing
-##
-    
-    # Write out temp files for testing visualization
-    #df_plot_transformed.to_csv('/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/df_surface.csv')
-    #df_and_controls.to_csv('/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/df_land_controls.csv')
-    #df_water_controls.to_csv('/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/df_water_controls.csv')
-    #ADCJson = io_utilities.write_dict_to_json(adc_plot_grid, rootdir='/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2',subdir='test_data',fileroot='adc_plot_grid',iometadata='')
-
-# We need to support both specifying URLs by explicit urls and by specifying time ranges.
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -352,19 +336,17 @@ if __name__ == '__main__':
                         help='String: yml config for DA info')
     parser.add_argument('--fort63_style', action='store_true',default=True, 
                         help='Boolean: Will inform Harvester to use fort.63.methods to get station nodesids')
-    parser.add_argument('--gridname', action='store',dest='gridname', default='hsofs',
+    parser.add_argument('--gridname', action='store',dest='gridname', default=None,
                         help='str: Select appropriate gridname Default is hsofs')
-#    parser.add_argument('--ensemble', action='store',dest='ensemble', default='nowcast',
-#                        help='str: Select appropriate ensemble Default is nowcast')
     parser.add_argument('--map_file', action='store',dest='map_file', default=None,
                         help='str: Select appropriate map_file yml; for grid lookup')
     parser.add_argument('--cv_testing', action='store_true', dest='cv_testing', default=False,
                         help='Boolean: Invoke a CV procedure for post model CV testing')
-    parser.add_argument('--use_iometadata', action='store_true', dest='use_iometadata', default=False,
-                        help='Boolean: Include the iometadata time range to all output files and dirs')
+    #parser.add_argument('--use_iometadata', action='store_true', dest='use_iometadata', default=False,
+                        #help='Boolean: Include the iometadata time range to all output files and dirs')
     parser.add_argument('--input_url', action='store', dest='input_url', default=None, type=str,
                         help='TDS url to fetch ADCIRC data')
-    parser.add_argument('--fw_arch_dir', action='store', dest='fw_arch_dir', default="./", type=str,
+    parser.add_argument('--fw_arch_dir', action='store', dest='fw_arch_dir', default=None, type=str,
                         help='Location of FloodWater archive dir for the suite.')
     args = parser.parse_args()
     sys.exit(main(args))

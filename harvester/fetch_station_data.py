@@ -304,7 +304,7 @@ class fetch_station_data(object):
                 dx = self.fetch_single_metadata(station)
                 aggregateMetaData.append(dx)
                 #tm.sleep(2) # sleep 2 secs
-                utilities.log.info('Iterate: Kept station is {}'.format(station))
+                utilities.log.debug('Iterate: Kept station is {}'.format(station))
             except Exception as ex:
                 excludedStations.append(station)
                 message = template.format(type(ex).__name__, ex.args)
@@ -312,7 +312,7 @@ class fetch_station_data(object):
         if len(aggregateMetaData)==0:
             utilities.log.warn('Metadata: No site data was found for the given site_id list. Perhaps the server is down Exit')
             #sys.exit(1) # Process remaining list
-        utilities.log.info(f'{len(excludedStations)} Metadata Stations were excluded')
+        utilities.log.info(f'{len(excludedStations)} stations were excluded')
         df_meta = pd.concat(aggregateMetaData, axis=1).T
         #df_meta.dropna(how='all', axis=1, inplace=True)
         df_meta = replace_and_fill(df_meta)
@@ -402,6 +402,10 @@ class adcirc_fetch_data(fetch_station_data):
         Returns:
               Either NOWCAST or FORECAST
         """
+        # short-circuiting this entire code
+        return 'NOWCAST'
+        # short-circuiting this entire code
+
         timeseries = pd.to_datetime(df.index.astype(str)) # Account for ctime/calender changes in pandas. Thx !.
 
         #  Too short and it must be local
@@ -442,10 +446,10 @@ class adcirc_fetch_data(fetch_station_data):
                     return 'FORECAST'
             except IndexError:
                     utilities.log.info('Hurricane URL but could not determine CAST status')
-                    return 'NOCAST'
+                    return 'NOWCAST'
         except ValueError:
             utilities.log.warn(f'Hurricane advisory check failed: Must be local')
-            return 'NOCAST'
+            return 'NOWCAST'
         except Exception as e:
             utilities.log.error(f'Hurricane advisory check hard failed: Error: {e}')
             raise
@@ -489,13 +493,13 @@ class adcirc_fetch_data(fetch_station_data):
             utilities.log.info('ADCIRC: sitename not specified. Will result in poor metadata NAME value')
         self._sitename=sitename
         self._variable_name=variable_name
-        utilities.log.info('FS: Variable name is {}'.format(self._variable_name))
+        utilities.log.info('Variable name is {}'.format(self._variable_name))
 
         if fort63_style:
-            utilities.log.info('Fetch station ids using fort.63 style')
+            utilities.log.debug('Fetch station ids using fort.63 style')
             available_stations = self._fetch_adcirc_nodes_from_fort63_input_file(station_id_list)
         else:
-            utilities.log.info('Fetch station ids using fort.61 style')
+            utilities.log.debug('Fetch station ids using fort.61 style')
             available_stations = self._fetch_adcirc_nodes_from_fort61_input_file(station_id_list, periods)
         if available_stations==None:
             utilities.log.error('No valid fort file was found: Abort')
@@ -520,10 +524,10 @@ class adcirc_fetch_data(fetch_station_data):
 
         Returns: list of tuples (stationid,nodeid). Superfluous stationids are ignored
         """
-        utilities.log.info('Attempt to find ADCIRC fort_63 stations/Nodes')
+        utilities.log.debug('Attempt to find ADCIRC fort_63 stations/Nodes')
         try:
             idx=list()
-            utilities.log.info('Fetch stations fort63 style: {} ')
+            utilities.log.debug('Fetch stations fort63 style ...')
             station_df['NodeMinusOne']=station_df["Node"]-1 # decrease nodeid by one to mimic the fort.61 indexing in subsequent code
             station_ids = station_df["stationid"].tolist()
             node_idx = station_df["NodeMinusOne"].tolist()

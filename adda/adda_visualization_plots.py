@@ -45,7 +45,8 @@ def plot_model(adc_plot_grid=None, df_surface=None, df_stations=None, df_land_co
     Results:
         A plot in the USA East Coast region
     """
-    coastline=np.loadtxt('/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/coarse_us_coast.dat')
+    #coastline=np.loadtxt('/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/coarse_us_coast.dat')
+    coastline=np.loadtxt(os.path.join(os.path.dirname(__file__), "misc", "coarse_us_coast.dat"))
     #N=16
     #base_cmap='tab20c' # Or simply use None tab20c is also okay
     #cmap= plt.cm.get_cmap(base_cmap, N)
@@ -54,7 +55,7 @@ def plot_model(adc_plot_grid=None, df_surface=None, df_stations=None, df_land_co
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10,10), dpi=144) #, sharex=True)
     # Set up surface
     if df_surface is not None:
-        print('plot_model: Found a extrapolated surface data set')
+        #print('plot_model: Found a extrapolated surface data set')
         x = adc_plot_grid['LON']
         y = adc_plot_grid['LAT']
         v = df_surface['VAL'].values
@@ -62,7 +63,7 @@ def plot_model(adc_plot_grid=None, df_surface=None, df_stations=None, df_land_co
         mesh = ax.pcolormesh(x, y, v, shading='nearest', cmap=cmap, vmin=vmin, vmax=vmax)
     # Merge control points
     if df_stations is not None:
-        print('plot_model: Found a station data set')
+        #print('plot_model: Found a station data set')
         stations_X=df_stations['LON'].values
         stations_Y=df_stations['LAT'].values
         stations_V=df_stations['VAL'].values
@@ -70,7 +71,7 @@ def plot_model(adc_plot_grid=None, df_surface=None, df_stations=None, df_land_co
                    c=stations_V, cmap=cmap, edgecolor='black',
                    vmin=vmin, vmax=vmax)
     if df_land_control is not None:
-        print('plot_model: Found a land_control data set')
+        #print('plot_model: Found a land_control data set')
         land_X=df_land_control['LON'].values
         land_Y=df_land_control['LAT'].values
         land_V=df_land_control['VAL'].values
@@ -78,7 +79,7 @@ def plot_model(adc_plot_grid=None, df_surface=None, df_stations=None, df_land_co
                    c=land_V, cmap=cmap, edgecolor='black',
                    vmin=vmin, vmax=vmax)
     if df_water_control is not None:
-        print('plot_model: Found a water_control data set')
+        #print('plot_model: Found a water_control data set')
         water_X=df_water_control['LON'].values
         water_Y=df_water_control['LAT'].values
         water_V=df_water_control['VAL'].values
@@ -106,7 +107,8 @@ def main(args):
     f_water_control = '/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/df_water_controls.csv'
     f_surface = '/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/df_surface.csv'
     f_grid = '/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/adc_plot_grid.json'
-     
+    print("HERE HERE HERE HERE") 
+
     df_land_control=pd.read_csv(f_land_control,header=0,index_col=0)
     df_water_control=pd.read_csv(f_water_control,header=0, index_col=0)
     df_surface=pd.read_csv(f_surface,header=0, index_col=0)

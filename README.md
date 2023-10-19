@@ -3,7 +3,7 @@
 19 Oct 2023
 Blanton/RENCI
 
-ADDA generates smooth surfaces of an error field, computed between NOAA / NOS observations and corresponding ADCIRC output.  It does this by computing the average errors from time series of errors at each specified NOAA gague location and building a nearest-neighbor-based model to calculate the surface values at all ADCIRC grid nodes.  The surface is constrained by including offshore and land "control points".
+ADDA generates smooth surfaces of an error field, computed between NOAA / NOS observations and corresponding ADCIRC output.  It does this by computing the average errors from time series of errors at each specified NOAA gague location and building a nearest-neighbor-based model to calculate the surface values at all ADCIRC grid nodes.  The surface is constrained by including offshore and land "control points".  NOAA / NOS gauge observations are retrieved using the noaa-coops python package.  Surfaces are generated with the 
 
 Currently, ADDA requires a specific python environment, but will eventually be embedded in the "thirdparty" section of the Floodwater package.
 
@@ -11,6 +11,15 @@ Currently, ADDA requires a specific python environment, but will eventually be e
 
 - Clone this repo
 - Make a python virtual environment with the requirements.txt file, called adcirc_DA
+- Add ADDA paths to the virtual environment.  Either:
+  - Make a conda.pth in "envs/adcirc_DA/lib/python3.8/site-packages/" that contains:
+    - path_to/adda_for_floodwater
+    - path_to/adda_for_floodwater/adda
+- or:
+  - Add the PYTHONPATH variable to the conda env:
+    - Activate the adcirc_DA environment: <pre>conda activate adcirc_DA</pre>
+    - <pre>conda env config vars set PYTHONPATH=path_to/adda_for_floodwater:path_to/adda_for_floodwater/adda</pre>
+    
 
 #### Connecting to Floodwater
 

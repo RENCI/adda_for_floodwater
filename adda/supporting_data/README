@@ -1,3 +1,0 @@
-If the user decides to move "grid_to_stationfile_maps.yml" outside of ./supporting_data (the default) 
-then the files listed within the file MUST be full paths
-

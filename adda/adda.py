@@ -31,6 +31,7 @@ def main(args):
     map_file=config['mapfile']
     Ndays=int(-config['max_lookback_days'])
     rootdir=config['rundir'] 
+    dwlc_filename=config['dwlc_filename'] 
 
     # Basic checks
     if args.gridname is None:
@@ -296,7 +297,7 @@ def main(args):
 ##
 ## Write out datafiles 
 ##
-    gridfile = io_utilities.write_ADCIRC_formatted_gridfield_to_Disk(df_extrapolated_ADCIRC_GRID, value_name='VAL', rootdir=rootdir,subdir='interpolated',fileroot='ADCIRC_interpolated_wl')
+    gridfile = io_utilities.write_ADCIRC_formatted_gridfield_to_Disk(df_extrapolated_ADCIRC_GRID, value_name='VAL', rootdir='../',subdir='',filename=dwlc_filename)
     utilities.log.info('Wrote ADCIRC offset field to {}'.format(gridfile))
     adcirc_extrapolated_pkl = io_utilities.write_pickle(df_extrapolated_ADCIRC_GRID, rootdir=rootdir,subdir=iosubdir,fileroot='interpolated_wl')
     utilities.log.info('Wrote ADCIRC offset field PKL {}'.format(adcirc_extrapolated_pkl))
@@ -318,8 +319,8 @@ def main(args):
 ##
 ## Apply the model to a 400x500 grid and plot the surface, stations, clamps
 ##
-    iosubdir='images'
-    newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'extrapolated_surface_plot.png')
+    iosubdir=''
+    newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'surface.png')
     adda_visualization_plots.save_plot_model( adc_plot_grid=adc_plot_grid, df_surface=df_plot_transformed, df_stations=df_stations, df_land_control=df_land_controls, df_water_control=df_water_controls, filename=newfilename, plot_now=False)
     utilities.log.info('Saved IMAGE file to {}'.format(newfilename))
 

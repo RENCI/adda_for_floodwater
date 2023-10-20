@@ -176,7 +176,7 @@ def write_json_file(data, filepath):
 
 # Special case output that is often used in our EDS context
 
-def write_ADCIRC_formatted_gridfield_to_Disk(df, value_name='VAL',rootdir=None,subdir=None,fileroot=None,iometadata='')->str:
+def write_ADCIRC_formatted_gridfield_to_Disk(df, value_name='VAL',rootdir=None,subdir=None,filename=None,iometadata='')->str:
     """
     Write that generally is an adcirc irregular grid with values. Generally, this might be an extrapolated offset field.
     The output file is suitable for reading by ADCIRC.
@@ -187,8 +187,9 @@ def write_ADCIRC_formatted_gridfield_to_Disk(df, value_name='VAL',rootdir=None,s
     Results:
         df  saved to rootdir/interpolated/ADCIRC_interpolated_wl_metadata.csv
     """
-    fileroot = '_'.join([fileroot,iometadata]) if iometadata != '' else fileroot
-    newfilename = get_full_filename_with_subdirectory_prepended(rootdir, subdir, fileroot+'.csv')
+    #fileroot = '_'.join([fileroot,iometadata]) if iometadata != '' else fileroot
+    #newfilename = get_full_filename_with_subdirectory_prepended(rootdir, subdir, fileroot)
+    newfilename = filename
     df_adcirc = df[value_name].to_frame().astype(str)
     df_adcirc['node']=(df_adcirc.index+1).astype(str) # NODEID is index id +1
     d = []

@@ -1,11 +1,8 @@
 GRIDMAP: &gridmap
  HSOFS:
-    NOAA_STATIONS: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/CERA_NOAA_HSOFS_stations_V2.csv"
-    #CONTRAILS_RIVERS: "./AST_gridstations/interpolation_stationlist/supporting_data/contrails_stations_rivers.csv"
-    #CONTRAILS_COASTAL: "./AST_gridstations/interpolation_stationlist/supporting_data/contrails_stations_coastal.csv"
+    NOAA_STATIONS: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/HSOFS_stations_V2.csv"
     LANDCONTROL: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/hsofs_land_control_list.dat"
     WATERCONTROL: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/hsofs_water_control_list.dat"
-    #NDBC_BUOYS: "./AST_gridstations/interpolation_stationlist/supporting_data/ndbc_buoys.csv"
  EC95D:
     NOAA_STATIONS: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/ec95d_stations.V1.csv" 
     LANDCONTROL: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/ec95d_land_control_list.dat"

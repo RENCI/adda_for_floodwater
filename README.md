@@ -77,7 +77,7 @@ serial_nr,stationid,stationname,state,vertical_datum,NOAA lon,NOAA lat,navd_to_m
 </pre>
 - **WATERCONTROL** - csv file containing open-water lon/lat locations and surface values, same format as the LANDCONTROL file
 
-The ADDA repo and grid_to_stationfile_maps.yml contains files for the HSOFS and ec95d grids.  Users can add grids as needed, following the above formatting and information.
+The ADDA repo and grid_to_stationfile_maps.yml contain files for the HSOFS and ec95d grids.  Users can add grids as needed, following the above formatting and information. 
 <pre>
 GRIDMAP: &gridmap
  HSOFS:
@@ -89,7 +89,14 @@ GRIDMAP: &gridmap
     LANDCONTROL: "PATHTO/adda_for_floodwater/gridmap/ec95d_land_control_list.dat"
     WATERCONTROL: "PATHTO/adda_for_floodwater/gridmap/ec95d_water_control_list.dat"
 </pre>
-
+Gridnames must be in all-caps, and must match the grid name as defined in the grid's config json file, as in (e.g., PATHTO/ecflow_configs/ec95d/config.json) 
+<pre>
+{
+   "name": "ec95d",
+   "dt": 10,
+   ...
+   ...
+</pre>
   
 #### TODO:
 - mv gridmap files to main config dir

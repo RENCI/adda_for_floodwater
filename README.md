@@ -89,7 +89,7 @@ GRIDMAP: &gridmap
     LANDCONTROL: "PATHTO/adda_for_floodwater/gridmap/ec95d_land_control_list.dat"
     WATERCONTROL: "PATHTO/adda_for_floodwater/gridmap/ec95d_water_control_list.dat"
 </pre>
-Gridnames must be in all-caps, and must match the grid name as defined in the grid's config json file, as in (e.g., PATHTO/ecflow_configs/ec95d/config.json) 
+Gridnames in the grid_to_stationfile_maps.yml file must be in **ALL_CAPS**, and must match (modulo the case) the grid name as defined in the grid's config json file, as in (e.g., PATHTO/ecflow_configs/ec95d/config.json) 
 <pre>
 {
    "name": "ec95d",

@@ -117,7 +117,7 @@ def stations_resample(df, sample_mins=15)->pd.DataFrame:
         df_out. New time series every sample_mins x stations
     """
     if sample_mins==0:
-        utilities.log.info('resample freq set to 0. return all')
+        utilities.log.debug('resample freq set to 0. return all')
         return df
     timesample=f'{sample_mins}min'
     #utilities.log.info('Resampling freq set to {}'.format(timesample))
@@ -204,7 +204,7 @@ class fetch_station_data(object):
                 df_normal_smooth = dx.interpolate(method='time',limit=int_limit, limit_direction= 'both') 
             df_normal_smooth.index.name='TIME'
         except Exception as ex:
-            utilities.log.error(f'Error Value: Failed interpolation {ex}: Probable empty station data')
+            utilities.log.warn(f'Error Value: Failed interpolation {ex}: Probable empty station data')
             raise
         return df_normal_smooth
         #sys.exit(1)
@@ -234,7 +234,7 @@ class fetch_station_data(object):
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
 
         for station in self._stations:
-            utilities.log.info(station)    
+            #utilities.log.info(station)    
             try:
                 dx = self.fetch_single_product(station, self._periods)
                 try:
@@ -249,7 +249,7 @@ class fetch_station_data(object):
                         df_int = self.old_interpolate_and_resample(dx, sample_mins=self._resampling_mins)
                         aggregateData.append(df_int)
                 except Exception as e:
-                    utilities.log.error(f'Potentially Non Fatal Interpolation procedure status for station {station} {e}')
+                    utilities.log.warn(f'Potentially Non Fatal Interpolation procedure status for station {station} {e}')
                     pass
                 #tm.sleep(2) # sleep 2 secs
                 # On input dx==nan, the old method bombs preventing a nan form entering aggregateData
@@ -304,7 +304,7 @@ class fetch_station_data(object):
                 dx = self.fetch_single_metadata(station)
                 aggregateMetaData.append(dx)
                 #tm.sleep(2) # sleep 2 secs
-                utilities.log.debug('Iterate: Kept station is {}'.format(station))
+                #utilities.log.debug('Iterate: Kept station is {}'.format(station))
             except Exception as ex:
                 excludedStations.append(station)
                 message = template.format(type(ex).__name__, ex.args)
@@ -505,7 +505,7 @@ class adcirc_fetch_data(fetch_station_data):
             utilities.log.error('No valid fort file was found: Abort')
             sys.exit(1)
         self.available_stations_tuple=available_stations
-        utilities.log.info(f'List of ADCIRC generated stations {self.available_stations_tuple}')
+        utilities.log.info(f'List of ADCIRC stations {self.available_stations_tuple}')
         periods = self._remove_empty_url_pointers(periods)
         if not keep_earliest_url:
             remperiod,periods=periods[0],periods[1:]
@@ -520,7 +520,7 @@ class adcirc_fetch_data(fetch_station_data):
 
         Parameters:
             station_csv <str>. A list of station ids/Nodes in DataFrame format
-            periods <list>. The list of url-63 values. 
+            periods <list>. The list of url63 values. 
 
         Returns: list of tuples (stationid,nodeid). Superfluous stationids are ignored
         """
@@ -562,7 +562,6 @@ class adcirc_fetch_data(fetch_station_data):
                 snn = []
                 for i in range(len(sn)): # This gets the stationids IN THE FILE not necc what we requested.
                     ts = str(sn[i].strip().decode("utf-8"))
-                    #print(ts)
                     snn.append(str(ts.split(' ')[0])) # Strips off actual name leaving only the leading id
                 # Get intersection of input station ids and available ids
                 snn_pruned=[str(x) for x in stations if x in snn]
@@ -602,7 +601,7 @@ class adcirc_fetch_data(fetch_station_data):
             station_tuple (<str>,<int>). A tuple that maps stationid to the current ADCIRC-grid nodeid
             periods <list>. A url-61 values. 
 
-       Returns: dataframe of time (timestamps) vs values for the requested stationid
+        Returns: dataframe of time (timestamps) vs values for the requested stationid
         """
         # First up. Get the list of available station ids
 
@@ -615,7 +614,7 @@ class adcirc_fetch_data(fetch_station_data):
         try:
             WAITTIME=int(WAITTIME)
         except ValueError as e:
-            utilities.log.info(f' Fail to convert AST_IO_RETRY_PAUSE to seconds: Was {WAITTIME}. Will use default {e}')
+            utilities.log.info(f' Failed to convert AST_IO_RETRY_PAUSE to seconds: Was {WAITTIME}. Will use default {e}')
             WAITTIME=30
 
         for url in periods: # If a period is SHORT no data may be found which is acceptible 
@@ -1045,12 +1044,12 @@ class contrails_fetch_data(fetch_station_data):
         end_time=time_tuple[1]
         periods=list()
         dformat='%Y-%m-%d %H:%M:%S'
-        print(f'Parameters: start time {start_time}, end_time {end_time}')
+        #print(f'Parameters: start time {start_time}, end_time {end_time}')
     
         time_start = dt.datetime.strptime(start_time, dformat)
         time_end = dt.datetime.strptime(end_time, dformat)
         if time_start > time_end:
-            print('Swapping input times')
+            #print('Swapping input times')
             time_start, time_end = time_end, time_start
     
         today = dt.datetime.today()
@@ -1144,7 +1143,7 @@ class contrails_fetch_data(fetch_station_data):
         datalist=list()
         periods = self.return_list_of_daily_timeranges(time_range)
         for tstart,tend in periods:
-            utilities.log.info('Iterate: start time is {}, end time is {}, station is {}'.format(tstart,tend,station))
+            utilities.log.debug('Iterate: start time is {}, end time is {}, station is {}'.format(tstart,tend,station))
             indict = {'method': METHOD, 'class': self.CLASSDICT[self._product],
                  'system_key': self._systemkey ,'site_id': station,
                  'tz': GLOBAL_TIMEZONE,
@@ -1169,7 +1168,7 @@ class contrails_fetch_data(fetch_station_data):
             utilities.log.info('Contrails. Converting to meters')
             df_data = self.convert_to_metric(df_data)
         except Exception as e:
-            utilities.log.error('Contrails failed concat: error: {}'.format(e))
+            utilities.log.warn('Contrails failed concat: error: {}'.format(e))
             df_data=np.nan
         return df_data
 
@@ -1341,12 +1340,12 @@ class noaa_web_fetch_data(fetch_station_data):
         periods=list()
         dformat='%Y-%m-%d %H:%M:%S'
         doformat='%Y%m%d %H:%M'
-        print(f'Parameters: start time {start_time}, end_time {end_time}')
+        #print(f'Parameters: start time {start_time}, end_time {end_time}')
     
         time_start = dt.datetime.strptime(start_time, dformat)
         time_end = dt.datetime.strptime(end_time, dformat)
         if time_start > time_end:
-            print('Swapping input times')
+            #print('Swapping input times')
             time_start, time_end = time_end, time_start
     
         #What hours/min/secs are we starting on - compute proper interval shifting
@@ -1409,8 +1408,7 @@ class noaa_web_fetch_data(fetch_station_data):
         datalist=list()
         periods = self.return_list_of_daily_timeranges(time_range)
         for tstart,tend in periods:
-            print(f' {tstart}, {tend} {station}')
-            utilities.log.info('Iterate: start time is {}, end time is {}, station is {}'.format(tstart,tend,station))
+            utilities.log.debug('Iterate: start time is {}, end time is {}, station is {}'.format(tstart,tend,station))
             indict = {'product': self._product,
                  'station': station,
                  'datum':'MSL',
@@ -1435,7 +1433,7 @@ class noaa_web_fetch_data(fetch_station_data):
         try:
             df_data = pd.concat(datalist)
         except Exception as e:
-            utilities.log.error('noaa-web failed concat: error: {}'.format(e))
+            utilities.log.warn('noaa-web failed concat: error: {}'.format(e))
             df_data=np.nan
         return df_data
 

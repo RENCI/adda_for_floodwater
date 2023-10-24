@@ -176,7 +176,7 @@ def write_json_file(data, filepath):
 
 # Special case output that is often used in our EDS context
 
-def write_ADCIRC_formatted_gridfield_to_Disk(df, value_name='VAL',rootdir=None,subdir=None,filename=None,iometadata='')->str:
+def write_ADCIRC_formatted_gridfield_to_Disk(df, value_name='VAL',rootdir=None,subdir=None,filename=None,iometadata='',commentline='## comment')->str:
     """
     Write that generally is an adcirc irregular grid with values. Generally, this might be an extrapolated offset field.
     The output file is suitable for reading by ADCIRC.
@@ -196,6 +196,7 @@ def write_ADCIRC_formatted_gridfield_to_Disk(df, value_name='VAL',rootdir=None,s
     d.append('# Interpolated field')
     d.append('99999.9')
     d.append('0.0')
+    d.append(commentline)
     for index,row in df_adcirc.iterrows():
         nd = row['node']
         nv = row[value_name]

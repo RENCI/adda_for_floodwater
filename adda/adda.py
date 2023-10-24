@@ -5,7 +5,6 @@ import glob
 import numpy as np
 import pandas as pd
 import datetime as dt
-print('\n'.join(sys.path))
 
 import harvester.fetch_adcirc_data as fetch_adcirc_data
 import harvester.get_adcirc_stations as get_adcirc_stations
@@ -17,7 +16,6 @@ import adda_visualization_plots as adda_visualization_plots
 
 from utilities.utilities import utilities as utilities
 import utilities.io_utilities as io_utilities
-from argparse import ArgumentParser
 
 import joblib
 
@@ -27,7 +25,9 @@ def main(args):
 
     config_file=args.da_config_file
     config = utilities.init_logging(subdir=None, config_file=config_file)
-    print(f'config={config}')
+    utilities.log.debug('\n'.join(sys.path))
+    utilities.log.debug(f'config={config}')
+
     map_file=config['mapfile']
     Ndays=int(-config['max_lookback_days'])
     rootdir=config['rundir'] 
@@ -86,7 +86,7 @@ def main(args):
 
     #Note specifying the map_file REQUIRES the listed file to have a fullpathname
     station_file, fort63_compliant = grid_to_station_maps.find_station_list_from_map(gridname=args.gridname, mapfile=args.map_file, datatype='NOAA_STATIONS')
-    file_land_controls = grid_to_station_maps.find_land_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)   # ,mapfile=map_file)
+    file_land_controls = grid_to_station_maps.find_land_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)
     file_water_controls = grid_to_station_maps.find_water_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)
     #print(f'station_file={station_file}')
 
@@ -148,7 +148,7 @@ def main(args):
     # Now double check that the time orders properly
     (obs_starttime,obs_endtime)= (obs_endtime,obs_starttime) if obs_starttime > obs_endtime else (obs_starttime,obs_endtime)
 
-    print(f'Time ranges {obs_starttime} and {obs_endtime}')
+    utilities.log.info(f'Time ranges {obs_starttime} and {obs_endtime}')
 
     # Cnstruct iometadata to update all filename - want diff format
     #io_start = dt.datetime.strftime( min(data_adc.index.tolist()), '%Y%m%d%H%M')
@@ -216,7 +216,7 @@ def main(args):
     metapkl = io_utilities.write_pickle(meta_thresholded,rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_metadata')
     detailedpkl = io_utilities.write_pickle(data_thresholded, rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_detailed')
     smoothpkl = io_utilities.write_pickle(data_obs_smoothed, rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_smoothed')
-    print('Finished OBS')
+    utilities.log.info('Finished retrieving/processing OBS')
 
 ##
 ## compute errors
@@ -296,8 +296,10 @@ def main(args):
 
 ##
 ## Write out datafiles 
-##
-    gridfile = io_utilities.write_ADCIRC_formatted_gridfield_to_Disk(df_extrapolated_ADCIRC_GRID, value_name='VAL', rootdir='../',subdir='',filename=dwlc_filename)
+#
+    commentline='## {}, {}, {}'.format(args.gridname,obs_starttime,obs_endtime)
+    gridfile = io_utilities.write_ADCIRC_formatted_gridfield_to_Disk(df_extrapolated_ADCIRC_GRID,
+         value_name='VAL', rootdir='../',subdir='',filename=dwlc_filename,iometadata='',commentline=commentline)
     utilities.log.info('Wrote ADCIRC offset field to {}'.format(gridfile))
     adcirc_extrapolated_pkl = io_utilities.write_pickle(df_extrapolated_ADCIRC_GRID, rootdir=rootdir,subdir=iosubdir,fileroot='interpolated_wl')
     utilities.log.info('Wrote ADCIRC offset field PKL {}'.format(adcirc_extrapolated_pkl))

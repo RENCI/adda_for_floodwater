@@ -32,7 +32,7 @@ def intersect_stations(df_data,df_meta):
     data_stations=df_data.columns.tolist()
     meta_stations=df_meta.index.tolist()
     stations=list(set(data_stations) & set(meta_stations))
-    print(f' Total number of OBS intersected stations {len(stations)}')
+    utilities.log.debug(f' Total number of OBS intersected stations {len(stations)}')
     return df_data[stations], df_meta.loc[stations]
 
 

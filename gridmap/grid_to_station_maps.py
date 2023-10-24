@@ -4,7 +4,7 @@
 import os,sys
 import pandas as pd
 from utilities.utilities import utilities as utilities
-from argparse import ArgumentParser
+#from argparse import ArgumentParser
 
 ##
 ## Support methods to find an appropriate dataframe formatted station list  
@@ -36,14 +36,13 @@ def read_specified_filename_from_map(gridname=None, mapfile=None, datatype=None)
         utilities.log.error('grid_to_station_maps: No such map file {}'.format(map_yamlname))
         list_mapfile_contents(map_yamlname)
         sys.exit(1)
-    utilities.log.info('Found a grid map file {}'.format(map_yamlname))
+    utilities.log.debug('Found a grid map file {}'.format(map_yamlname))
 
     # Does Gridname exist. If not abort
     try:
         test_grid_name = map_config['GRIDMAP'][gridname.upper()]
     except Exception as e:
         utilities.log.error('grid_to_station_maps: Error finding grid. {}'.format(e,gridname))
-        print('Failed: choices for selected gridnames are')
         list_mapfile_contents(map_yamlname)
         sys.exit(1)
 
@@ -82,7 +81,7 @@ def find_land_control_points_from_map( gridname=None, mapfile=None ):
     User specified mapfiles, should probably include full pathnames in the yml file
     """
     landcontrolFile = read_specified_filename_from_map(gridname, mapfile, datatype='LANDCONTROL')
-    print('land control file is {}'.format(landcontrolFile))
+    utilities.log.info('land control file is {}'.format(landcontrolFile))
     return landcontrolFile
 
 def find_water_control_points_from_map( gridname=None, mapfile=None ):
@@ -93,7 +92,7 @@ def find_water_control_points_from_map( gridname=None, mapfile=None ):
     User specified mapfiles, should probably include full pathnames in the yml file
     """
     watercontrolFile = read_specified_filename_from_map(gridname, mapfile, datatype='WATERCONTROL')
-    print('water control file is {}'.format(watercontrolFile))
+    utilities.log.info('water control file is {}'.format(watercontrolFile))
     return watercontrolFile
 
 def find_secondary_water_control_points_from_map( gridname=None, mapfile=None ):

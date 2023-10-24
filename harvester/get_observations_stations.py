@@ -19,7 +19,6 @@ import datetime as dt
 import harvester.fetch_data as fetch_data
 
 from utilities.utilities import utilities as utilities
-from argparse import ArgumentParser
 
 class get_obs_stations(object):
     """ 

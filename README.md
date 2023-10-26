@@ -7,8 +7,6 @@ Bunya/UNC-CRC
 
 ADDA generates smooth surfaces of an error field, computed between NOAA / NOS observations and corresponding ADCIRC output.  It does this by computing the average errors from time series of errors at each specified NOAA gague location and building a nearest-neighbor-based model to calculate the surface values at all ADCIRC grid nodes.  The surface is constrained by including offshore and land "control points".  NOAA / NOS gauge observations are retrieved using the noaa-coops python package (git@github.com:GClunies/noaa_coops.git).  
 
-TODO: Describe surface generation
-
 Currently, ADDA requires a specific python environment, but will eventually be embedded in the "thirdparty" section of the Floodwater package as a submodule.
 
 ### Installation / Virtual Env:
@@ -87,7 +85,7 @@ serial_nr,stationid,stationname,state,vertical_datum,NOAA lon,NOAA lat,navd_to_m
 </pre>
 - **WATERCONTROL** - csv file containing open-water lon/lat locations and surface values, same format as the LANDCONTROL file
 
-The ADDA repo and **grid_to_stationfile_maps.yml** contain files for the HSOFS and ec95d grids.  Users can add grids as needed, following the above formatting and information. 
+The ADDA repo and **grid_to_stationfile_maps.yml** contain files for the HSOFS and ec95d grids.  Users can add grids as needed, following the above formatting and information.   This is the "default" file content; **PATHTO** will need to be set by the user.
 <pre>
 GRIDMAP: &gridmap
  HSOFS:
@@ -109,7 +107,8 @@ Gridnames in the grid_to_stationfile_maps.yml file must be in **ALL_CAPS**, and 
 </pre>
   
 #### TODO:
-- mv gridmap files to main config dir
-- send logging data to the main floodwater logging stream
-- put ADDA into the "thirdparty" structure in Floodwater
+- Mv gridmap files to main config dir
+- Send logging data to the main floodwater logging stream
+- Put ADDA into the "thirdparty" structure in Floodwater
+- Describe surface generation
 

@@ -23,10 +23,10 @@ import traceback
 
 import os,sys
 import numpy as np
+import numpy.ma as ma
 import pandas as pd
 import xarray as xr
 import datetime as dt
-from utilities.utilities import utilities
 import math
 
 #Contrails
@@ -37,6 +37,7 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import Timeout
 from requests.exceptions import HTTPError
 import xmltodict
+from collections import OrderedDict
 
 # NOAA/NOS
 import noaa_coops as coops
@@ -47,15 +48,12 @@ import json
 
 # NDBC # Continue to need siphon to get Lat/Lon values
 from siphon.simplewebservice.ndbc import NDBC
-#import buoypy as bp
 
 # THREDDS (ADCIRC model)
 import netCDF4 as nc4
-import numpy as np
-import numpy.ma as ma
-import pandas as pd
 from siphon.catalog import TDSCatalog
-from collections import OrderedDict
+
+from utilities.utilities import utilities
 
 GLOBAL_TIMEZONE='gmt' # Every source is set or presumed to return times in this zone
 

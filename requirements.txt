@@ -1,0 +1,10 @@
+pandas
+numpy
+netCDF4
+matplotlib
+pyyaml
+scipy
+scikit-learn
+xmltodict
+xarray
+matplotlib

@@ -7,12 +7,16 @@ Bunya/UNC-CRC
 
 ADDA generates smooth surfaces of an error field, computed between NOAA / NOS observations and corresponding ADCIRC output.  It does this by computing the average errors from time series of errors at each specified NOAA gague location and building a nearest-neighbor-based model to calculate the surface values at all ADCIRC grid nodes.  The surface is constrained by including offshore and land "control points".  NOAA / NOS gauge observations are retrieved using the noaa-coops python package.  Surfaces are generated with the 
 
-Currently, ADDA requires a specific python environment, but will eventually be embedded in the "thirdparty" section of the Floodwater package.
+Currently, ADDA requires a specific python environment, but will eventually be embedded in the "thirdparty" section of the Floodwater package as a submodule.
 
 #### Installation / Virtual Env:
 
 - Clone this repo
-- Make a python virtual environment with the requirements.txt file, called adcirc_DA
+- Make a python virtual environment with the requirements.txt file, called adda
+  - conda create --name adda --file requirements.txt
+- Several required packages are not available through conda.  These need to be pip-installed:
+  - conda activate adda
+  - pip install -r pip.reqs.txt
 - Add ADDA paths to the virtual environment.  Either:
   - Make a conda.pth in "envs/adcirc_DA/lib/python3.8/site-packages/" that contains:
     - **PATHTO**/adda_for_floodwater

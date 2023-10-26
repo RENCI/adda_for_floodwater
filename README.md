@@ -1,18 +1,20 @@
-## The ADCIRC Data Assimilator (ADDA) in the TWI Floodwater environment
+## The ADCIRC Data Assimilator (ADDA) in the TWI Floodwater/ECFLOW environment
 
-19 Oct 2023
+25 Oct 2023
 
 Blanton/UNC-RENCI <br>
 Bunya/UNC-CRC
 
-ADDA generates smooth surfaces of an error field, computed between NOAA / NOS observations and corresponding ADCIRC output.  It does this by computing the average errors from time series of errors at each specified NOAA gague location and building a nearest-neighbor-based model to calculate the surface values at all ADCIRC grid nodes.  The surface is constrained by including offshore and land "control points".  NOAA / NOS gauge observations are retrieved using the noaa-coops python package.  Surfaces are generated with the 
+ADDA generates smooth surfaces of an error field, computed between NOAA / NOS observations and corresponding ADCIRC output.  It does this by computing the average errors from time series of errors at each specified NOAA gague location and building a nearest-neighbor-based model to calculate the surface values at all ADCIRC grid nodes.  The surface is constrained by including offshore and land "control points".  NOAA / NOS gauge observations are retrieved using the noaa-coops python package (git@github.com:GClunies/noaa_coops.git).  
+
+TODO: Describe surface generation
 
 Currently, ADDA requires a specific python environment, but will eventually be embedded in the "thirdparty" section of the Floodwater package as a submodule.
 
 ### Installation / Virtual Env:
 
-- Clone this repo
-- Make a python virtual environment with the requirements.txt file, called **adda**
+- Clone this repo.  This locations is referred to as **PATHTO** below.
+- Make a python virtual environment (venv) with the requirements.txt file, called **adda**.  The actual name of the venv does not matter, as long as the name is speficied correctly in the **data_assimilation.yaml** file (see below).
   - conda create --name adda --file requirements.txt
 - Several required packages are not available through conda.  These need to be pip-installed:
   - conda activate adda
@@ -21,6 +23,7 @@ Currently, ADDA requires a specific python environment, but will eventually be e
   - Make a conda.pth in "envs/adda/lib/python3.8/site-packages/" that contains:
     - **PATHTO**/adda_for_floodwater
     - **PATHTO**/adda_for_floodwater/adda
+    - Note that the path to the venv's site-packages location may different than that above.  Modify as needed. 
 - or (probably better):
   - Add the PYTHONPATH variable to the conda env. Activate the **adda** environment, add path:
 <pre>conda activate adda
@@ -49,6 +52,8 @@ models:
 ...
 </pre>
 
+### The **data_assimilation.yaml** File
+
 The configuration_file **data_assimilation.yaml** needs to contain the following, suitably adjusted to the local environment (path_to):
 <pre>
 LOGGING: true
@@ -62,6 +67,7 @@ mapfile: "PATHTO/adda_for_floodwater/gridmap/grid_to_stationfile_maps.yml"
 </pre>
 
 ### The grid_to_stationfile_maps.yml
+
 This yaml file contains pointers to files ADDA needs in order to retrieve specific NOAA/NOS station observations and corresponding ADCIRC grid nodes at which to compute the errors, and specify "control" points in open water and on land to constraint the resulting surface evaluation.  For each ADCIRC grid, it specifies locations of 3 files:
 
 - **NOAA_STATIONS** - csv file containing NOAA / NOS ids and ADCIRC grid nodes.  The file can have lots of info in it, but must have stationid and Node as columns in the first line, and "units" second line.  Other columns are ignored. E.g., 
@@ -81,7 +87,7 @@ serial_nr,stationid,stationname,state,vertical_datum,NOAA lon,NOAA lat,navd_to_m
 </pre>
 - **WATERCONTROL** - csv file containing open-water lon/lat locations and surface values, same format as the LANDCONTROL file
 
-The ADDA repo and grid_to_stationfile_maps.yml contain files for the HSOFS and ec95d grids.  Users can add grids as needed, following the above formatting and information. 
+The ADDA repo and **grid_to_stationfile_maps.yml** contain files for the HSOFS and ec95d grids.  Users can add grids as needed, following the above formatting and information. 
 <pre>
 GRIDMAP: &gridmap
  HSOFS:

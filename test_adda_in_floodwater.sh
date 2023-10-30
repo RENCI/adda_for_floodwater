@@ -7,7 +7,7 @@ fw_dir="/scratch/bblanton/ecflow_output/dev/ec95d_dev_da/"
 
 da_config_file="--da_config_file /home/bblanton/ecfc/da/data_assimilation.yaml"
 ndays="--ndays -2" 
-venv="adcirc_DA" 
+venv="adda" 
 inputFile="--input_url adda.filelist"
 adda="/home/bblanton/GitHub/RENCI/adda_for_floodwater/adda/adda.py"
 RUN="conda run --no-capture-output"

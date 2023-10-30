@@ -1,33 +1,34 @@
-### Installing / running the ADCIRC Data Assimilator (ADDA) in the TWI Floodwater environment
+## The ADCIRC Data Assimilator (ADDA) in the TWI Floodwater/ECFLOW environment
 
-19 Oct 2023
+25 Oct 2023
 
 Blanton/UNC-RENCI <br>
 Bunya/UNC-CRC
 
-ADDA generates smooth surfaces of an error field, computed between NOAA / NOS observations and corresponding ADCIRC output.  It does this by computing the average errors from time series of errors at each specified NOAA gague location and building a nearest-neighbor-based model to calculate the surface values at all ADCIRC grid nodes.  The surface is constrained by including offshore and land "control points".  NOAA / NOS gauge observations are retrieved using the noaa-coops python package.  Surfaces are generated with the 
+ADDA generates smooth surfaces of an error field, computed between NOAA / NOS observations and corresponding ADCIRC output.  It does this by computing the average errors from time series of errors at each specified NOAA gague location and building a nearest-neighbor-based model to calculate the surface values at all ADCIRC grid nodes.  The surface is constrained by including offshore and land "control points".  NOAA / NOS gauge observations are retrieved using the noaa-coops python package (git@github.com:GClunies/noaa_coops.git).  
 
 Currently, ADDA requires a specific python environment, but will eventually be embedded in the "thirdparty" section of the Floodwater package as a submodule.
 
-#### Installation / Virtual Env:
+### Installation / Virtual Env:
 
-- Clone this repo
-- Make a python virtual environment with the requirements.txt file, called adda
+- Clone this repo.  This locations is referred to as **PATHTO** below.
+- Make a python virtual environment (venv) with the requirements.txt file, called **adda**.  The actual name of the venv does not matter, as long as the name is speficied correctly in the **data_assimilation.yaml** file (see below).
   - conda create --name adda --file requirements.txt
 - Several required packages are not available through conda.  These need to be pip-installed:
   - conda activate adda
   - pip install -r pip.reqs.txt
 - Add ADDA paths to the virtual environment.  Either:
-  - Make a conda.pth in "envs/adcirc_DA/lib/python3.8/site-packages/" that contains:
+  - Make a conda.pth in "envs/adda/lib/python3.8/site-packages/" that contains:
     - **PATHTO**/adda_for_floodwater
     - **PATHTO**/adda_for_floodwater/adda
+    - Note that the path to the venv's site-packages location may different than that above.  Modify as needed. 
 - or (probably better):
-  - Add the PYTHONPATH variable to the conda env. Activate the adcirc_DA environment, add path:
-<pre>conda activate adcirc_DA
+  - Add the PYTHONPATH variable to the conda env. Activate the **adda** environment, add path:
+<pre>conda activate adda
 conda env config vars set PYTHONPATH=PATHTO/adda_for_floodwater:PATHTO/adda_for_floodwater/adda</pre>
     
 
-#### Connecting to Floodwater
+### Connecting to Floodwater
 
 Floodwater has been instrumented with hooks to include a dynamic water level correction (DWLC) surface based on error analysis over previous analysis cycles.  To turn this capability on, include the following in the suite config yaml file: 
 
@@ -49,19 +50,22 @@ models:
 ...
 </pre>
 
+### The **data_assimilation.yaml** File
+
 The configuration_file **data_assimilation.yaml** needs to contain the following, suitably adjusted to the local environment (path_to):
 <pre>
 LOGGING: true
 LOGLEVEL: DEBUG
 rundir: "./adda"
 max_lookback_days: 2
-venv: adcirc_DA
+venv: adda
 dwlc_filename: "da_error_surface.dat.1"
 addahome: "PATHTO/adda_for_floodwater/"
 mapfile: "PATHTO/adda_for_floodwater/gridmap/grid_to_stationfile_maps.yml"
 </pre>
 
-#### The grid_to_stationfile_maps.yml
+### The grid_to_stationfile_maps.yml
+
 This yaml file contains pointers to files ADDA needs in order to retrieve specific NOAA/NOS station observations and corresponding ADCIRC grid nodes at which to compute the errors, and specify "control" points in open water and on land to constraint the resulting surface evaluation.  For each ADCIRC grid, it specifies locations of 3 files:
 
 - **NOAA_STATIONS** - csv file containing NOAA / NOS ids and ADCIRC grid nodes.  The file can have lots of info in it, but must have stationid and Node as columns in the first line, and "units" second line.  Other columns are ignored. E.g., 
@@ -81,7 +85,7 @@ serial_nr,stationid,stationname,state,vertical_datum,NOAA lon,NOAA lat,navd_to_m
 </pre>
 - **WATERCONTROL** - csv file containing open-water lon/lat locations and surface values, same format as the LANDCONTROL file
 
-The ADDA repo and grid_to_stationfile_maps.yml contain files for the HSOFS and ec95d grids.  Users can add grids as needed, following the above formatting and information. 
+The ADDA repo and **grid_to_stationfile_maps.yml** contain files for the HSOFS and ec95d grids.  Users can add grids as needed, following the above formatting and information.   This is the "default" file content; **PATHTO** will need to be set by the user.
 <pre>
 GRIDMAP: &gridmap
  HSOFS:
@@ -103,7 +107,8 @@ Gridnames in the grid_to_stationfile_maps.yml file must be in **ALL_CAPS**, and 
 </pre>
   
 #### TODO:
-- mv gridmap files to main config dir
-- send logging data to the main floodwater logging stream
-- put ADDA into the "thirdparty" structure in Floodwater
+- Mv gridmap files to main config dir
+- Send logging data to the main floodwater logging stream
+- Put ADDA into the "thirdparty" structure in Floodwater
+- Describe surface generation
 

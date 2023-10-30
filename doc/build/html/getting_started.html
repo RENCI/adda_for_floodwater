@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started &mdash; ADCIRC Data ASssimilator 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=f6245a2f"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ADCIRC Data ASssimilator
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation / Virtual Env:</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ADCIRC Data ASssimilator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/getting_started.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
+<p>Floodwater is based on using Anaconda as an environment manager. This allows the user
+to have multiple installations on their system without interfering with each other.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
+<p>The installation of Floodwater uses a single Python script to manage the environment
+creation within Anaconda. The script is called <code class="code docutils literal notranslate"><span class="pre">install.py</span></code> and is located in the
+root directory of the repository.</p>
+<section id="pre-requisites">
+<h3>Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>The following are pre-requisites for installing Floodwater:</dt><dd><ol class="arabic simple">
+<li><p>A system with a Linux distribution (e.g. Ubuntu, Debian, Rocky, etc.)</p></li>
+<li><p>Anaconda (<a class="reference external" href="https://www.anaconda.com/distribution/">https://www.anaconda.com/distribution/</a>)</p></li>
+<li><p>Git (<a class="reference external" href="https://git-scm.com/downloads">https://git-scm.com/downloads</a>)</p></li>
+<li><p>A job manager (e.g. SLURM, PBS, etc.)</p></li>
+<li><p>Access to a MetGet instance.</p></li>
+</ol>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you do not have access to an instance,
+you can contact <a class="reference external" href="mailto:zcobell&#37;&#52;&#48;thewaterinstitute&#46;org">zcobell<span>&#64;</span>thewaterinstitute<span>&#46;</span>org</a> or begin running your own
+instance by following the instructions on the <a class="reference external" href="https://github.com/waterinstitute/metget-server">metget-server</a>
+GitHub page.</p>
+</div>
+<p>In the case that your system is based on ARM processors, you will need to build
+the ecFlow package from source. This is recommended only for experienced users.
+We have shown that the system works well on both ARM and x86_64 architectures,
+however, ECMWF only provides pre-built binaries for x86_64.</p>
+</section>
+<section id="installation-steps">
+<h3>Installation Steps<a class="headerlink" href="#installation-steps" title="Permalink to this heading"></a></h3>
+<p>The first step to installing Floodwater is to clone the repository:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/waterinstitute/floodwater.git
+</pre></div>
+</div>
+<p>This will create a directory called <code class="code docutils literal notranslate"><span class="pre">floodwater</span></code> in the current working directory.
+You should then change into the <code class="code docutils literal notranslate"><span class="pre">floodwater</span></code> directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>floodwater
+</pre></div>
+</div>
+<p>The installation should use the <code class="code docutils literal notranslate"><span class="pre">install.py</span></code> file. The script allows the user
+to enable/disable certain features of Floodwater. For example, you may only want
+to have the code of Floodwater installed on your local system so that you can run
+the GUI.</p>
+<section id="full-installation">
+<h4>Full Installation<a class="headerlink" href="#full-installation" title="Permalink to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>install.py<span class="w"> </span>--conda-name<span class="w"> </span>my-floodwater-env
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For all the good things about Anaconda, the default solver is extraordinarily slow. We highly
+recommend using the Mamba solver. This can be done by following the instructions
+<a class="reference external" href="https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community">here</a>.</p>
+</div>
+</section>
+<section id="partial-installation">
+<h4>Partial Installation<a class="headerlink" href="#partial-installation" title="Permalink to this heading"></a></h4>
+<p>A common use case is to install the full package on a remote system and then install only
+the essential packages on the local system. The local system can access the remote system
+over SSH which will allow a much more snappy experience.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>install.py<span class="w"> </span>--conda-name<span class="w"> </span>my-floodwater-env<span class="w"> </span>--minimal
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is also possible to forward an
+X11 connection over SSH so that the GUI can be used remotely, however, this will be slow,
+particularly if the remote system is not on the same network.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Developers will need to re-install the Floodwater package (not the full Anaconda environment)
+if they make changes to the code. This can be done by running the <code class="code docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">.</span></code> from the
+<code class="code docutils literal notranslate"><span class="pre">src</span></code> directory.</p>
+</div>
+</section>
+<section id="checking-the-installation">
+<h4>Checking the Installation<a class="headerlink" href="#checking-the-installation" title="Permalink to this heading"></a></h4>
+<p>To confirm that the installation was successful, you should activate the newly create
+conda environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>my-floodwater-env
+</pre></div>
+</div>
+<p>You can then check that the Floodwater package is installed by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>floodwater<span class="w"> </span>--help
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="ecflow-server-setup">
+<h2>ecFlow Server Setup<a class="headerlink" href="#ecflow-server-setup" title="Permalink to this heading"></a></h2>
+<p>Systems based on the ecFlow workflow manager require that a server daemon is running.
+The server is responsible for managing the workflows and the jobs that are submitted.
+Note that many of the jobs within the system which aren’t submitted to the job scheduler
+(i.e. SLURM or PBS) are run directly on the server which is running the daemon. This
+means that users should be considerate on shared systems and work with system administrators
+in the event that there are too many concurrent processes on the system. In the past, we
+have worked with system administrators on large NSF funded resources to provide a virtual machine
+which is dedicated to running the server daemon.</p>
+<section id="environment-variables">
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this heading"></a></h3>
+<p>To avoid manually specifying the server host and port number during each Floodwater command,
+we recommend setting the following environment variables:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">ECF_HOST</span><span class="o">=</span>hostname
+<span class="nb">export</span><span class="w"> </span><span class="nv">ECF_PORT</span><span class="o">=</span>port_number
+</pre></div>
+</div>
+<p>The <code class="code docutils literal notranslate"><span class="pre">ECF_HOST</span></code> variable should be set to the hostname of the system which is running the
+server daemon. The <code class="code docutils literal notranslate"><span class="pre">ECF_PORT</span></code> variable should be set to the port number which the server.
+Note that the <code class="code docutils literal notranslate"><span class="pre">ECF_HOST</span></code> variable should be a fully qualified domain name (FQDN) which
+can be resolved by the client system.</p>
+</section>
+<section id="starting-the-server">
+<h3>Starting the Server<a class="headerlink" href="#starting-the-server" title="Permalink to this heading"></a></h3>
+<p>The server can be started by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>floodwater<span class="w"> </span>server<span class="w"> </span>start<span class="w"> </span><span class="o">[</span>--port<span class="w"> </span>xxxx<span class="o">]</span>
+</pre></div>
+</div>
+<p>The port number is optional. If it is not supplied on the command line, the system will search for an
+environment variable named <code class="code docutils literal notranslate"><span class="pre">ECF_PORT</span></code>. If this variable is not set, you will receive an error.</p>
+<p>You can check that the server has become active by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>floodwater<span class="w"> </span>ping
+</pre></div>
+</div>
+<p>This will ping the server and return the time it took to respond. This command uses
+environment variables above to establish the connection to the server.</p>
+<p>The system will return something that looks like the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="m">2023</span>-10-13T08:56:07CDT<span class="w"> </span>::<span class="w"> </span>INFO<span class="w"> </span>::<span class="w"> </span>floodwater_cli_funcs.py<span class="w"> </span>::<span class="w"> </span>floodwater_ping_ecflow<span class="w"> </span>::<span class="w"> </span>Success!<span class="w"> </span>Ping<span class="w"> </span>ecFlow<span class="w"> </span>server<span class="w"> </span><span class="o">(</span>myhost.local:3121<span class="o">)</span><span class="w"> </span>succeeded<span class="w"> </span><span class="k">in</span><span class="w"> </span>~4<span class="w"> </span>ms
+</pre></div>
+</div>
+</section>
+<section id="stopping-the-server">
+<h3>Stopping the Server<a class="headerlink" href="#stopping-the-server" title="Permalink to this heading"></a></h3>
+<p>The server can be stopped by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>floodwater<span class="w"> </span>server<span class="w"> </span>stop
+</pre></div>
+</div>
+</section>
+</section>
+<section id="running-your-first-job">
+<h2>Running Your First Job<a class="headerlink" href="#running-your-first-job" title="Permalink to this heading"></a></h2>
+<p>The system comes packaged with a simple example which runs the ec95d ADCIRC
+model. This is a very coarse model and should only be used for testing.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, RENCI.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

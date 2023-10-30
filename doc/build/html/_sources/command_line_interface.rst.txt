@@ -1,0 +1,367 @@
+######################
+Command Line Interface
+######################
+
+The command line interface allows the user to manage most aspects of the system without the GUI. This can be useful
+in a pinch when the GUI is not available or in the case that the user wants to automate some of the tasks.
+
+The CLI has a help screen that shows the list of sub-commands that are available. Each sub-command allows the user
+to access different functionalities of the CLI.
+
+.. code-block::
+
+    $ floodwater --help
+    usage: floodwater [-h] [--version] {load,run,begin,resume,suspend,delete,write,status,server,gui,ping} ...
+
+    Floodwater Simulation System
+
+    positional arguments:
+      {load,run,begin,resume,suspend,delete,write,status,server,gui,ping}
+                            Sub-command help
+        load                Load a suite to the server
+        run                 Load and run a suite
+        begin               Begin a suite which has been loaded
+        resume              Resume a suspended suite
+        suspend             Suspend a suite
+        delete              Delete a suite from the server
+        write               Write a suite definition to a file
+        status              Get the status of a suite
+        server              Start/Stop the ecFlow server
+        gui                 Launch the ecFlow GUI
+        ping                Ping the ecFlow server
+
+    options:
+      -h, --help            show this help message and exit
+      --version             show program's version number and exit
+
+The help screen for each sub-command can be accessed by using the ``--help`` option after the sub-command.
+
+************
+Sub-commands
+************
+
+The command line interface has a series of sub-commands which can be run. Each is described below.
+
+load
+====
+
+.. code-block::
+
+    $ floodwater load --help
+    usage: floodwater load [-h] [--write FILE] [--host HOST] [--port PORT] config
+
+    positional arguments:
+      config        Name of Floodwater suite configuration file
+
+    options:
+      -h, --help    show this help message and exit
+      --write FILE  Write the definitions to a file
+      --host HOST   ecFlow Server Host. Determined from environment variable 'ECF_HOST' if not provided
+      --port PORT   ecFlow Server Port. Determined from environment variable 'ECF_PORT' if not provided
+
+The :code:`load` sub-command loads a suite to the ecFlow server. The suite is loaded but not run. This can be useful
+to stage suites within the system, check that the configuration is what you expected, or during development to ensure
+that the suite is valid and the YAML configuration files were able to parse without error. If you wish to run the command
+after the suite is loaded, use the :code:`begin` sub-command or interact with the suite in the GUI.
+
+run
+===
+
+.. code-block::
+
+    $ floodwater run --help
+    usage: floodwater run [-h] [--write FILE] [--host HOST] [--port PORT] config
+
+    positional arguments:
+      config        Name of Floodwater suite configuration file
+
+    options:
+      -h, --help    show this help message and exit
+      --write FILE  Write the definitions to a file
+      --host HOST   ecFlow Server Host. Determined from environment variable 'ECF_HOST' if not provided
+      --port PORT   ecFlow Server Port. Determined from environment variable 'ECF_PORT' if not provided
+
+The :code:`run` sub-command loads and runs a suite on the ecFlow server. This is the same as running the :code:`load`
+sub-command followed by the :code:`begin` sub-command.
+
+begin
+=====
+
+.. code-block::
+
+    $ floodwater begin --help
+    usage: floodwater begin [-h] [--write FILE] [--host HOST] [--port PORT] config
+
+    positional arguments:
+      config        Name of Floodwater suite configuration file
+
+    options:
+      -h, --help    show this help message and exit
+      --write FILE  Write the definitions to a file
+      --host HOST   ecFlow Server Host. Determined from environment variable 'ECF_HOST' if not provided
+      --port PORT   ecFlow Server Port. Determined from environment variable 'ECF_PORT' if not provided
+
+
+The :code:`begin` sub-command begins a suite which has been previously loaded to the ecFlow server. This is different
+than the :code:`resume` command which resumes a suite which has been suspended. The :code:`begin` command is used to
+start a suite for the first time.
+
+resume
+======
+
+.. code-block::
+
+    $ floodwater resume --help
+    usage: floodwater resume [-h] [--host HOST] [--port PORT] config
+
+    positional arguments:
+      config       Name of Floodwater suite configuration file or suite name
+
+    options:
+      -h, --help   show this help message and exit
+      --host HOST  ecFlow Server Host. Determined from environment variable 'ECF_HOST' if not provided
+      --port PORT  ecFlow Server Port. Determined from environment variable 'ECF_PORT' if not provided
+
+The :code:`resume` sub-command resumes a suite which has been previously suspended. This is different than the
+:code:`begin` command which starts a suite for the first time.
+
+suspend
+=======
+
+.. code-block::
+
+    $ floodwater suspend --help
+    usage: floodwater suspend [-h] [--host HOST] [--port PORT] config
+
+    positional arguments:
+      config       Name of Floodwater suite configuration file or suite name
+
+    options:
+      -h, --help   show this help message and exit
+      --host HOST  ecFlow Server Host. Determined from environment variable 'ECF_HOST' if not provided
+      --port PORT  ecFlow Server Port. Determined from environment variable 'ECF_PORT' if not provided
+
+The :code:`suspend` sub-command suspends a suite which is currently running. This is different than the :code:`delete`
+command which removes a suite from the ecFlow server. Suspend is usually a good first step before deleting a suite as
+it will let the suite spin-down. Deleting a suite will attempt to immediately remove it from the server which can cause
+zombie processes.
+
+delete
+======
+
+.. code-block::
+
+    $ floodwater delete --help
+    usage: floodwater delete [-h] [--host HOST] [--port PORT] config
+
+    positional arguments:
+      config       Name of Floodwater suite configuration file or suite name
+
+    options:
+      -h, --help   show this help message and exit
+      --force      Force delete the simulation
+      --host HOST  ecFlow Server Host. Determined from environment variable 'ECF_HOST' if not provided
+      --port PORT  ecFlow Server Port. Determined from environment variable 'ECF_PORT' if not provided
+
+The :code:`delete` sub-command deletes a suite from the ecFlow server. This is different than the :code:`suspend`
+command which suspends a suite which is currently running. Suspend is usually a good first step before deleting a suite
+as it will let the suite spin-down. Deleting a suite will attempt to immediately remove it from the server which can
+cause zombie processes. If the suite currently has processes running, the suite will not be deleted.
+The :code:`--force` option can be used to force the deletion of a suite which is currently running, but should
+be used with caution.
+
+write
+=====
+
+.. code-block::
+
+    $ floodwater write --help
+    usage: floodwater write [-h] config filename
+
+    positional arguments:
+      config      Name of Floodwater suite configuration file or suite name
+      filename    Name of the ecflow definitions file to write
+
+    options:
+      -h, --help  show this help message and exit
+
+The :code:`write` sub-command writes the ecFlow definitions for a suite to a file. This can be useful for debugging
+or for understanding how the suite is constructed.
+
+status
+======
+
+.. code-block::
+
+    $ floodwater status --help
+    usage: floodwater status [-h] [--host HOST] [--port PORT] [--verbose] [suite]
+
+    positional arguments:
+      suite        A suite configuration file or a suite name. 'all' for all suites on the current server
+
+    options:
+      -h, --help   show this help message and exit
+      --host HOST  ecFlow Server Host. Determined from environment variable 'ECF_HOST' if not provided
+      --port PORT  ecFlow Server Port. Determined from environment variable 'ECF_PORT' if not provided
+      --verbose    Print the status of all tasks within a suite
+
+The Floodwater status command allows a user to query the status of running suites from the terminal. The status command
+can be used to query the status of a single suite or all suites on the current server. The status command can also be
+used to query the status of all tasks within a suite.
+
+An example output of the status command is shown below:
+
+.. code-block::
+
+    $ floodwater status
+    Suite: adcirc_gfs_hec_example: active
+    +--------+----------+--------------------------------------------------------------------------------------------------------+
+    | Status | Progress | Task                                                                                                   |
+    +--------+----------+--------------------------------------------------------------------------------------------------------+
+    | active |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/analysis_wait/retry/hecras_forecast_wait_analysis |
+    +--------+----------+--------------------------------------------------------------------------------------------------------+
+
+or, more verbosely:
+
+.. code-block::
+
+    $ floodwater status --verbose
+    Suite: adcirc_gfs_hec_example: queued
+    +----------+----------+-----------------------------------------------------------------------------------------------------------------------------------+
+    |  Status  | Progress | Task                                                                                                                              |
+    +----------+----------+-----------------------------------------------------------------------------------------------------------------------------------+
+    |  queued  |          | alerts/push_alerts                                                                                                                |
+    | complete |          | analysis/initialization/cycle_data_wait/data                                                                                      |
+    | complete |          | analysis/initialization/cycle_data_wait/retry/wait_next_cycle                                                                     |
+    | complete |          | analysis/initialization/cycle_initialization_analysis                                                                             |
+    | complete |          | analysis/ADCIRC/preprocessing/wait_meteorological_forcing/data                                                                    |
+    | complete |          | analysis/ADCIRC/preprocessing/wait_meteorological_forcing/retry/metget_wait_data                                                  |
+    | complete |          | analysis/ADCIRC/preprocessing/metget_get_forcing                                                                                  |
+    | complete |          | analysis/ADCIRC/simulation/adcirc_approximate_simulation_wallclock                                                                |
+    | complete |          | analysis/ADCIRC/simulation/adcirc_prep_simulation                                                                                 |
+    | complete |          | analysis/ADCIRC/simulation/adcirc_simulation                                                                                      |
+    | complete |          | analysis/ADCIRC/postprocessing/adcirc_generate_figures                                                                            |
+    | complete |          | analysis/ADCIRC/archive/apsviz_archive/adcirc_archive_data_apsviz                                                                 |
+    | complete |          | analysis/ADCIRC/archive/adcirc_archive_data_local                                                                                 |
+    |  queued  |          | analysis/ADCIRC/apsviz_messaging/messaging/send_initialization_message_preprocessing/rmq_send_message                             |
+    | complete |          | analysis/ADCIRC/apsviz_messaging/messaging/send_running_message_preprocessing/rmq_send_message                                    |
+    | complete |          | analysis/ADCIRC/apsviz_messaging/messaging/send_complete_message_preprocessing/rmq_send_message                                   |
+    | complete |          | analysis/ADCIRC/apsviz_messaging/messaging/send_initialization_message_simulation/rmq_send_message                                |
+    | complete |          | analysis/ADCIRC/apsviz_messaging/messaging/send_wait_message_simulation/rmq_send_message                                          |
+    | complete |          | analysis/ADCIRC/apsviz_messaging/messaging/send_running_message_simulation/rmq_send_message                                       |
+    | complete |          | analysis/ADCIRC/apsviz_messaging/messaging/send_complete_message_simulation/rmq_send_message                                      |
+    | complete |          | analysis/ADCIRC/apsviz_messaging/messaging/send_initialization_message_postprocessing/rmq_send_message                            |
+    | complete |          | analysis/ADCIRC/apsviz_messaging/messaging/send_running_message_postprocessing/rmq_send_message                                   |
+    | complete |          | analysis/ADCIRC/apsviz_messaging/messaging/send_complete_message_postprocessing/rmq_send_message                                  |
+    | complete |          | analysis/HECRAS/preprocessing/get_wind_forcing/wait_meteorological_forcing/data                                                   |
+    | complete |          | analysis/HECRAS/preprocessing/get_wind_forcing/wait_meteorological_forcing/retry/metget_wait_data                                 |
+    | complete |          | analysis/HECRAS/preprocessing/get_wind_forcing/metget_get_forcing                                                                 |
+    | complete |          | analysis/HECRAS/preprocessing/get_precipitation_forcing/wait_meteorological_forcing/data                                          |
+    | complete |          | analysis/HECRAS/preprocessing/get_precipitation_forcing/wait_meteorological_forcing/retry/metget_wait_data                        |
+    | complete |          | analysis/HECRAS/preprocessing/get_precipitation_forcing/metget_get_forcing                                                        |
+    |  queued  |          | analysis/HECRAS/preprocessing/generate_offshore_boundary/hecras_extract_offshore_boundary                                         |
+    | complete |          | analysis/HECRAS/preprocessing/generate_upstream_boundary/hecras_get_flow_boundary                                                 |
+    |  queued  |          | analysis/HECRAS/simulation/hecras_approximate_simulation_wallclock                                                                |
+    |  queued  |          | analysis/HECRAS/simulation/hecras_prep_simulation                                                                                 |
+    |  queued  |          | analysis/HECRAS/simulation/hecras_simulation                                                                                      |
+    |  queued  |          | analysis/HECRAS/postprocessing/hecras_generate_raster                                                                             |
+    |  queued  |          | analysis/HECRAS/archive/apsviz_archive/hecras_archive_data_apsviz                                                                 |
+    |  queued  |          | analysis/HECRAS/archive/hecras_archive_data_local                                                                                 |
+    |  queued  |          | analysis/HECRAS/apsviz_messaging/messaging/always                                                                                 |
+    | complete |          | forecast_ensemble/forecast_base/initialization/analysis_wait/data                                                                 |
+    | complete |          | forecast_ensemble/forecast_base/initialization/analysis_wait/retry/wait_analysis                                                  |
+    | complete |          | forecast_ensemble/forecast_base/initialization/cycle_initialization_forecast                                                      |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/preprocessing/wait_meteorological_forcing/data                                             |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/preprocessing/wait_meteorological_forcing/retry/metget_wait_data                           |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/preprocessing/metget_get_forcing                                                           |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/simulation/adcirc_approximate_simulation_wallclock                                         |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/simulation/adcirc_prep_simulation                                                          |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/simulation/adcirc_simulation                                                               |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/postprocessing/adcirc_generate_figures                                                     |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/archive/apsviz_archive/adcirc_archive_data_apsviz                                          |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/archive/adcirc_archive_data_local                                                          |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_initialization_message_preprocessing/rmq_send_message      |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_running_message_preprocessing/rmq_send_message             |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_complete_message_preprocessing/rmq_send_message            |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_initialization_message_simulation/rmq_send_message         |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_wait_message_simulation/rmq_send_message                   |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_running_message_simulation/rmq_send_message                |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_complete_message_simulation/rmq_send_message               |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_initialization_message_postprocessing/rmq_send_message     |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_running_message_postprocessing/rmq_send_message            |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_complete_message_postprocessing/rmq_send_message           |
+    | complete |          | forecast_ensemble/forecast_base/ADCIRC/apsviz_messaging/messaging/send_run_properties_message_simulation/rmq_send_run_properties  |
+    | complete |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/get_wind_forcing/wait_meteorological_forcing/data                            |
+    | complete |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/get_wind_forcing/wait_meteorological_forcing/retry/metget_wait_data          |
+    | complete |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/get_wind_forcing/metget_get_forcing                                          |
+    | complete |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/get_precipitation_forcing/wait_meteorological_forcing/data                   |
+    | complete |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/get_precipitation_forcing/wait_meteorological_forcing/retry/metget_wait_data |
+    | complete |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/get_precipitation_forcing/metget_get_forcing                                 |
+    | complete |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/generate_offshore_boundary/hecras_extract_offshore_boundary                  |
+    | complete |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/generate_upstream_boundary/hecras_get_flow_boundary                          |
+    |  queued  |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/analysis_wait/data                                                           |
+    |  queued  |          | forecast_ensemble/forecast_base/HECRAS/preprocessing/analysis_wait/retry/hecras_forecast_wait_analysis                            |
+    |  queued  |          | forecast_ensemble/forecast_base/HECRAS/simulation/hecras_approximate_simulation_wallclock                                         |
+    |  queued  |          | forecast_ensemble/forecast_base/HECRAS/simulation/hecras_prep_simulation                                                          |
+    |  queued  |          | forecast_ensemble/forecast_base/HECRAS/simulation/hecras_simulation                                                               |
+    |  queued  |          | forecast_ensemble/forecast_base/HECRAS/postprocessing/hecras_generate_raster                                                      |
+    |  queued  |          | forecast_ensemble/forecast_base/HECRAS/archive/apsviz_archive/hecras_archive_data_apsviz                                          |
+    |  queued  |          | forecast_ensemble/forecast_base/HECRAS/archive/hecras_archive_data_local                                                          |
+    |  queued  |          | forecast_ensemble/forecast_base/HECRAS/apsviz_messaging/messaging/send_run_properties_message_simulation/rmq_send_run_properties  |
+    +----------+----------+-----------------------------------------------------------------------------------------------------------------------------------+
+
+Simulation jobs which are currently running will show a percent complete in the progress column and jobs which have been deemed late
+will appear with a late status flag.
+
+server
+======
+
+.. code-block::
+
+    $ floodwater server --help
+    usage: floodwater server [-h] [--port PORT] [--verbose] {start,stop}
+    positional arguments:
+      {start,stop}  Start or stop an ecFlow server instance
+
+    options:
+      -h, --help    show this help message and exit
+      --port PORT   ecFlow Server Port. Determined from environment variable 'ECF_PORT' if not provided
+      --verbose     Log all messages to file
+
+The :code:`server` sub-command allows a user to start or stop an ecFlow server instance. The server daemon must be
+running in order for the Floodwater system to be utilized. Also, when the server is stopped it will create a checkpoint
+file which will allow it to resume from the same state when it is restarted. This is useful for when the server is
+rebooted or undergoes maintenance of some kind.
+
+gui
+===
+
+.. code-block::
+
+    $ floodwater gui --help
+    usage: floodwater gui [-h] [--verbose]
+
+    options:
+      -h, --help  show this help message and exit
+      --verbose   Log all messages to the console. Otherwise, only errors are logged
+
+The GUI command will allow the user to start the ecFlow GUI. While not strictly necessary, this is a nice shorthand
+way to start the GUI without having to remember the ecFlow command line options. Additionally, if there are issues
+starting the GUI, the :code:`--verbose` option can be used to print all messages to a log file in the user's home
+directory.
+
+ping
+====
+
+.. code-block::
+
+    $ floodwater ping --help
+    usage: floodwater ping [-h] [--host HOST] [--port PORT]
+
+    options:
+      -h, --help   show this help message and exit
+      --host HOST  ecFlow Server Host. Determined from environment variable 'ECF_HOST' if not provided
+      --port PORT  ecFlow Server Port. Determined from environment variable 'ECF_PORT' if not provided
+
+The ping command will attempt to connect to the ecFlow server and return the time it took to connect. This can be useful
+for debugging connection issues or for testing the connection to the server.

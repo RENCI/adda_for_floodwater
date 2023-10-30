@@ -1,0 +1,17 @@
+################
+Acknowledgements
+################
+
+Floodwater has been developed by `The Water Institute <https://thewaterinstitute.org>`_ with funding from:
+
+* `The Louisiana Coastal Protection and Restoration Authority (CPRA) <http://coastal.la.gov/>`_
+* `The Louisiana Watershed Initiative (LWI) <https://watershed.la.gov/>`_
+* `The Department of Homeland Security Coastal Resilience Center of Excellence <https://www.coastalresiliencecenter.org/>`_
+
+Floodwater is written by Zach Cobell at The Water Institute with contributions from:
+
+* Lorena Penuela-Cantor (The Water Institute)
+* Shintaro Bunya (University of North Carolina at Chapel Hill)
+* Brian Blanton (Renaissance Computing Institute [RENCI])
+* Matthew Bilskie (University of Georgia)
+

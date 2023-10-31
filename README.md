@@ -1,6 +1,6 @@
-## The ADCIRC Data Assimilator (ADDA) in the TWI Floodwater/ECFLOW environment
+## The ADCIRC Data Assimilator (ADDA) in the ECFLOW/Floodwater environment
 
-25 Oct 2023
+Version 0.2
 
 Blanton/UNC-RENCI <br>
 Bunya/UNC-CRC

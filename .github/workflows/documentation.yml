@@ -1,27 +1,37 @@
-name: documentation
-
-on: [push, pull_request, workflow_dispatch]
-
-permissions:
-  contents: write
-
+name: Documentation
+on:
+  push:
+    branches:
+      - main
 jobs:
-  docs:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-      - name: Install dependencies
-        run: |
-          pip install sphinx sphinx_rtd_theme myst_parser
-      - name: Sphinx build
-        run: |
-          sphinx-build doc _build
+    - uses: actions/checkout@v3
+    - uses: ammaraskar/sphinx-action@master
+      with:
+        pre-build-command: "pip3 install sphinx-rtd-theme"
+        docs-folder: "doc/"
+    - uses: actions/upload-pages-artifact@v1
+      with:
+        path: doc/build/html/
+  deploy:
+    # Add a dependency to the build job
+    needs: build
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        with:
-          publish_branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: _build/
-          force_orphan: true
+        id: deployment
+        uses: actions/deploy-pages@v1

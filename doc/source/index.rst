@@ -1,11 +1,11 @@
 
-#.. image:: ../../img/Floodwater_logo_transparent.png
+#.. image:: ../img/aps-logo.png
 
-===========================================================================
-The ADCIRC Data Assimilator (ADDA) in the TWI Floodwater/ECFLOW environment
-===========================================================================
+=======================================================================
+The ADCIRC Data Assimilator (ADDA) in the ECFLOW/Floodwater environment
+=======================================================================
 
-ADDA generates smooth surfaces of an error field, computed between NOAA / NOS observations and corresponding ADCIRC output.  It does this by computing the average errors from time series of errors at each specified NOAA gague location and building a nearest-neighbor-based model to calculate the surface values at all ADCIRC grid nodes.  The surface is constrained by including offshore and land "control points".  NOAA / NOS gauge observations are retrieved using the noaa-coops python package (git@github.com:GClunies/noaa_coops.git).  
+ADDA generates smooth surfaces of an error field, computed between NOAA / NOS observations and corresponding ADCIRC output.  It does this by computing the average errors from time series of errors at each specified NOAA gauge location and building a nearest-neighbor-based model to calculate the surface values at all ADCIRC grid nodes.  The surface is constrained by including offshore and land "control points".  NOAA / NOS gauge observations are retrieved using the `noaa-coops python package git@github.com:GClunies/noaa_coops.git`.  
 
 .. toctree::
     :maxdepth: 2
@@ -14,4 +14,3 @@ ADDA generates smooth surfaces of an error field, computed between NOAA / NOS ob
     installation.rst
     connect2fw.rst
     gridmap.rst
-

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 
-import harvester.fetch_adcirc_data as fetch_adcirc_data
+#import harvester.fetch_adcirc_data as fetch_adcirc_data
 import harvester.get_adcirc_stations as get_adcirc_stations
 import harvester.get_observations_stations as get_obs_stations
 import processing.compute_error_field as compute_error_field
@@ -65,8 +65,15 @@ def main(args):
         utilities.log.info('Generating list of urls based on fw_arch_dir')
         utilities.log.info(f'fw_arch_dir={fw_arch_dir}')
         temp=fw_arch_dir+"/archive/"
+        utilities.log.debug(f'Arch Dir = {temp}')
         n=2*4+1
+        utilities.log.info('Testing for synoptic output.')
         urls=glob.glob(temp + "/*/*/adcirc/analysis/fort.63.nc", recursive = True)
+        if not urls:
+           utilities.log.info('Synoptic output not found.  Checking for tropical.')
+           urls=glob.glob(temp + "/*/adcirc/analysis/fort.63.nc", recursive = True)
+        if not urls:
+           utilities.log.info('Url list is still empty.')
         urls=urls[-(n+1):-1]
         #dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+np.sign(args.ndays)*dt.timedelta(hours=total_hours) # Should support lookback AND look forward
         #starttime = dt_starttime.strftime('%Y-%m-%d %H:%M:%S')

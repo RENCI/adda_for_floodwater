@@ -280,6 +280,7 @@ class get_adcirc_stations(object):
             meta: <dataframe> associated metadata
         """
         utilities.log.debug('Attempt a product fetch')
+
         if not isinstance(urls,list):
             utilities.log.warn('Input adcirc url needs to be a list: Try to convert')
             urls=[urls]

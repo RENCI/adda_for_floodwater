@@ -1,6 +1,7 @@
 
-#.. image:: ../img/aps-logo.png
-
+.. image:: ../img/logo.png
+|
+|
 =======================================================================
 The ADCIRC Data Assimilator (ADDA) in the ECFLOW/Floodwater environment
 =======================================================================

@@ -15,3 +15,4 @@ ADDA generates smooth surfaces of an error field, computed between NOAA / NOS ob
     installation.rst
     connect2fw.rst
     gridmap.rst
+    acknowledgements.rst

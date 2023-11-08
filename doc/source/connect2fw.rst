@@ -2,7 +2,7 @@
 Connecting to Floodwater
 ========================
 
-Floodwater has been instrumented with hooks to include a dynamic water level correction (DWLC) surface based on error analysis over previous analysis cycles.  To turn this capability on, include the following in the suite config yaml file: 
+`Floodwater <https://waterinstitute.github.io/floodwater/index.html>`_ has been instrumented with hooks to include a dynamic water level correction (DWLC) surface based on error analysis over previous analysis cycles.  To turn this capability on, include the following in a `Floodwater suite config yaml file <https://waterinstitute.github.io/floodwater/configuration_files.html#suite-configuration-file>`_: 
 
 .. code-block:: yaml
 
@@ -15,6 +15,7 @@ Floodwater has been instrumented with hooks to include a dynamic water level cor
         configuration_file: PATHTO/ecflow_configs/da/data_assimilation.yaml
         run_non_da_forecast: true
 
+To turn off the DA, set both enabled and run_non_da_forecast to false.
 
 ===================================
 The **data_assimilation.yaml** File

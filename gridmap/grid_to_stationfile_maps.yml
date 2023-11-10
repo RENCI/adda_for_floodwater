@@ -7,8 +7,8 @@ GRIDMAP: &gridmap
     NOAA_STATIONS: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/ec95d_stations.V1.csv" 
     LANDCONTROL: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/ec95d_land_control_list.dat"
     WATERCONTROL: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/ec95d_water_control_list.dat"
-NCSC123:
-    NOAA_STATIONS: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/NCSC123_stations_V2.0.csv"
+ NCSC_SAB_V1.23:
+    NOAA_STATIONS: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/NCSC123_stations_V2.1.csv"
     LANDCONTROL: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/ec95d_land_control_list.dat"
     WATERCONTROL: "/home/bblanton/GitHub/RENCI/adda_for_floodwater/gridmap/ec95d_water_control_list.dat"
     

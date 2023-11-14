@@ -34,3 +34,11 @@ The configuration_file **data_assimilation.yaml** needs to contain the following
    dwlc_filename: "da_error_surface.dat"
    addahome: "PATHTO/adda_for_floodwater/"
    mapfile: "PATHTO/adda_for_floodwater/gridmap/grid_to_stationfile_maps.yml"
+
+Do not change the value of dwlc_filename.  This is currently hardwired in Floodwater.
+
+LOGLEVEL can be set to "INFO" to decrease the verbosity of the ADDA logging output.
+
+min_lookback_cycles and max_lookback_days control how many previous nowcast cycles are used in the error analysis.  Note that the minimum is in cycles (6-hr) and the maximum is in days.  This will be fixed in future releases.  
+
+It is probably best to leave others alone, except for setting **PATHTO** appropriately.

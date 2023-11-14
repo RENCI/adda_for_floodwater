@@ -21,7 +21,7 @@ To turn off the DA, set both enabled and run_non_da_forecast to false.
 The **data_assimilation.yaml** File
 ===================================
 
-The configuration_file **data_assimilation.yaml** needs to contain the following, suitably adjusted to the local environment (**PATHTO**):
+The configuration_file **data_assimilation.yaml** needs to contain the following, adjusted to the local environment (**PATHTO**):
 
 .. code-block:: yaml
 
@@ -29,8 +29,8 @@ The configuration_file **data_assimilation.yaml** needs to contain the following
    LOGLEVEL: DEBUG
    rundir: "./adda"
    max_lookback_days: 2
+   min_lookback_cycles: 2
    venv: adda
    dwlc_filename: "da_error_surface.dat"
    addahome: "PATHTO/adda_for_floodwater/"
    mapfile: "PATHTO/adda_for_floodwater/gridmap/grid_to_stationfile_maps.yml"
-

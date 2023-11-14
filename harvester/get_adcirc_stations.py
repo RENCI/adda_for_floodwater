@@ -138,12 +138,11 @@ def extract_adcirc_grid_coords(urls_63)->pd.DataFrame:
     Returns:
        adc_coords: Dictionary with the keys ['LON','LAT'] 
     """
-    print(urls_63)
     if not isinstance(urls_63, list):
         url=urls_63
     else:
         url=first_available_netCDF4(urls_63) # Assumes all urls are for the same grid
-    utilities.log.info(f"Loading fort.63.log {url}")
+    utilities.log.info(f"Opening fort.63 {url}")
     nc = nc4.Dataset(url)
     gridx = nc.variables['x']
     gridy = nc.variables['y']
@@ -196,7 +195,7 @@ class get_adcirc_stations(object):
             self.station_list=fetch_adcirc_data.get_adcirc_stations_fort63_style(station_list_file)
         else:
             self.station_list=fetch_adcirc_data.get_adcirc_stations_fort61_style(station_list_file)
-        utilities.log.info(f'Fetched station list from {self.station_list}')
+        utilities.log.debug(f'Station list is {self.station_list}')
 
         # Specify the desired products
         self.product = product.lower()
@@ -212,8 +211,7 @@ class get_adcirc_stations(object):
         Tmin=None  # These will be populated with the min/max times as a str with format %Y%m%d%H%M
         Tmax=None
 
-        utilities.log.info(f'SOURCE to fetch from {self.source}')
-        utilities.log.info(f'PRODUCT to fetch is {self.product}')
+        utilities.log.info(f'Retrieving {self.product} from {self.source}.')
 
     def remove_knockout_stations(self, df_station) -> pd.DataFrame:
         """
@@ -291,7 +289,7 @@ class get_adcirc_stations(object):
         self.sitename = fetch_adcirc_data.strip_sitename_from_url(urls, fill='NoSite')
         self.stormnumber = fetch_adcirc_data.strip_storm_number_from_url(urls, fill='NoNumber')
         self.timemark=fetch_adcirc_data.strip_time_from_url(urls)
-
+        
         try:
             if self.source.upper()=='TDS':
                 adc_stations=self.station_list
@@ -339,15 +337,15 @@ def main(args):
         stoptime = tnow.strftime('%Y-%m-%d %H:%M:%S')
     else:
         stoptime=args.timeout
-    print(f'Stoptime and ndays {stoptime}. {args.ndays}')
+    #print(f'Stoptime and ndays {stoptime}. {args.ndays}')
 
     variable_name = args.variable_name
     utilities.log.info(f'variable_name set to {variable_name}')
 
     # Generate a list of URLs consistent with the desired criteria
 
-    print('Demonstrate URL generation')
-    print(args.instance_name)
+    #print('Demonstrate URL generation')
+    #print(args.instance_name)
 
     # genurls can differentiate between a yaml/url-based approach and a url template given the status of args.url
     genrpl = genurls.generate_urls_from_times(url=args.url, timeout=stoptime, ndays=args.ndays, grid_name=args.gridname, instance_name=args.instance_name, config_name=config_name)
@@ -359,7 +357,7 @@ def main(args):
         urls = genrpl.build_url_list_from_template_url_and_offset( ensemble=args.ensemble_name)
         gridname = fetch_adcirc_data.grab_gridname_from_url(urls)
 
-    print(f' URLs {urls}')
+    #print(f' URLs {urls}')
 
     # Invoke the harvester related class
     if args.fort63_style:

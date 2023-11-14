@@ -45,7 +45,6 @@ def plot_model(adc_plot_grid=None, df_surface=None, df_stations=None, df_land_co
     Results:
         A plot in the USA East Coast region
     """
-    #coastline=np.loadtxt('/projects/sequence_analysis/vol1/prediction_work/ADCIRCSupportTools-v2/test_data/coarse_us_coast.dat')
     coastline=np.loadtxt(os.path.join(os.path.dirname(__file__), "misc", "coarse_us_coast.dat"))
     #N=16
     #base_cmap='tab20c' # Or simply use None tab20c is also okay
@@ -55,7 +54,6 @@ def plot_model(adc_plot_grid=None, df_surface=None, df_stations=None, df_land_co
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10,10), dpi=144) #, sharex=True)
     # Set up surface
     if df_surface is not None:
-        #print('plot_model: Found a extrapolated surface data set')
         x = adc_plot_grid['LON']
         y = adc_plot_grid['LAT']
         v = df_surface['VAL'].values
@@ -63,7 +61,6 @@ def plot_model(adc_plot_grid=None, df_surface=None, df_stations=None, df_land_co
         mesh = ax.pcolormesh(x, y, v, shading='nearest', cmap=cmap, vmin=vmin, vmax=vmax)
     # Merge control points
     if df_stations is not None:
-        #print('plot_model: Found a station data set')
         stations_X=df_stations['LON'].values
         stations_Y=df_stations['LAT'].values
         stations_V=df_stations['VAL'].values
@@ -71,7 +68,6 @@ def plot_model(adc_plot_grid=None, df_surface=None, df_stations=None, df_land_co
                    c=stations_V, cmap=cmap, edgecolor='black',
                    vmin=vmin, vmax=vmax)
     if df_land_control is not None:
-        #print('plot_model: Found a land_control data set')
         land_X=df_land_control['LON'].values
         land_Y=df_land_control['LAT'].values
         land_V=df_land_control['VAL'].values
@@ -79,13 +75,13 @@ def plot_model(adc_plot_grid=None, df_surface=None, df_stations=None, df_land_co
                    c=land_V, cmap=cmap, edgecolor='black',
                    vmin=vmin, vmax=vmax)
     if df_water_control is not None:
-        #print('plot_model: Found a water_control data set')
         water_X=df_water_control['LON'].values
         water_Y=df_water_control['LAT'].values
         water_V=df_water_control['VAL'].values
-        ax.scatter(water_X, water_Y, s=30, marker='x',
-                   c='black', edgecolor='black',
-                   vmin=vmin, vmax=vmax)
+        ax.scatter(water_X, water_Y, s=30, marker='x',c='black')
+                   #,edgecolor='black',
+                   #vmin=vmin, vmax=vmax)
+                   
     ax.plot(coastline[:,0],coastline[:,1],color='black',linewidth=.25)
     ax.axis('equal')
     ax.set_xlim(xlim)

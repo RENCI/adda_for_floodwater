@@ -92,7 +92,7 @@ class get_obs_stations(object):
         if self.source=='NDBC_HISTORIC':
             self.station_list = fetch_data.get_ndbc_buoys(station_list_file)
        
-        utilities.log.info(f'Fetched station list from {self.station_list}')
+        utilities.log.debug(f'Station list is {self.station_list}')
 
         # Specify the desired products
         self.product = product.lower()
@@ -209,7 +209,7 @@ class get_obs_stations(object):
         """
         starttime = time_range[0]
         endtime=time_range[1]
-        utilities.log.debug(f'Attempt a product fetch for the time range {starttime}-{endtime}')
+        utilities.log.info(f'Retrieving data for the time range {starttime}-{endtime}')
         template = "An exception of type {0} occurred."
 
         interval=interval

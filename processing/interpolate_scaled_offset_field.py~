@@ -321,7 +321,7 @@ def generic_grid():
     Returns:
         df: DataFrame with columns ['LON','LAT']
     """
-    print('Using a default interpolation grid that is intended only for testing')
+    utilities.log.debug('Generating points for surface figure.')
     lowerleft_x = -100
     lowerleft_y =7 
     res = .1  # resolution in deg
@@ -458,11 +458,11 @@ def main(args):
     adc_plot_grid = generic_grid()
     df_plot_transformed = interpolation_model_transform(adc_plot_grid, model=model, input_grid_type='grid')
 
-    # Sabe the full scores for future reference
-    print('Save scores')
+    # Save the full scores for future reference
+    utilities.log.debug('Save scores')
     df_full_scores = pd.DataFrame.from_dict(full_scores)
     df_full_scores.to_pickle('full_scores.pkl')
-    print('Finished')
+    utilities.log.debug('Finished')
 
 if __name__ == '__main__':
     from argparse import ArgumentParser

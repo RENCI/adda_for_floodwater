@@ -205,7 +205,6 @@ class fetch_station_data(object):
             utilities.log.warn(f'Error Value: Failed interpolation {ex}: Probable empty station data')
             raise
         return df_normal_smooth
-        #sys.exit(1)
 
     def old_interpolate_and_resample(self, dx, sample_mins=15)->pd.DataFrame:
         """
@@ -269,9 +268,9 @@ class fetch_station_data(object):
         try:
             df_data = pd.concat(aggregateData, axis=1)
             idx = df_data.index
-            utilities.log.info('Check for time duplicates')
+            utilities.log.debug('Check for time duplicates')
             if idx.duplicated().any():
-                utilities.log.info("Duplicated data times found . will keep first value(s) only")
+                utilities.log.debug("Duplicated data times found . will keep first value(s) only")
                 df_data = df_data.loc[~df_data.index.duplicated(keep='first')]
             if len(idx) != len(df_data.index):
                 utilities.log.warning(f'had duplicate times {len(idx)} {len(df_data.index)}')
@@ -503,7 +502,8 @@ class adcirc_fetch_data(fetch_station_data):
             utilities.log.error('No valid fort file was found: Abort')
             sys.exit(1)
         self.available_stations_tuple=available_stations
-        utilities.log.info(f'List of ADCIRC stations {self.available_stations_tuple}')
+        #utilities.log.debug(f'List of ADCIRC stations {self.available_stations_tuple}')
+
         periods = self._remove_empty_url_pointers(periods)
         if not keep_earliest_url:
             remperiod,periods=periods[0],periods[1:]
@@ -522,7 +522,7 @@ class adcirc_fetch_data(fetch_station_data):
 
         Returns: list of tuples (stationid,nodeid). Superfluous stationids are ignored
         """
-        utilities.log.debug('Attempt to find ADCIRC fort_63 stations/Nodes')
+        utilities.log.debug('Getting ADCIRC fort_63 station nodes')
         try:
             idx=list()
             utilities.log.debug('Fetch stations fort63 style ...')
@@ -548,7 +548,7 @@ class adcirc_fetch_data(fetch_station_data):
 
         Returns: list of tuples (stationid,nodeid). Superfluous stationids are ignored
         """
-        utilities.log.info('Attempt to find ADCIRC stations')
+        utilities.log.debug('Attempt to find ADCIRC stations')
         full_idx=list()
         for url61 in periods:
             utilities.log.info('Fetch stations: {} '.format(url61))
@@ -1014,7 +1014,6 @@ class contrails_fetch_data(fetch_station_data):
             utilities.log.error('Contrails No such product key. Input {}, Available {}'.format(product, self.products.keys()))
             raise
             ##sys.exit(1)
-        print(self._product)
         utilities.log.info(f'CONTRAILS Fetching product {self._product}')
         self._systemkey=config['systemkey']
         self._domain=config['domain']
@@ -1141,7 +1140,7 @@ class contrails_fetch_data(fetch_station_data):
         datalist=list()
         periods = self.return_list_of_daily_timeranges(time_range)
         for tstart,tend in periods:
-            utilities.log.debug('Iterate: start time is {}, end time is {}, station is {}'.format(tstart,tend,station))
+            utilities.log.debug('Start time is {}, end time is {}, station is {}'.format(tstart,tend,station))
             indict = {'method': METHOD, 'class': self.CLASSDICT[self._product],
                  'system_key': self._systemkey ,'site_id': station,
                  'tz': GLOBAL_TIMEZONE,
@@ -1303,7 +1302,7 @@ class noaa_web_fetch_data(fetch_station_data):
         self._data_unit=map_product_to_harvester_units(product)
         try:
             self._product=self.products[product] # self.products[product] # product
-            utilities.log.info(f'NOAA-WEB Fetching product {self._product}')
+            utilities.log.info(f'NOAA Fetching product {self._product}')
         except KeyError as e:
             utilities.log.error(f'NOAA/NOS-WEB No such product key. Input {product}, Available {self.products.keys()}: {e}')
             raise
@@ -1406,7 +1405,7 @@ class noaa_web_fetch_data(fetch_station_data):
         datalist=list()
         periods = self.return_list_of_daily_timeranges(time_range)
         for tstart,tend in periods:
-            utilities.log.debug('Iterate: start time is {}, end time is {}, station is {}'.format(tstart,tend,station))
+            utilities.log.debug('Start time is {}, end time is {}, station is {}'.format(tstart,tend,station))
             indict = {'product': self._product,
                  'station': station,
                  'datum':'MSL',
@@ -1539,7 +1538,6 @@ class noaa_web_fetch_data(fetch_station_data):
 #            sys.exit(1)
 #        super().__init__(station_id_list, periods, resample_mins=resample_mins)
 #
-#TODO metric con versions
 #    def fetch_single_product(self, buoy, time_range) -> pd.DataFrame:
 #        """
 #        For a single NDBC site_id, process the tuple from the input period.

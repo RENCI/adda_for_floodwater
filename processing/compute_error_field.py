@@ -75,7 +75,7 @@ def combine_data_to_dict(in_adc,in_obs,in_err, product='WL')->dict:
     obs.set_index(['TIME','SRC'], inplace=True)
     err.set_index(['TIME','SRC'], inplace=True)
     df_merged = pd.concat([adc,obs,err])
-    utilities.log.info('Combined data sets into multi-index form')
+    utilities.log.debug('Combined data sets into multi-index form')
     data_dict = generate_merged_dict_data(df_merged,product='WL')
     return data_dict
 
@@ -93,7 +93,7 @@ def generate_merged_dict_data(df_merged, product='WL')->dict:
     Returns:
         df_merged_dict: A Dict of the merged 3 data source DataFrame suitable for JSON storage  
     """
-    utilities.log.info('Begin processing DICT data format')
+    utilities.log.debug('Begin processing DICT data format')
     variables = ['ADC','OBS','ERR']
     df = df_merged
     df.reset_index(inplace=True) # Remove SRC from the multiindex
@@ -111,7 +111,7 @@ def generate_merged_dict_data(df_merged, product='WL')->dict:
                 dictdata[station].update({variable: {'TIME': cols, product:val}})
             else:
                 dictdata[station]={variable: {'TIME': cols, product:val}}
-    utilities.log.info('Constructed DICT time series data')
+    utilities.log.debug('Constructed DICT time series data')
     return dictdata 
 
 class compute_error_field(object):
@@ -164,9 +164,9 @@ class compute_error_field(object):
         self.n_pad=n_pad
 
         self.z_thresh=zthresh
-        utilities.log.info('Averaging: Hours per period {}'.format(n_hours_per_period))
-        utilities.log.info('Tidal: Hours per tidal period {}, num of padding hours {}'.format(self.n_hours_per_tide, self.n_pad))
-        utilities.log.info('Exclusions: If chosen use Z-thresh of {}'.format(self.z_thresh))
+        utilities.log.debug('Averaging: Hours per period {}'.format(n_hours_per_period))
+        utilities.log.debug('Tidal: Hours per tidal period {}, num of padding hours {}'.format(self.n_hours_per_tide, self.n_pad))
+        utilities.log.debug('Exclusions: If chosen use Z-thresh of {}'.format(self.z_thresh))
 
     def _intersection_stations(self):
         """ 
@@ -175,7 +175,7 @@ class compute_error_field(object):
         common_stations = self.obs.columns & self.adc.columns
         self.obs = self.obs[common_stations]
         self.adc = self.adc[common_stations]
-        utilities.log.info('OBS and ADC DataFrames reduced (inplace) to common stations of len {}'.format(len(common_stations)))
+        utilities.log.debug('OBS and ADC DataFrames reduced (inplace) to common stations of len {}'.format(len(common_stations)))
 
     def _intersection_times(self):
         """
@@ -187,7 +187,7 @@ class compute_error_field(object):
         adc = self.adc.loc[common_times]
         self.obs=obs
         self.adc=adc
-        utilities.log.info('OBS and ADC DataFrames reduced (inplace) to common times of len {}'.format(len(common_times)))
+        utilities.log.debug('OBS and ADC DataFrames reduced (inplace) to common times of len {}'.format(len(common_times)))
 
 #
 # The tidal transform step used here is a bit tricky. We begin with the input hourly data (starttime,endtime) from the adc/obs sources.
@@ -230,14 +230,14 @@ class compute_error_field(object):
             num_rows_keep = num_periods * 12
             self.adc = self.adc.tail(num_rows_keep)
             self.obs = self.obs.tail(num_rows_keep)
-            print(len(self.adc))
-            utilities.log.info('Tidal transform: Num retained periods {}, num rows kept {}, adc data index {}'.format(num_periods, num_rows_keep, self.adc.index))
+            utilities.log.debug('Tidal transform: Num retained periods {}, num rows kept {}'.format(num_periods, num_rows_keep))
+            utilities.log.debug('Tidal transform: adc data index {}'.format(self.adc.index))
             # Now only keep a complete set of 12.42 ur full-tidal periods whos last time <=timeout
             ttimestart, ttimeend = diurnal_range[0],diurnal_range[-1]
-            utilities.log.info('inplace tidal_transform_data: n_pad {}, n_hours_per_period {}, n_hours_per_tide {}'.format(n_pad, n_hours_per_period, n_hours_per_tide))
-            utilities.log.info('inplace tidal_transform_data: timein {}, timeout {}, trans_time_start, trans_time_end {}'.format(timein, timeout, ttimestart, ttimeend))
+            utilities.log.debug('inplace tidal_transform_data: n_pad {}, n_hours_per_period {}, n_hours_per_tide {}'.format(n_pad, n_hours_per_period, n_hours_per_tide))
+            utilities.log.debug('inplace tidal_transform_data: timein {}, timeout {}, trans_time_start, trans_time_end {}'.format(timein, timeout, ttimestart, ttimeend))
         else:
-            utilities.log.info('inplace tidal_transform_data: Not enough data to perform a tidal transform. Skip')
+            utilities.log.debug('inplace tidal_transform_data: Not enough data to perform a tidal transform. Skip')
 
 # MIGHT need something special for Hurricanes ?
     def _apply_time_bounds(self, time_range):
@@ -264,11 +264,10 @@ class compute_error_field(object):
             except ValueError:
                 utilities.log.error('_apply_time_bounds Input time range is wrong. Must be %Y-%m-%d %H:%M:%S or a hurricane advisory number.  Got {}: Abort'.format(time_range))
                 sys.exit(1)
-        print(f'bounds {bound_lo} and {bound_hi}')
         self.adc=self.adc.loc[ (self.adc.index >= bound_lo) & (self.adc.index <= bound_hi) ]
         self.obs=self.obs.loc[ (self.obs.index >= bound_lo) & (self.obs.index <= bound_hi) ]
         self._intersection_times() # Should not be needed here but just in case
-        utilities.log.info('New adc time lo {}, New adc time hi {}'.format( min(self.adc.index).strftime(dformat), max(self.adc.index.strftime(dformat))))
+        utilities.log.debug('New adc time lo {}, New adc time hi {}'.format( min(self.adc.index).strftime(dformat), max(self.adc.index.strftime(dformat))))
 
 # Statistical stuff
 
@@ -287,7 +286,7 @@ class compute_error_field(object):
         z = np.abs(stats.zscore(self.df_final['mean'].dropna(axis=0)))> self.z_thresh
         droplist = self.df_final.dropna(axis=0)[z].index.tolist()
         self.df_final.drop(droplist,axis=0,inplace=True)
-        utilities.log.info('Requested check for station error outlier status. {} stations removed using a zthresh of {}.'.format(len(droplist),self.z_thresh))
+        utilities.log.debug('Requested check for station error outlier status. {} stations removed using a zthresh of {}.'.format(len(droplist),self.z_thresh))
 
     def _compute_and_average_errors(self):
         """
@@ -320,7 +319,7 @@ class compute_error_field(object):
         self.df_final.index.name='STATION'
         # Reset diff format back
         self.diff.set_index('TIME',inplace=True)
-        utilities.log.info('Completed Cycle averaging. Num of periods {}'.format(num_periods))
+        utilities.log.debug('Completed Cycle averaging. Num of periods {}'.format(num_periods))
 
 ##
 ## Simple test based on data previously stored into files

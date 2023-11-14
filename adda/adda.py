@@ -25,11 +25,12 @@ def main(args):
 
     config_file=args.da_config_file
     config = utilities.init_logging(subdir=None, config_file=config_file)
-    utilities.log.debug('\n'.join(sys.path))
+    #utilities.log.debug('\n'.join(sys.path))
     utilities.log.debug(f'config={config}')
 
     map_file=config['mapfile']
     Ndays=int(-config['max_lookback_days'])
+    minCycles=int(config['min_lookback_cycles'])
     rootdir=config['rundir'] 
     dwlc_filename=config['dwlc_filename'] 
 
@@ -40,44 +41,86 @@ def main(args):
     if args.fw_arch_dir is None:
         utilities.log.error('Floodwater Arch Dir cannot be None, empty, or "./".')
         sys.exit(1)
+    if args.met is None:
+        utilities.log.error('met type cannot be None.')
+        sys.exit(1)
 
     fort63_style=args.fort63_style
     fw_arch_dir=args.fw_arch_dir
 
-    # Set up IO env
+    if not os.path.exists(rootdir):
+        os.makedirs(rootdir)
+
     #utilities.log.info("Product Level Working in {}.".format(os.getcwd()))
 
     # Set up the times information No need to worry about values for hh:mm:ssZ Subsequent resampling cleans that up
 
-#    if args.timeout is None: # Set to a default of now()
-#        tnow = dt.datetime.now()
-#        stoptime = tnow.strftime('%Y-%m-%d %H:%M:%S')
-#    else:
-#        stoptime=args.timeout
-    tnow = dt.datetime.now()
-    stoptime = tnow.strftime('%Y-%m-%d %H:%M:%S')
+    #if args.timeout is None: # Set to a default of now()
+    #    tnow = dt.datetime.now()
+    #    stoptime = tnow.strftime('%Y-%m-%d %H:%M:%S')
+    #else:
+    #    stoptime=args.timeout
+    #tnow = dt.datetime.now()
+    #stoptime = tnow.strftime('%Y-%m-%d %H:%M:%S')
 
     #dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+dt.timedelta(days=args.ndays)
-    total_hours = 0 if args.ndays==0 else abs(args.ndays*24) - 1 # Ensures the final list length INCLUDES the now time as a member and is a multiple of 24 hours
+#   total_hours = abs(Ndays*24) - 1 # Ensures the final list length INCLUDES the now time as a member and is a multiple of 24 hours
+    #total_hours = 0 if args.ndays==0 else abs(Ndays*24) - 1 # Ensures the final list length INCLUDES the now time as a member and is a multiple of 24 hours
 
     if args.input_url is None:
+
         # generate list of urls
         utilities.log.info('Generating list of urls based on fw_arch_dir')
         utilities.log.info(f'fw_arch_dir={fw_arch_dir}')
-        temp=fw_arch_dir+"/archive/"
-        utilities.log.debug(f'Arch Dir = {temp}')
-        n=2*4+1
-        utilities.log.info('Testing for synoptic output.')
-        urls=glob.glob(temp + "/*/*/adcirc/analysis/fort.63.nc", recursive = True)
+        fw_dir=fw_arch_dir+"/archive/"
+        utilities.log.debug(f'Arch Dir = {fw_dir}')
+        n=4*abs(Ndays)
+        cwd=os.getcwd()
+        os.chdir(fw_dir)
+        utilities.log.debug(f'args.met = {args.met}')
+
+        if args.met == "nhc": 
+            urls=glob.glob("*/adcirc/analysis/fort.63.nc", recursive = True)
+            if args.current_time is not None:
+                urls2=[]
+                for u in urls:
+                    if u.split('/')[0] <= args.current_time:
+                       urls2.append(os.path.join(fw_dir,u))
+                urls=urls2
+        else:
+            urls=glob.glob("*/*/adcirc/analysis/fort.63.nc", recursive = True)
+            if args.current_time is not None:
+                urls2=[]
+                for u in urls:
+                    if "/".join(u.split('/')[0:2]) <= args.current_time:
+                            urls2.append(os.path.join(fw_dir,u))
+                urls=urls2
+        
+        utilities.log.info('URL list before filtering is:\n{}'.format('\n'.join(urls))) 
+
         if not urls:
-           utilities.log.info('Synoptic output not found.  Checking for tropical.')
-           urls=glob.glob(temp + "/*/adcirc/analysis/fort.63.nc", recursive = True)
-        if not urls:
-           utilities.log.info('Url list is still empty.')
-        urls=urls[-(n+1):-1]
-        #dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+np.sign(args.ndays)*dt.timedelta(hours=total_hours) # Should support lookback AND look forward
-        #starttime = dt_starttime.strftime('%Y-%m-%d %H:%M:%S')
-        #print('Total_hours, Starttime, Stoptime and ndays {}, {}. {}'.format(total_hours, starttime, stoptime,args.ndays))
+            utilities.log.info('Url list is empty before popping first item. Exiting ADDA. Surface will be all zeros.')
+            sys.exit(1)
+
+        if not args.dont_delete_first_nowcast:
+            urls.pop(0)
+            if not urls:
+                utilities.log.info('Url list is empty after popping first item. Exiting ADDA. Surface will be all zeros.')
+                sys.exit(1)
+
+        #remove leading urls if needed
+        if len(urls) > n:
+            urls=urls[-n:]
+
+        if len(urls) < minCycles:
+            utilities.log.info(f'Not enough cycles for analysis {len(urls),minCycles}. Exiting ADDA. Surface will be all zeros.')
+            sys.exit(1)
+    
+        utilities.log.info(f'URL list length = {len(urls)}') 
+        utilities.log.info('URL list after filtering is:\n{}'.format('\n'.join(urls))) 
+
+        os.chdir(cwd)
+
     else:
         # assume "input_url" is a file of urls.
         if not os.path.exists(args.input_url):
@@ -85,8 +128,13 @@ def main(args):
             sys.exit(1)
         with open(args.input_url) as f:
             urls = f.read().splitlines()
+        utilities.log.info('URL list is:\n{}'.format('\n'.join(urls))) 
 
-    utilities.log.info(f'URL list is {urls}') 
+    #dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+np.sign(args.ndays)*dt.timedelta(hours=total_hours) # Should support lookback AND look forward
+    #starttime = dt_starttime.strftime('%Y-%m-%d %H:%M:%S')
+    #print('Total_hours, Starttime, Stoptime and ndays {}, {}. {}'.format(total_hours, starttime, stoptime,args.ndays))
+
+
 ##
 ## get the adcirc station data
 ##
@@ -95,57 +143,26 @@ def main(args):
     station_file, fort63_compliant = grid_to_station_maps.find_station_list_from_map(gridname=args.gridname, mapfile=args.map_file, datatype='NOAA_STATIONS')
     file_land_controls = grid_to_station_maps.find_land_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)
     file_water_controls = grid_to_station_maps.find_water_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)
-    #print(f'station_file={station_file}')
 
     rpl = get_adcirc_stations.get_adcirc_stations(source='TDS', product=args.data_product,
                 station_list_file=station_file, 
                 knockout_dict=None, fort63_style=fort63_style )
 
-    # Convert URLs to desired fort type
-    #if fort63_style:
-    #    urls=get_adcirc_stations.convert_urls_to_63style(urls)
-    #else:
-    #    urls=get_adcirc_stations.convert_urls_to_61style(urls)
-    #utilities.log.info(f'Set of URLs to process {urls}')
-
-    #print(f'fort63_style={fort63_style}')
-
-    # Fetch best resolution and no resamplingA
-
+    # Fetch best resolution and no resampling
     data_adc,meta_adc=rpl.fetch_station_product(urls, return_sample_min=args.return_sample_min, fort63_style=fort63_style  )
 
     # Revert Harvester filling of nans to -99999 back to nans
     data_adc.replace('-99999',np.nan,inplace=True)
     meta_adc.replace('-99999',np.nan,inplace=True)
 
-    # Grab the grid coordinates for the url 
-    #urls_63 = get_adcirc_stations.convert_urls_to_63style(urls)
-    #print(urls_63)
+    # Get the grid coordinates for the url 
     adc_coords = get_adcirc_stations.extract_adcirc_grid_coords( urls )
 
-    #lons = adc_coords['LON']
-    #lats = adc_coords['LAT']
-    #adc_coords = {'lon':lons, 'lat':lats} # This created for backward compatibility
-
-    #print(f'Grid name {rpl.gridname}')
-    #print(f'Instance name {rpl.instance}')
-
-    # Get a last piece of metadata for first url in iterable grabs either the time (%Y%m%s%H) or hurricane advisory (int)
-    # Grab the adcirc time ranges for calling the observations code
-    
     # Since ADCIRC start 6 hours early, using the ADCRC starttime can throw off the error averages at the end
     obs_starttime = dt.datetime.strftime( min(data_adc.index.tolist()), '%Y-%m-%d %H:%M:%S')
     obs_endtime = dt.datetime.strftime( max(data_adc.index.tolist()), '%Y-%m-%d %H:%M:%S')
     #obs_starttime = dt.datetime.strftime(starttime, '%Y-%m-%d %H:%M:%S')
     #obs_stoptime = dt.datetime.strftime(stoptime, '%Y-%m-%d %H:%M:%S')
-
-    # Currently being used: Derived from ndays and timeout specification
-    # If a special case input_url, need to grab times form the input url incase it was a hurricane
-#    if args.input_url is None:
-#        obs_starttime=starttime
-#        obs_endtime=stoptime
-
-    #
 
     # If equal fetch the min/max values of the adcirc data.
     if obs_starttime == obs_endtime:
@@ -170,13 +187,13 @@ def main(args):
     iometadata='' 
 
     # Write the data to disk
-    iosubdir='adcpkl'
-    if not os.path.exists(rootdir):
-        os.makedirs(rootdir)
+    iosubdir='./'
+
 
     # Write selected in Pickle data 
     metapkl = io_utilities.write_pickle(meta_adc,rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_metadata')
     detailedpkl = io_utilities.write_pickle(data_adc, rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_detailed')
+    temp=io_utilities.write_csv(data_adc, rootdir=rootdir,subdir=iosubdir,fileroot='data_adc')
 
     # Grab the adcirc time ranges for calling the observations code
     ##obs_starttime = dt.datetime.strftime( min(data_adc.index.tolist()), '%Y-%m-%d %H:%M:%S')
@@ -189,7 +206,6 @@ def main(args):
     metajson = io_utilities.write_json(meta_adc,rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_metadata')
     detailedjson = io_utilities.write_json(data_adc_4json, rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_detailed')
    
-    #print('Write out coordinates')
     #ADCfilecoords=utilities.write_csv(df_adc_coords, rootdir=rootdir,subdir=iosubdir,fileroot='adc_coord',iometadata=iometadata)
     #utilities.log.info('Wrote grid coords to {}'.format(ADCfilecoords))
     #print('Write out coordinates dict in JSON format')
@@ -209,16 +225,16 @@ def main(args):
     data_obs,meta_obs=obs.fetch_station_product((obs_starttime,obs_endtime), return_sample_min=0)
     data_obs.replace('-99999',np.nan,inplace=True)
     meta_obs.replace('-99999',np.nan,inplace=True)
-    # Remove stations with too many nans ( Note Harvester would have previously removed stations that are ALL NANS)
+
+    # Remove stations with too many nans 
     data_thresholded = obs.remove_missingness_stations(data_obs, max_nan_percentage_cutoff=10)  # (Maximum allowable nans %)
     # meta_thresholded = meta_obs.loc[data_thresholded.columns.tolist()]
     meta = set(data_thresholded.columns.tolist()).intersection(meta_obs.index.to_list())
     meta_thresholded = meta_obs.loc[meta]
     # Apply a moving average (smooth) the data performed the required resampling to the desired rate followed by interpolating
     data_obs_smoothed = obs.fetch_smoothed_station_product(data_thresholded, return_sample_min=60, window=11)
+    temp=io_utilities.write_csv(data_obs_smoothed, rootdir=rootdir,subdir=iosubdir,fileroot='data_obs_smoothed')
 
-    # Write the data to disk in a way that mimics ADDA
-    iosubdir='obspkl'
     # Write selected in Pickle data 
     metapkl = io_utilities.write_pickle(meta_thresholded,rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_metadata')
     detailedpkl = io_utilities.write_pickle(data_thresholded, rootdir=rootdir,subdir=iosubdir,fileroot='obs_wl_detailed')
@@ -237,13 +253,11 @@ def main(args):
     comp_err._compute_and_average_errors()
 
     # Set up IO env
-    utilities.log.info("Product Level Working in {}.".format(os.getcwd()))
-
-    iosubdir='errorfield'
+    #utilities.log.info("Product Level Working in {}.".format(os.getcwd()))
 
     # Write Pickle files 
     tideTimeErrors = io_utilities.write_pickle(comp_err.diff,rootdir=rootdir,subdir=iosubdir,fileroot='tideTimeErrors')
-    utilities.log.info('Wrote out Pickle {}'.format(tideTimeErrors))
+    utilities.log.debug('Wrote out Pickle {}'.format(tideTimeErrors))
 
     # Write selected in JSON format. Basically the Merged_dict data multi-index set
     data_dict = compute_error_field.combine_data_to_dict(comp_err.adc,comp_err.obs,comp_err.diff, product='WL')
@@ -254,7 +268,7 @@ def main(args):
     station_summary_aves=io_utilities.write_csv(comp_err.df_final, rootdir=rootdir,subdir=iosubdir,fileroot='stationSummaryAves')
     station_period_aves=io_utilities.write_csv(comp_err.df_cycle_aves, rootdir=rootdir,subdir=iosubdir,fileroot='stationPeriodAves')
     #utilities.log.info('Wrote out CSV cyclic averages {}'.format(station_period_aves))
-    utilities.log.info('Wrote out CSV summary averages {}'.format(station_summary_aves))
+    utilities.log.info(f'Wrote out CSV summary averages {station_summary_aves}')
 ##
 ## Perform the interpolation. Must use the LinearRBF approach
 ##
@@ -277,40 +291,28 @@ def main(args):
     if df_land_controls is not None:
         set_of_dfs.append(df_land_controls)
         set_of_clamp_dfs.append(df_land_controls)
-        utilities.log.info(f'Final Land control results {df_land_controls}')
+        utilities.log.debug(f'Land control results \n{df_land_controls}')
 
     df_ClampControl = pd.concat(set_of_clamp_dfs,axis=0)
-    # This can only be used with LinearRBF. More testing is required
     pathpoly = interpolate_scaled_offset_field.build_polygon_path(df_ClampControl)
 
-    utilities.log.info('construct_interpolation_model: Number of dfs to combine for interpolation is {}'.format(len(set_of_dfs)))
-
+    #utilities.log.debug('construct_interpolation_model: Number of dfs to combine for interpolation is {}'.format(len(set_of_dfs)))
     df_combined=interpolate_scaled_offset_field.combine_datasets_for_interpolation(set_of_dfs)
-    print('df_combined')
-    print(df_combined)
+    
     model = interpolate_scaled_offset_field.interpolation_model_fit(df_combined, interpolation_type='LinearRBF')
 
     # Build new grid
-    df_extrapolated_ADCIRC_GRID = interpolate_scaled_offset_field.interpolation_model_transform(adc_coords, model=model, input_grid_type='points',pathpoly=pathpoly)
-
-    # do A TEST FIT
-#    if args.cv_testing:
-#        print('TEST FIT')
-#        full_scores, best_scores = interpolate_scaled_offset_field.test_interpolation_fit(df_source=df_stations, df_land_controls=df_land_controls.copy(), df_water_controls=df_water_controls, cv_splits=5, nearest_neighbors=3)
-#        print('ADDA')
-#        print(best_scores)
-#        print(full_scores)
+    df_ADCIRC_GRID = interpolate_scaled_offset_field.interpolation_model_transform(adc_coords, model=model, input_grid_type='points',pathpoly=pathpoly)
 
 ##
 ## Write out datafiles 
 #
     commentline='## {}, {}, {}'.format(args.gridname,obs_starttime,obs_endtime)
-    gridfile = io_utilities.write_ADCIRC_formatted_gridfield_to_Disk(df_extrapolated_ADCIRC_GRID,
-         value_name='VAL', rootdir='../',subdir='',filename=dwlc_filename,iometadata='',commentline=commentline)
+    gridfile = io_utilities.write_ADCIRC_formatted_gridfield_to_Disk(df_ADCIRC_GRID,
+                         value_name='VAL', rootdir='../',subdir='',filename=dwlc_filename,iometadata='',commentline=commentline)
     utilities.log.info('Wrote ADCIRC offset field to {}'.format(gridfile))
-    adcirc_extrapolated_pkl = io_utilities.write_pickle(df_extrapolated_ADCIRC_GRID, rootdir=rootdir,subdir=iosubdir,fileroot='interpolated_wl')
-    utilities.log.info('Wrote ADCIRC offset field PKL {}'.format(adcirc_extrapolated_pkl))
-    #print('Finished')
+    adcirc_pkl = io_utilities.write_pickle(df_ADCIRC_GRID, rootdir=rootdir,subdir=iosubdir,fileroot='interpolated_wl')
+    utilities.log.debug('Wrote ADCIRC dwlc field PKL {}'.format(adcirc_pkl))
 
     # Test using the generic grid and plot to see the generated offset surface. Use the same model as previously generated
     adc_plot_grid = interpolate_scaled_offset_field.generic_grid()
@@ -328,10 +330,11 @@ def main(args):
 ##
 ## Apply the model to a 400x500 grid and plot the surface, stations, clamps
 ##
-    iosubdir=''
     newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'surface.png')
     adda_visualization_plots.save_plot_model( adc_plot_grid=adc_plot_grid, df_surface=df_plot_transformed, df_stations=df_stations, df_land_control=df_land_controls, df_water_control=df_water_controls, filename=newfilename, plot_now=False)
-    utilities.log.info('Saved IMAGE file to {}'.format(newfilename))
+    utilities.log.info('Saved debug image to {}'.format(newfilename))
+
+    utilities.log.info('Finished')
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -341,9 +344,12 @@ if __name__ == '__main__':
     parser.add_argument('--return_sample_min', action='store', dest='return_sample_min', default=60, type=int,
                         help='return_sample_min is the time stepping in the final data objects. (mins)')
     parser.add_argument('--ndays', default=-2, action='store', dest='ndays',help='Day lag (usually < 0)', type=int)
+    parser.add_argument('--current_time', default=None, action='store', dest='current_time', help='advisory_??? or hour_??', type=str)
     #parser.add_argument('--timeout', default=None, action='store', dest='timeout', help='YYYY-mm-dd HH:MM:SS. Latest day of analysis def to now()', type=str)
     parser.add_argument('--da_config_file', action='store', dest='da_config_file', default=None,
                         help='String: yml config for DA info')
+    parser.add_argument('--dont_delete_first_nowcast', action='store_true',default=False, 
+                        help='Boolean: deletes first url in sequence, for avoiding the spinup nowcast.') 
     parser.add_argument('--fort63_style', action='store_true',default=True, 
                         help='Boolean: Will inform Harvester to use fort.63.methods to get station nodesids')
     parser.add_argument('--gridname', action='store',dest='gridname', default=None,
@@ -358,8 +364,10 @@ if __name__ == '__main__':
                         help='TDS url to fetch ADCIRC data')
     parser.add_argument('--fw_arch_dir', action='store', dest='fw_arch_dir', default=None, type=str,
                         help='Location of FloodWater archive dir for the suite.')
+    parser.add_argument('--met', action='store', dest='met', default=None, type=str,
+                        help='Met type, nhc, gfs, etc ')
     args = parser.parse_args()
-    #sys.exit(main(args))
+
     try:
         main(args)
     except:

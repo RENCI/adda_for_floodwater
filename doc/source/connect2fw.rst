@@ -18,7 +18,7 @@ Connecting to Floodwater
 To turn off the DA, set both enabled and run_non_da_forecast to false.
 
 ===================================
-The **data_assimilation.yaml** File
+**data_assimilation.yaml** File
 ===================================
 
 The configuration_file **data_assimilation.yaml** needs to contain the following, adjusted to the local environment (**PATHTO**):
@@ -35,10 +35,25 @@ The configuration_file **data_assimilation.yaml** needs to contain the following
    addahome: "PATHTO/adda_for_floodwater/"
    mapfile: "PATHTO/adda_for_floodwater/gridmap/grid_to_stationfile_maps.yml"
 
-Do not change the value of dwlc_filename.  This is currently hardwired in Floodwater.
+Configuration details: 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-LOGLEVEL can be set to "INFO" to decrease the verbosity of the ADDA logging output.
+* LOGGING
+   turn logging on (recommended) or off (not recommended)0
+* LOGLEVEL
+    log output detail.  INFO or DEBUG
+* rundir
+    output directory, relative to FLOODWATER archive directory, for the current cycle's ADDA results
+* max_lookback_cycles
+    maximum number of analysys (nowcast) cycles to use for error calculations
+* min_lookback_cycles
+    minimum number of analysys (nowcast) cycles to use for error calculations
+* venv
+    virtual python environment name built for ADDA
+* dwlc_filename
+    name of the file to contain the error surface.  Currently hardwired in Floodwater to "da_error_surface.dat".  I.e., do not change.
+* addahome
+    path to the installation of adda_for_floodwater
+* mapfile
+    path to the grid-to-station mapping file
 
-min_lookback_cycles and max_lookback_days control how many previous nowcast cycles are used in the error analysis.  
-
-It is probably best to leave others alone, except for setting **PATHTO** appropriately.

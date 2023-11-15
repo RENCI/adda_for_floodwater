@@ -23,13 +23,12 @@ def main(args):
     """
     """
 
-    config_file=args.da_config_file
-    config = utilities.init_logging(subdir=None, config_file=config_file)
+    config = utilities.init_logging(subdir=None, config_file=args.da_config_file)
     #utilities.log.debug('\n'.join(sys.path))
     utilities.log.debug(f'config={config}')
 
     map_file=config['mapfile']
-    Ndays=int(-config['max_lookback_days'])
+    maxCycles=int(config['max_lookback_cycles'])
     minCycles=int(config['min_lookback_cycles'])
     rootdir=config['rundir'] 
     dwlc_filename=config['dwlc_filename'] 
@@ -74,7 +73,6 @@ def main(args):
         utilities.log.info(f'fw_arch_dir={fw_arch_dir}')
         fw_dir=fw_arch_dir+"/archive/"
         utilities.log.debug(f'Arch Dir = {fw_dir}')
-        n=4*abs(Ndays)
         cwd=os.getcwd()
         os.chdir(fw_dir)
         utilities.log.debug(f'args.met = {args.met}')
@@ -109,8 +107,8 @@ def main(args):
                 sys.exit(1)
 
         #remove leading urls if needed
-        if len(urls) > n:
-            urls=urls[-n:]
+        if len(urls) > maxCycles:
+            urls=urls[-maxCycles:]
 
         if len(urls) < minCycles:
             utilities.log.info(f'Not enough cycles for analysis {len(urls),minCycles}. Exiting ADDA. Surface will be all zeros.')

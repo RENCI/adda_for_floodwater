@@ -156,7 +156,7 @@ def main(args):
     # Get the grid coordinates for the url 
     adc_coords = get_adcirc_stations.extract_adcirc_grid_coords( urls )
 
-    # Since ADCIRC start 6 hours early, using the ADCRC starttime can throw off the error averages at the end
+    # Since ADCIRC start 6 hours early, using the ADCIRC starttime can throw off the error averages at the end
     obs_starttime = dt.datetime.strftime( min(data_adc.index.tolist()), '%Y-%m-%d %H:%M:%S')
     obs_endtime = dt.datetime.strftime( max(data_adc.index.tolist()), '%Y-%m-%d %H:%M:%S')
     #obs_starttime = dt.datetime.strftime(starttime, '%Y-%m-%d %H:%M:%S')
@@ -223,6 +223,7 @@ def main(args):
     data_obs,meta_obs=obs.fetch_station_product((obs_starttime,obs_endtime), return_sample_min=0)
     data_obs.replace('-99999',np.nan,inplace=True)
     meta_obs.replace('-99999',np.nan,inplace=True)
+    temp=io_utilities.write_csv(data_obs, rootdir=rootdir,subdir=iosubdir,fileroot='data_obs')
 
     # Remove stations with too many nans 
     data_thresholded = obs.remove_missingness_stations(data_obs, max_nan_percentage_cutoff=10)  # (Maximum allowable nans %)
@@ -242,13 +243,14 @@ def main(args):
 ##
 ## compute errors
 ##
-    comp_err = compute_error_field.compute_error_field(data_obs_smoothed, data_adc, meta_obs, n_pad=1) # All default params
+    comp_err = compute_error_field.compute_error_field(data_obs_smoothed, data_adc, meta_obs, n_pad=0) # All default params
     comp_err._intersection_stations()
     comp_err._intersection_times()
     comp_err._tidal_transform_data()
     #print(f'COMPERR input times {obs_starttime} and {obs_endtime}')
     comp_err._apply_time_bounds((obs_starttime,obs_endtime)) # redundant but here for illustration
     comp_err._compute_and_average_errors()
+    comp_err.obs.to_csv('check_po5.csv',float_format='%.3f')
 
     # Set up IO env
     #utilities.log.info("Product Level Working in {}.".format(os.getcwd()))
@@ -256,10 +258,12 @@ def main(args):
     # Write Pickle files 
     tideTimeErrors = io_utilities.write_pickle(comp_err.diff,rootdir=rootdir,subdir=iosubdir,fileroot='tideTimeErrors')
     utilities.log.debug('Wrote out Pickle {}'.format(tideTimeErrors))
+    temp=io_utilities.write_csv(comp_err.diff, rootdir=rootdir,subdir=iosubdir,fileroot='tideTimeErrors')
 
     # Write selected in JSON format. Basically the Merged_dict data multi-index set
     data_dict = compute_error_field.combine_data_to_dict(comp_err.adc,comp_err.obs,comp_err.diff, product='WL')
     dict_json = io_utilities.write_dict_to_json(data_dict, rootdir=rootdir,subdir=iosubdir,fileroot='adc_obs_error_merged')
+    #dict_csv = io_utilities.write_csv(data_dict, rootdir=rootdir,subdir=iosubdir,fileroot='adc_obs_error_merged')
     utilities.log.info('Wrote out JSON {}'.format(dict_json))
 
     # Write the CSV files which carry averages
@@ -296,10 +300,10 @@ def main(args):
 
     #utilities.log.debug('construct_interpolation_model: Number of dfs to combine for interpolation is {}'.format(len(set_of_dfs)))
     df_combined=interpolate_scaled_offset_field.combine_datasets_for_interpolation(set_of_dfs)
-    
+
     model = interpolate_scaled_offset_field.interpolation_model_fit(df_combined, interpolation_type='LinearRBF')
 
-    # Build new grid
+    # Interpolate to grid
     df_ADCIRC_GRID = interpolate_scaled_offset_field.interpolation_model_transform(adc_coords, model=model, input_grid_type='points',pathpoly=pathpoly)
 
 ##

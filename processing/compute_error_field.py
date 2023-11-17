@@ -36,14 +36,19 @@ def interpolate_and_sample( diurnal_range, df_in )-> pd.DataFrame:
         df_out: DataFrame. (datetime64 x station) on a semidiurnal time sequence
 
     """
+    df_in.to_csv('check_in.csv',float_format='%.3f')
     df_x = pd.DataFrame(diurnal_range, columns=['TIME'])
     df_x.set_index('TIME',inplace=True)
     df_out = df_in.append(df_x) # This merges the two indexes
     df_out = df_out.loc[~df_out.index.duplicated(keep='first')] #Keep first because real data is first on the list
-    df_out.sort_index(inplace=True) # this is sorted with intervening nans that need to be imputted
-    df_out_int = df_out.interpolate(method='linear')
+    df_out.sort_index(inplace=True) # this is sorted with intervening nans that need to be imputed
+    df_out.to_csv('check_pre.csv',float_format='%.3f')
+    #df_out_int = df_out.interpolate(method='linear')
+    df_out_int = df_out.interpolate(method='values')
+    df_out_int.to_csv('check_po1.csv',float_format='%.3f')
     df_out_int = df_out_int.loc[diurnal_range]
     df_out_int.index.name='TIME' 
+    df_out_int.to_csv('check_po2.csv',float_format='%.3f')
     return df_out_int
 
 def combine_data_to_dict(in_adc,in_obs,in_err, product='WL')->dict:
@@ -150,7 +155,7 @@ class compute_error_field(object):
             meta: DataFrame meta data of OBS station. (names, lat/lon/etc)
             n_hours_per_period: (int). The number of hours (entries) defining a period
             n_hours_per_tide: (int) The semidiurnal period (if needed)
-            n_pad: (int) If requestring diurnal tidals, then this adds n_pad of flanking entries to the time series
+            n_pad: (int) If requesting diurnal tidals, then this adds n_pad of flanking entries to the time series
             z_thresh: (int) If exclusion stations based on Z-scoring, this is the threshold
             exclude_outlier: (bool). Exclude (or not) stations based on Z-score
         """
@@ -188,10 +193,9 @@ class compute_error_field(object):
         self.obs=obs
         self.adc=adc
         utilities.log.debug('OBS and ADC DataFrames reduced (inplace) to common times of len {}'.format(len(common_times)))
-
 #
 # The tidal transform step used here is a bit tricky. We begin with the input hourly data (starttime,endtime) from the adc/obs sources.
-# Then, beginning at starttime, we build an estimated tidal time series my incrementing by 12/12.42 to the endtime (plus any hourly n_pad if set)
+# Then, beginning at starttime, we build an estimated tidal time series by incrementing by 12/12.42 to the endtime (plus any hourly n_pad if set)
 # Then the new times are interpolated and the hourly indexing is removed (except the initial time). 
 # Then we seek (in reverse) the number of time steps that comprise full tidal periods (12.42). We take the int( total time steps/12.42 )
 # to compute the number of full periods (num_periods). Then selecting rows backwards from the final time we step back num_periods * 12.
@@ -226,18 +230,22 @@ class compute_error_field(object):
 
         # Truncate the time ranges to only retain full tidal periods. Update data inplace. 
         num_periods = int(len(self.adc)/12.42)
+        #print(f'BOB: num_periods={num_periods}')
+
         if num_periods >= 1:
-            num_rows_keep = num_periods * 12
+            # Now only keep a complete set of M2 tidal periods whos last time <=timeout
+            num_rows_keep = num_periods * 12 + 1
             self.adc = self.adc.tail(num_rows_keep)
             self.obs = self.obs.tail(num_rows_keep)
-            utilities.log.debug('Tidal transform: Num retained periods {}, num rows kept {}'.format(num_periods, num_rows_keep))
-            utilities.log.debug('Tidal transform: adc data index {}'.format(self.adc.index))
-            # Now only keep a complete set of 12.42 ur full-tidal periods whos last time <=timeout
+            utilities.log.debug('Tidal interpolation: Num retained periods {}, num rows kept {}'.format(num_periods, num_rows_keep))
+            utilities.log.debug('Tidal interpolation: adc data index {}'.format(self.adc.index))
             ttimestart, ttimeend = diurnal_range[0],diurnal_range[-1]
-            utilities.log.debug('inplace tidal_transform_data: n_pad {}, n_hours_per_period {}, n_hours_per_tide {}'.format(n_pad, n_hours_per_period, n_hours_per_tide))
-            utilities.log.debug('inplace tidal_transform_data: timein {}, timeout {}, trans_time_start, trans_time_end {}'.format(timein, timeout, ttimestart, ttimeend))
+            utilities.log.debug('Tidal interpolation: n_pad {}, n_hours_per_period {}, n_hours_per_tide {}'.format(n_pad, n_hours_per_period, n_hours_per_tide))
+            utilities.log.debug('Tidal interpolation: timein {}, timeout {}, trans_time_start, trans_time_end {}'.format(timein, timeout, ttimestart, ttimeend))
         else:
-            utilities.log.debug('inplace tidal_transform_data: Not enough data to perform a tidal transform. Skip')
+            utilities.log.debug('Tidal interpolation: Not enough data to perform a tidal interpolation. Skipping.')
+
+        self.obs.to_csv('check_po3.csv',float_format='%.3f')
 
 # MIGHT need something special for Hurricanes ?
     def _apply_time_bounds(self, time_range):
@@ -268,9 +276,10 @@ class compute_error_field(object):
         self.obs=self.obs.loc[ (self.obs.index >= bound_lo) & (self.obs.index <= bound_hi) ]
         self._intersection_times() # Should not be needed here but just in case
         utilities.log.debug('New adc time lo {}, New adc time hi {}'.format( min(self.adc.index).strftime(dformat), max(self.adc.index.strftime(dformat))))
+        
+        self.obs.to_csv('check_po4.csv',float_format='%.3f')
 
 # Statistical stuff
-
     def _remove_station_outliers(self):
         """ 
         Process the Summary error data and look for stations with 
@@ -291,7 +300,7 @@ class compute_error_field(object):
     def _compute_and_average_errors(self):
         """
         Average over periods in multiples of n_hours_per_period steps
-        This method does not require a semidiurnal treansformation to have been perfrormed
+        This method does not require a semidiurnal treansformation to have been performed
 
         For nowcast-type data Period 0 is the closest period to the the input timemark. For forecast data
         the time bounds are flipped and so the FIRST Period (most negative) is the closest to the time timemark
@@ -304,7 +313,7 @@ class compute_error_field(object):
 
         ## Prep diff for some averaging
         self.diff.reset_index(inplace=True)
-        # Groupup perdios and get group averages
+        # Groupup perdiods and get group averages
         self.df_cycle_aves = self.diff.groupby(self.diff.index // self.n_hours_per_period).mean().T
         # Invert columns labels. Period 0 is the newest, then -1, -2, etc.
         num_cols = len(self.df_cycle_aves.columns)-1

@@ -45,9 +45,9 @@ Configuration details:
 * rundir
     output directory, relative to FLOODWATER archive directory, for the current cycle's ADDA results
 * max_lookback_cycles
-    maximum number of analysys (nowcast) cycles to use for error calculations
+    maximum number of analysis (nowcast) cycles to use for error calculations
 * min_lookback_cycles
-    minimum number of analysys (nowcast) cycles to use for error calculations
+    minimum number of analysis (nowcast) cycles to use for error calculations
 * venv
     virtual python environment name built for ADDA
 * dwlc_filename
@@ -55,5 +55,5 @@ Configuration details:
 * addahome
     path to the installation of adda_for_floodwater
 * mapfile
-    path to the grid-to-station mapping file
+    path/file to the grid-to-station mapping file
 

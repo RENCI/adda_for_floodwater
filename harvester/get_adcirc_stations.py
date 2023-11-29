@@ -303,6 +303,7 @@ class get_adcirc_stations(object):
                 utilities.log.info('Removing knockouts from acquired ADCIRC data')
         except Exception as e:
             utilities.log.error('TDS: Broad failure {}'.format(e))
+
         return data, meta
 
 ## Several scenarios may be used for this example main. For now we choose the ADDA style execution

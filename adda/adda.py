@@ -147,7 +147,10 @@ def main(args):
                 knockout_dict=None, fort63_style=fort63_style )
 
     # Fetch best resolution and no resampling
-    data_adc,meta_adc=rpl.fetch_station_product(urls, return_sample_min=args.return_sample_min, fort63_style=fort63_style  )
+    data_adc,meta_adc=rpl.fetch_station_product(urls, return_sample_min=args.return_sample_min, fort63_style=fort63_style )
+
+    print(data_adc)
+    sys.exit(1)
 
     # Revert Harvester filling of nans to -99999 back to nans
     data_adc.replace('-99999',np.nan,inplace=True)
@@ -243,14 +246,26 @@ def main(args):
 ##
 ## compute errors
 ##
-    comp_err = compute_error_field.compute_error_field(data_obs_smoothed, data_adc, meta_obs, n_pad=0) # All default params
+
+    comp_err = compute_error_field.compute_error_field(data_obs_smoothed, data_adc, meta_obs, n_pad=0) 
+
+    #comp_err.adc.to_csv('check_adc_ispre.csv',float_format='%.3f')
     comp_err._intersection_stations()
+    #comp_err.adc.to_csv('check_adc_ispo.csv',float_format='%.3f')
+
+    #comp_err.adc.to_csv('check_adc_itpre.csv',float_format='%.3f')
     comp_err._intersection_times()
+    #comp_err.adc.to_csv('check_adc_itpo.csv',float_format='%.3f')
+
+    #comp_err.adc.to_csv('check_adc_ttpre.csv',float_format='%.3f')
     comp_err._tidal_transform_data()
+    #comp_err.adc.to_csv('check_adc_ttpo.csv',float_format='%.3f')
+
     #print(f'COMPERR input times {obs_starttime} and {obs_endtime}')
     comp_err._apply_time_bounds((obs_starttime,obs_endtime)) # redundant but here for illustration
     comp_err._compute_and_average_errors()
-    comp_err.obs.to_csv('check_po5.csv',float_format='%.3f')
+    #comp_err.adc.to_csv('check_adc_po5.csv',float_format='%.3f')
+    #comp_err.obs.to_csv('check_obs_po5.csv',float_format='%.3f')
 
     # Set up IO env
     #utilities.log.info("Product Level Working in {}.".format(os.getcwd()))
@@ -320,7 +335,7 @@ def main(args):
     adc_plot_grid = interpolate_scaled_offset_field.generic_grid()
     df_plot_transformed = interpolate_scaled_offset_field.interpolation_model_transform(adc_plot_grid, model=model, input_grid_type='grid',pathpoly=pathpoly) 
 
-    # Write out the model for posterity
+    # Write out the model 
     newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'interpolate_linear_model.h5')
     try:
         joblib.dump(model, newfilename)

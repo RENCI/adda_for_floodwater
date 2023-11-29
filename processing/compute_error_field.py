@@ -36,19 +36,19 @@ def interpolate_and_sample( diurnal_range, df_in )-> pd.DataFrame:
         df_out: DataFrame. (datetime64 x station) on a semidiurnal time sequence
 
     """
-    df_in.to_csv('check_in.csv',float_format='%.3f')
+    #df_in.to_csv('check_in.csv',float_format='%.3f')
     df_x = pd.DataFrame(diurnal_range, columns=['TIME'])
     df_x.set_index('TIME',inplace=True)
     df_out = df_in.append(df_x) # This merges the two indexes
     df_out = df_out.loc[~df_out.index.duplicated(keep='first')] #Keep first because real data is first on the list
     df_out.sort_index(inplace=True) # this is sorted with intervening nans that need to be imputed
-    df_out.to_csv('check_pre.csv',float_format='%.3f')
+    #df_out.to_csv('check_pre.csv',float_format='%.3f')
     #df_out_int = df_out.interpolate(method='linear')
     df_out_int = df_out.interpolate(method='values')
-    df_out_int.to_csv('check_po1.csv',float_format='%.3f')
+    #df_out_int.to_csv('check_po1.csv',float_format='%.3f')
     df_out_int = df_out_int.loc[diurnal_range]
     df_out_int.index.name='TIME' 
-    df_out_int.to_csv('check_po2.csv',float_format='%.3f')
+    #df_out_int.to_csv('check_po2.csv',float_format='%.3f')
     return df_out_int
 
 def combine_data_to_dict(in_adc,in_obs,in_err, product='WL')->dict:
@@ -225,7 +225,9 @@ class compute_error_field(object):
         time_step =  int(3600*n_hours_per_tide/n_hours_per_period) # Always scale to an hour (3600s)
         diurnal_range = pd.date_range(timein, timeout+np.timedelta64(n_pad,'h'), freq=str(time_step)+'S').to_list()
     
+        #self.adc.to_csv('check_adc_po3a.csv',float_format='%.3f')
         self.adc = interpolate_and_sample( diurnal_range, self.adc )
+        #self.adc.to_csv('check_adc_po3b.csv',float_format='%.3f')
         self.obs = interpolate_and_sample( diurnal_range, self.obs )
 
         # Truncate the time ranges to only retain full tidal periods. Update data inplace. 
@@ -245,7 +247,8 @@ class compute_error_field(object):
         else:
             utilities.log.debug('Tidal interpolation: Not enough data to perform a tidal interpolation. Skipping.')
 
-        self.obs.to_csv('check_po3.csv',float_format='%.3f')
+        #self.adc.to_csv('check_adc_po3.csv',float_format='%.3f')
+        #self.obs.to_csv('check_obs_po3.csv',float_format='%.3f')
 
 # MIGHT need something special for Hurricanes ?
     def _apply_time_bounds(self, time_range):
@@ -277,7 +280,8 @@ class compute_error_field(object):
         self._intersection_times() # Should not be needed here but just in case
         utilities.log.debug('New adc time lo {}, New adc time hi {}'.format( min(self.adc.index).strftime(dformat), max(self.adc.index.strftime(dformat))))
         
-        self.obs.to_csv('check_po4.csv',float_format='%.3f')
+        #self.adc.to_csv('check_adc_po4.csv',float_format='%.3f')
+        #self.obs.to_csv('check_obs_po4.csv',float_format='%.3f')
 
 # Statistical stuff
     def _remove_station_outliers(self):

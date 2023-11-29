@@ -195,7 +195,7 @@ class get_obs_stations(object):
 
     def fetch_station_product(self, time_range, return_sample_min=0, interval=None):
         """
-        Fetch the desire data. The main information is part of the class (sources, products, etc.). However, one must still specify the return_sample_minutes
+        Fetch the data. The main information is part of the class (sources, products, etc.). However, one must still specify the return_sample_minutes
         to sample the data. This harvesting code will read the raw data for the selected product. Perform an interpolation (it doesn't pad nans), and then
         resample the data at the desired freq (in minutes)
 
@@ -209,7 +209,7 @@ class get_obs_stations(object):
         """
         starttime = time_range[0]
         endtime=time_range[1]
-        utilities.log.info(f'Retrieving data for the time range {starttime}-{endtime}')
+        utilities.log.info(f'Retrieving data for the time range {starttime} to {endtime}')
         template = "An exception of type {0} occurred."
 
         interval=interval

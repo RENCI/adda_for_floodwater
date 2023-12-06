@@ -9,7 +9,7 @@
 project = 'ADCIRC Data Assimilator'
 copyright = '2023, RENCI' 
 author = 'Brian Blanton'
-release = '0.0.1'
+release = '0.2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -20,13 +20,11 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.imgmath',
     'sphinx.ext.mathjax',
-#    'sphinx_rtd_theme',
+    'sphinx_rtd_theme',
 ]
 
 templates_path = ['_templates']
-exclude_patterns = []
-
-
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

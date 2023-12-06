@@ -21,7 +21,7 @@ To turn off the DA, set both enabled and run_non_da_forecast to false.
 **data_assimilation.yaml** File
 ===================================
 
-The configuration_file **data_assimilation.yaml** needs to contain the following, adjusted to the local environment (**PATHTO**):
+The configuration_file **data_assimilation.yaml** contains the following, with **addahome** and **mapfile** adjusted to the local environment (**PATHTO**):
 
 .. code-block:: yaml
 

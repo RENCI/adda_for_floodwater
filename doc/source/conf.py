@@ -9,7 +9,7 @@
 project = 'ADCIRC Data Assimilator'
 copyright = '2023, RENCI' 
 author = 'Brian Blanton'
-release = '0.0.1'
+release = '0.2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -20,20 +20,18 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.imgmath',
     'sphinx.ext.mathjax',
-#    'sphinx_rtd_theme',
+    'sphinx_rtd_theme',
 ]
 
 templates_path = ['_templates']
 exclude_patterns = []
-
-
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
 #html_theme = 'classic'
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True

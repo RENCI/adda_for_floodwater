@@ -63,7 +63,7 @@ def main(args):
     #stoptime = tnow.strftime('%Y-%m-%d %H:%M:%S')
 
     #dt_starttime = dt.datetime.strptime(stoptime,'%Y-%m-%d %H:%M:%S')+dt.timedelta(days=args.ndays)
-#   total_hours = abs(Ndays*24) - 1 # Ensures the final list length INCLUDES the now time as a member and is a multiple of 24 hours
+    #total_hours = abs(Ndays*24) - 1 # Ensures the final list length INCLUDES the now time as a member and is a multiple of 24 hours
     #total_hours = 0 if args.ndays==0 else abs(Ndays*24) - 1 # Ensures the final list length INCLUDES the now time as a member and is a multiple of 24 hours
 
     if args.input_url is None:
@@ -78,7 +78,11 @@ def main(args):
         utilities.log.debug(f'args.met = {args.met}')
 
         if args.met == "nhc": 
-            urls=glob.glob("*/adcirc/analysis/fort.63.nc", recursive = True)
+            tdir=f'{fw_dir}/*/adcirc/analysis/fort.63.nc'
+            urls=glob.glob(tdir, recursive = True)
+            if not urls:
+                utilities.log.info(f'Initial url list is empty in {tdir}. Exiting ADDA. Surface will be all zeros.')
+                sys.exit(1)
             if args.current_time is not None:
                 urls2=[]
                 for u in urls:
@@ -86,7 +90,11 @@ def main(args):
                        urls2.append(os.path.join(fw_dir,u))
                 urls=urls2
         else:
-            urls=glob.glob("*/*/adcirc/analysis/fort.63.nc", recursive = True)
+            tdir=f'{fw_dir}/*/*/adcirc/analysis/fort.63.nc'
+            urls=glob.glob(tdir, recursive = True)
+            if not urls:
+                utilities.log.info(f'Initial url list is empty in {tdir}. Exiting ADDA. Surface will be all zeros.')
+                sys.exit(1)
             if args.current_time is not None:
                 urls2=[]
                 for u in urls:
@@ -149,9 +157,6 @@ def main(args):
     # Fetch best resolution and no resampling
     data_adc,meta_adc=rpl.fetch_station_product(urls, return_sample_min=args.return_sample_min, fort63_style=fort63_style )
 
-    print(data_adc)
-    sys.exit(1)
-
     # Revert Harvester filling of nans to -99999 back to nans
     data_adc.replace('-99999',np.nan,inplace=True)
     meta_adc.replace('-99999',np.nan,inplace=True)
@@ -189,7 +194,6 @@ def main(args):
 
     # Write the data to disk
     iosubdir='./'
-
 
     # Write selected in Pickle data 
     metapkl = io_utilities.write_pickle(meta_adc,rootdir=rootdir,subdir=iosubdir,fileroot='adc_wl_metadata')
@@ -287,7 +291,7 @@ def main(args):
     #utilities.log.info('Wrote out CSV cyclic averages {}'.format(station_period_aves))
     utilities.log.info(f'Wrote out CSV summary averages {station_summary_aves}')
 ##
-## Perform the interpolation. Must use the LinearRBF approach
+## Perform the interpolation using the LinearRBF approach
 ##
     # map_file=os.path.join(os.path.dirname(__file__), './supporting_data', 'grid_to_stationfile_maps.yml')
     file_stations = station_summary_aves # Better to reread using "get_station_values"
@@ -334,6 +338,8 @@ def main(args):
     # Test using the generic grid and plot to see the generated offset surface. Use the same model as previously generated
     adc_plot_grid = interpolate_scaled_offset_field.generic_grid()
     df_plot_transformed = interpolate_scaled_offset_field.interpolation_model_transform(adc_plot_grid, model=model, input_grid_type='grid',pathpoly=pathpoly) 
+    tempdf=pd.DataFrame.from_dict(df_plot_transformed)
+    print(tempdf)
 
     # Write out the model 
     newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'interpolate_linear_model.h5')

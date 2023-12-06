@@ -9,7 +9,7 @@ ADDA generates smooth surfaces of an error field, computed between NOAA / NOS ob
 
 Currently, ADDA requires a specific python environment, but will eventually be embedded in the "thirdparty" section of the Floodwater package as a submodule.
 
-ADDA documented is here: https://renci.github.io/adda_for_floodwater
+ADDA documentation is here: https://renci.github.io/adda_for_floodwater
 
 #### TODO:
 - Mv gridmap files to main config dir

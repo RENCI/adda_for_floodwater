@@ -5,8 +5,10 @@ matplotlib
 pyyaml
 scipy
 scikit-learn
+lxml
 xmltodict
 xarray
 matplotlib
-lxml
+siphon
 noaa-coops
+utide

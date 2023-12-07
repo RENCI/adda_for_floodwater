@@ -11,6 +11,7 @@ ADCIRC_DA_CONFIG_FILE="/home/bblanton/ecfc/da/data_assimilation.yaml"
 
 #...Retrieve config variables from yaml
 venv=`cat $ADCIRC_DA_CONFIG_FILE | shyaml get-value venv`
+venv="addaTest"
 addahome=`cat $ADCIRC_DA_CONFIG_FILE | shyaml get-value addahome`
 dwlcfile=`cat $ADCIRC_DA_CONFIG_FILE | shyaml get-value dwlc_filename`
 path2adda="$addahome/adda/"

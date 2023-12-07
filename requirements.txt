@@ -8,3 +8,5 @@ scikit-learn
 xmltodict
 xarray
 matplotlib
+lxml
+noaa-coops

@@ -159,9 +159,9 @@ class get_obs_stations(object):
         """
         if isinstance(station_list, list):
             self.station_list=station_list
-            utility.log.info(f'Manually resetting value of station_list {self.station_list}')
+            utilities.log.info(f'Manually resetting value of station_list {self.station_list}')
         else:
-            utility.log.error(f'Manual station list can only be a list of ids {self.station_list}')
+            utilities.log.error(f'Manual station list can only be a list of ids {self.station_list}')
             sys.exit(1)
 
     def remove_missingness_stations(self, df_in, max_nan_percentage_cutoff=100)-> pd.DataFrame:

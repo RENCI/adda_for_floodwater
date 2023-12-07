@@ -269,63 +269,63 @@ def process_contrails_stations(time_range, contrails_stations, authentication_co
         utilities.log.error(f'Error: CONTRAILS: {e}')
     return df_contrails_data, df_contrails_meta
 
-def process_ndbc_buoys(time_range, ndbc_buoys, data_product='wave_height', resample_mins=15 ):
-    """
-    Helper function to take an input list of times, stations, and product and return a data set and associated metadata set
-    
-    Parameters:
-        time_range: <tuple> (<str>,<str>). Input time range ('%Y-%m-%dT%H:%M:%S)
-        ndbc_buoys: list(str). List of desired NDBC buoys
-        data_product: <str> (def wave_height). An AST named data product ( Not the True NDBC data product name) 
-        resample_mins: (int) Returned time series with a sampling of resample_mins
-
-    Returns:
-        df_ndbc_data: DataFrame (time x station)
-        df_ndbc_meta: DataFrame (station x metadata)
-    """
-    # Fetch the data
-    ndbc_products=['wave_height', 'air_pressure', 'wind_speed']
-    try:
-        if not data_product in ndbc_products:
-            utilities.log.error(f'NDBC: data product can only be {ndbc_products}')
-            #sys.exit(1)
-        ndbc = ndbc_fetch_data(ndbc_buoys, time_range, product=data_product, resample_mins=resample_mins)
-        df_ndbc_data = ndbc.aggregate_station_data()
-        df_ndbc_meta = ndbc.aggregate_station_metadata()
-        df_ndbc_data,df_ndbc_meta = intersect_stations(df_ndbc_data.copy(),df_ndbc_meta.copy())
-        df_ndbc_meta.index.name='STATION'
-    except Exception as e:
-        utilities.log.error(f'Error: NEW NDBC: {e}')
-    return df_ndbc_data, df_ndbc_meta
-
-def process_ndbc_historic_buoys(time_range, ndbc_buoys, data_product='wave_height', resample_mins=15 ):
-    """
-    Helper function to take an input list of times, stations, and product and return a data set and associated metadata set
-    
-    Parameters:
-        time_range: <tuple> (<str>,<str>). Input time range ('%Y-%m-%dT%H:%M:%S)
-        ndbc_buoys: list(str). List of desired NDBC buoys
-        data_product: <str> (def wave_height). An AST named data product ( Not the True NDBC data product name) 
-        resample_mins: <int> Returned time series with a sampling of resample_mins
-
-    Returns:
-        df_ndbc_data: DataFrame (time x station)
-        df_ndbc_meta: DataFrame (station x metadata)
-    """
-    # Fetch the data
-    ndbc_products=['wave_height', 'air_pressure', 'wind_speed']
-    try:
-        if not data_product in ndbc_products:
-            utilities.log.error(f'NDBC: data product can only be {ndbc_products}')
-            #sys.exit(1)
-        ndbc = ndbc_fetch_historic_data(ndbc_buoys, time_range, product=data_product, resample_mins=resample_mins)
-        df_ndbc_data = ndbc.aggregate_station_data()
-        df_ndbc_meta = ndbc.aggregate_station_metadata()
-        df_ndbc_data,df_ndbc_meta = intersect_stations(df_ndbc_data.copy(),df_ndbc_meta.copy())
-        df_ndbc_meta.index.name='STATION'
-    except Exception as e:
-        utilities.log.error(f'Error: NEW NDBC HISTORIC: {e}')
-    return df_ndbc_data, df_ndbc_meta
+#def process_ndbc_buoys(time_range, ndbc_buoys, data_product='wave_height', resample_mins=15 ):
+#    """
+#    Helper function to take an input list of times, stations, and product and return a data set and associated metadata set
+#    
+#    Parameters:
+#        time_range: <tuple> (<str>,<str>). Input time range ('%Y-%m-%dT%H:%M:%S)
+#        ndbc_buoys: list(str). List of desired NDBC buoys
+#        data_product: <str> (def wave_height). An AST named data product ( Not the True NDBC data product name) 
+#        resample_mins: (int) Returned time series with a sampling of resample_mins
+#
+#    Returns:
+#        df_ndbc_data: DataFrame (time x station)
+#        df_ndbc_meta: DataFrame (station x metadata)
+#    """
+#    # Fetch the data
+#    ndbc_products=['wave_height', 'air_pressure', 'wind_speed']
+#    try:
+#        if not data_product in ndbc_products:
+#            utilities.log.error(f'NDBC: data product can only be {ndbc_products}')
+#            #sys.exit(1)
+#        ndbc = ndbc_fetch_data(ndbc_buoys, time_range, product=data_product, resample_mins=resample_mins)
+#        df_ndbc_data = ndbc.aggregate_station_data()
+#        df_ndbc_meta = ndbc.aggregate_station_metadata()
+#        df_ndbc_data,df_ndbc_meta = intersect_stations(df_ndbc_data.copy(),df_ndbc_meta.copy())
+#        df_ndbc_meta.index.name='STATION'
+#    except Exception as e:
+#        utilities.log.error(f'Error: NEW NDBC: {e}')
+#    return df_ndbc_data, df_ndbc_meta
+#
+#def process_ndbc_historic_buoys(time_range, ndbc_buoys, data_product='wave_height', resample_mins=15 ):
+#    """
+#    Helper function to take an input list of times, stations, and product and return a data set and associated metadata set
+#    
+#    Parameters:
+#        time_range: <tuple> (<str>,<str>). Input time range ('%Y-%m-%dT%H:%M:%S)
+#        ndbc_buoys: list(str). List of desired NDBC buoys
+#        data_product: <str> (def wave_height). An AST named data product ( Not the True NDBC data product name) 
+#        resample_mins: <int> Returned time series with a sampling of resample_mins
+#
+#    Returns:
+#        df_ndbc_data: DataFrame (time x station)
+#        df_ndbc_meta: DataFrame (station x metadata)
+#    """
+#    # Fetch the data
+#    ndbc_products=['wave_height', 'air_pressure', 'wind_speed']
+#    try:
+#        if not data_product in ndbc_products:
+#            utilities.log.error(f'NDBC: data product can only be {ndbc_products}')
+#            #sys.exit(1)
+#        ndbc = ndbc_fetch_historic_data(ndbc_buoys, time_range, product=data_product, resample_mins=resample_mins)
+#        df_ndbc_data = ndbc.aggregate_station_data()
+#        df_ndbc_meta = ndbc.aggregate_station_metadata()
+#        df_ndbc_data,df_ndbc_meta = intersect_stations(df_ndbc_data.copy(),df_ndbc_meta.copy())
+#        df_ndbc_meta.index.name='STATION'
+#    except Exception as e:
+#        utilities.log.error(f'Error: NEW NDBC HISTORIC: {e}')
+#    return df_ndbc_data, df_ndbc_meta
 
 def main(args):
     """

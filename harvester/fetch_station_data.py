@@ -647,7 +647,7 @@ class adcirc_fetch_data(fetch_station_data):
                             got_data=True
                             break
                         else:
-                            utilities.log.error(f'Unexpected leading variable name {ds.variables[v].dims}')
+                            utilities.log.error(f'Unexpected leading variable name {self._variable_name}')
                             #sys.exit(1)
                     except Exception as e:
                          waitsec+=WAITTIME

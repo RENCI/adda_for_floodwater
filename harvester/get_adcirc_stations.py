@@ -253,9 +253,9 @@ class get_adcirc_stations(object):
         """
         if isinstance(station_list, list):
             self.station_list=station_list
-            utility.log.info(f'Manually resetting value of station_list {self.station_list}')
+            utilities.log.info(f'Manually resetting value of station_list {self.station_list}')
         else:
-            utility.log.error(f'Manual station list can only be a list of ids {self.station_list}')
+            utilities.log.error(f'Manual station list can only be a list of ids {self.station_list}')
             sys.exit(1)
 
 # Choosing a sampling min is non-trivial and depends on the data product selected. Underestimating is better than overestimating

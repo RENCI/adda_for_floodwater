@@ -269,7 +269,6 @@ class compute_error_field(object):
             bound_hi = dt.datetime.strptime(time_range[1], dformat)
         except (ValueError,TypeError):
             try:
-                outid = int(test_val)
                 bound_lo = time_range[0]
                 bound_hi = time_range[1]
             except ValueError:

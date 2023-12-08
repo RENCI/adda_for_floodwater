@@ -424,44 +424,44 @@ def main(args):
             sys.exit(1)
 
     #Contrails
-    if data_source.upper()=='CONTRAILS':
-        # Load contrails secrets
-        conf_name = args.config_name if args.config_name is not None else os.path.join(os.path.dirname(__file__),'../secrets','contrails.yml')
-        contrails_config = utilities.load_config(conf_name)['DEFAULT']
-        utilities.log.info('Got Contrails access information')
-        template = "An exception of type {0} occurred."
-        excludedStations=list()
-        if data_product=='river_water_level' or data_product=='river_flow_volume' or data_product=='river_stream_elevation':
-            fname=os.path.join(os.path.dirname(__file__),'../supporting_data','contrails_stations_rivers.csv')
-            meta='RIVERS'
-        else:
-            fname=os.path.join(os.path.dirname(__file__),'../supporting_data','contrails_stations_coastal.csv')
-            meta='COASTAL'
-        try:
-            # Build ranges for contrails ( and noaa/nos if you like)
-            time_range=(starttime,endtime) 
-            # Get default station list
-            contrails_stations=get_contrails_stations(args.station_list) if args.station_list is not None else get_contrails_stations(fname)
-            contrails_metadata=f"_{data_product}_{meta}_{endtime.replace(' ','T')}" # +'_'+starttime.replace(' ','T')
-            data, meta = process_contrails_stations(time_range, contrails_stations, contrails_config, data_product = data_product )
-            df_contrails_data = format_data_frames(data, data_product) # Melt: Harvester default format
-        except Exception as ex:
-            utilities.log.error(f'CONTRAILS error {type(ex).__name__}, {ex.args}')
-            sys.exit(1)
-        # If choosing non-default locations BOTH variables must be specified
-        try:
-            if args.ofile is not None:
-                dataf=f'%s/contrails_stationdata%s.csv'% (args.ofile,contrails_metadata)
-                metaf=f'%s/contrails_stationdata_meta%s.csv'% (args.ometafile,contrails_metadata)
-            else:
-                dataf=f'./contrails_stationdata%s.csv'%contrails_metadata
-                metaf=f'./contrails_stationdata_meta%s.csv'%contrails_metadata
-            df_contrails_data.to_csv(dataf)
-            meta.to_csv(metaf)
-            utilities.log.info(f'CONTRAILS data has been stored {dataf},{metaf}')
-        except Exception as e:
-            utilities.log.error(f'Error: CONTRAILS: Failed Write {e}')
-            sys.exit(1)
+#    if data_source.upper()=='CONTRAILS':
+#        # Load contrails secrets
+#        conf_name = args.config_name if args.config_name is not None else os.path.join(os.path.dirname(__file__),'../secrets','contrails.yml')
+#        contrails_config = utilities.load_config(conf_name)['DEFAULT']
+#        utilities.log.info('Got Contrails access information')
+#        template = "An exception of type {0} occurred."
+#        excludedStations=list()
+#        if data_product=='river_water_level' or data_product=='river_flow_volume' or data_product=='river_stream_elevation':
+#            fname=os.path.join(os.path.dirname(__file__),'../supporting_data','contrails_stations_rivers.csv')
+#            meta='RIVERS'
+#        else:
+#            fname=os.path.join(os.path.dirname(__file__),'../supporting_data','contrails_stations_coastal.csv')
+#            meta='COASTAL'
+#        try:
+#            # Build ranges for contrails ( and noaa/nos if you like)
+#            time_range=(starttime,endtime) 
+#            # Get default station list
+#            contrails_stations=get_contrails_stations(args.station_list) if args.station_list is not None else get_contrails_stations(fname)
+#            contrails_metadata=f"_{data_product}_{meta}_{endtime.replace(' ','T')}" # +'_'+starttime.replace(' ','T')
+#            data, meta = process_contrails_stations(time_range, contrails_stations, contrails_config, data_product = data_product )
+#            df_contrails_data = format_data_frames(data, data_product) # Melt: Harvester default format
+#        except Exception as ex:
+#            utilities.log.error(f'CONTRAILS error {type(ex).__name__}, {ex.args}')
+#            sys.exit(1)
+#        # If choosing non-default locations BOTH variables must be specified
+#        try:
+#            if args.ofile is not None:
+#                dataf=f'%s/contrails_stationdata%s.csv'% (args.ofile,contrails_metadata)
+#                metaf=f'%s/contrails_stationdata_meta%s.csv'% (args.ometafile,contrails_metadata)
+#            else:
+#                dataf=f'./contrails_stationdata%s.csv'%contrails_metadata
+#                metaf=f'./contrails_stationdata_meta%s.csv'%contrails_metadata
+#            df_contrails_data.to_csv(dataf)
+#            meta.to_csv(metaf)
+#            utilities.log.info(f'CONTRAILS data has been stored {dataf},{metaf}')
+#        except Exception as e:
+#            utilities.log.error(f'Error: CONTRAILS: Failed Write {e}')
+#            sys.exit(1)
 
     #NDBC
 #    if data_source.upper()=='NDBC':

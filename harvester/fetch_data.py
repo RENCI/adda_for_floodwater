@@ -238,36 +238,36 @@ def process_noaaweb_stations(time_range, noaa_stations, interval=None, data_prod
         utilities.log.error(f'Error: NOAA WEB: {e}')
     return df_noaa_data, df_noaa_meta
 
-def process_contrails_stations(time_range, contrails_stations, authentication_config, data_product='river_water_level', resample_mins=15 ):
-    """
-    Helper function to take an input list of times, stations, and product and return a data set and associated metadata set
-
-    Parameters:
-        time_range: <tuple> (<str>,<str>). Input time range ('%Y-%m-%dT%H:%M:%S)
-        contrails_stations: list(str). List of desired Contrails stations
-        authentication_config: <dict>. A Contrails specific authorization dict
-        data_product: <str> (def river_water_level). A generic AST named data product ( Not the True Contrails data product name) 
-        resample_mins: <int> Returned time series with a sampling of resample_mins
-
-    Returns:
-        df_contrails_data: DataFrame (time x station)
-        df_contrails_meta: DataFrame (station x metadata)
-    """
-    # Fetch the data
-    contrails_product=['river_flow_volume','river_water_level','coastal_water_level', 'air_pressure', 'river_stream_elevation']
-    try:
-        if data_product not in contrails_product:
-            utilities.log.error(f'Contrails data product can only be: {contrails_product} was {data_product}')
-            #sys.exit(1)
-        contrails = contrails_fetch_data(contrails_stations, time_range, authentication_config, product=data_product, owner='NCEM', resample_mins=resample_mins)
-        df_contrails_data = contrails.aggregate_station_data()
-        df_contrails_meta = contrails.aggregate_station_metadata()
-        df_contrails_data,df_contrails_meta = intersect_stations(df_contrails_data.copy(),df_contrails_meta.copy())
-
-        df_contrails_meta.index.name='STATION'
-    except Exception as e:
-        utilities.log.error(f'Error: CONTRAILS: {e}')
-    return df_contrails_data, df_contrails_meta
+#def process_contrails_stations(time_range, contrails_stations, authentication_config, data_product='river_water_level', resample_mins=15 ):
+#    """
+#    Helper function to take an input list of times, stations, and product and return a data set and associated metadata set
+#
+#    Parameters:
+#        time_range: <tuple> (<str>,<str>). Input time range ('%Y-%m-%dT%H:%M:%S)
+#        contrails_stations: list(str). List of desired Contrails stations
+#        authentication_config: <dict>. A Contrails specific authorization dict
+#        data_product: <str> (def river_water_level). A generic AST named data product ( Not the True Contrails data product name) 
+#        resample_mins: <int> Returned time series with a sampling of resample_mins
+#
+#    Returns:
+#        df_contrails_data: DataFrame (time x station)
+#        df_contrails_meta: DataFrame (station x metadata)
+#    """
+#    # Fetch the data
+#    contrails_product=['river_flow_volume','river_water_level','coastal_water_level', 'air_pressure', 'river_stream_elevation']
+#    try:
+#        if data_product not in contrails_product:
+#            utilities.log.error(f'Contrails data product can only be: {contrails_product} was {data_product}')
+#            #sys.exit(1)
+#        contrails = contrails_fetch_data(contrails_stations, time_range, authentication_config, product=data_product, owner='NCEM', resample_mins=resample_mins)
+#        df_contrails_data = contrails.aggregate_station_data()
+#        df_contrails_meta = contrails.aggregate_station_metadata()
+#        df_contrails_data,df_contrails_meta = intersect_stations(df_contrails_data.copy(),df_contrails_meta.copy())
+#
+#        df_contrails_meta.index.name='STATION'
+#    except Exception as e:
+#        utilities.log.error(f'Error: CONTRAILS: {e}')
+#    return df_contrails_data, df_contrails_meta
 
 #def process_ndbc_buoys(time_range, ndbc_buoys, data_product='wave_height', resample_mins=15 ):
 #    """
@@ -424,91 +424,91 @@ def main(args):
             sys.exit(1)
 
     #Contrails
-    if data_source.upper()=='CONTRAILS':
-        # Load contrails secrets
-        conf_name = args.config_name if args.config_name is not None else os.path.join(os.path.dirname(__file__),'../secrets','contrails.yml')
-        contrails_config = utilities.load_config(conf_name)['DEFAULT']
-        utilities.log.info('Got Contrails access information')
-        template = "An exception of type {0} occurred."
-        excludedStations=list()
-        if data_product=='river_water_level' or data_product=='river_flow_volume' or data_product=='river_stream_elevation':
-            fname=os.path.join(os.path.dirname(__file__),'../supporting_data','contrails_stations_rivers.csv')
-            meta='RIVERS'
-        else:
-            fname=os.path.join(os.path.dirname(__file__),'../supporting_data','contrails_stations_coastal.csv')
-            meta='COASTAL'
-        try:
-            # Build ranges for contrails ( and noaa/nos if you like)
-            time_range=(starttime,endtime) 
-            # Get default station list
-            contrails_stations=get_contrails_stations(args.station_list) if args.station_list is not None else get_contrails_stations(fname)
-            contrails_metadata=f"_{data_product}_{meta}_{endtime.replace(' ','T')}" # +'_'+starttime.replace(' ','T')
-            data, meta = process_contrails_stations(time_range, contrails_stations, contrails_config, data_product = data_product )
-            df_contrails_data = format_data_frames(data, data_product) # Melt: Harvester default format
-        except Exception as ex:
-            utilities.log.error(f'CONTRAILS error {type(ex).__name__}, {ex.args}')
-            sys.exit(1)
-        # If choosing non-default locations BOTH variables must be specified
-        try:
-            if args.ofile is not None:
-                dataf=f'%s/contrails_stationdata%s.csv'% (args.ofile,contrails_metadata)
-                metaf=f'%s/contrails_stationdata_meta%s.csv'% (args.ometafile,contrails_metadata)
-            else:
-                dataf=f'./contrails_stationdata%s.csv'%contrails_metadata
-                metaf=f'./contrails_stationdata_meta%s.csv'%contrails_metadata
-            df_contrails_data.to_csv(dataf)
-            meta.to_csv(metaf)
-            utilities.log.info(f'CONTRAILS data has been stored {dataf},{metaf}')
-        except Exception as e:
-            utilities.log.error(f'Error: CONTRAILS: Failed Write {e}')
-            sys.exit(1)
+#    if data_source.upper()=='CONTRAILS':
+#        # Load contrails secrets
+#        conf_name = args.config_name if args.config_name is not None else os.path.join(os.path.dirname(__file__),'../secrets','contrails.yml')
+#        contrails_config = utilities.load_config(conf_name)['DEFAULT']
+#        utilities.log.info('Got Contrails access information')
+#        template = "An exception of type {0} occurred."
+#        excludedStations=list()
+#        if data_product=='river_water_level' or data_product=='river_flow_volume' or data_product=='river_stream_elevation':
+#            fname=os.path.join(os.path.dirname(__file__),'../supporting_data','contrails_stations_rivers.csv')
+#            meta='RIVERS'
+#        else:
+#            fname=os.path.join(os.path.dirname(__file__),'../supporting_data','contrails_stations_coastal.csv')
+#            meta='COASTAL'
+#        try:
+#            # Build ranges for contrails ( and noaa/nos if you like)
+#            time_range=(starttime,endtime) 
+#            # Get default station list
+#            contrails_stations=get_contrails_stations(args.station_list) if args.station_list is not None else get_contrails_stations(fname)
+#            contrails_metadata=f"_{data_product}_{meta}_{endtime.replace(' ','T')}" # +'_'+starttime.replace(' ','T')
+#            data, meta = process_contrails_stations(time_range, contrails_stations, contrails_config, data_product = data_product )
+#            df_contrails_data = format_data_frames(data, data_product) # Melt: Harvester default format
+#        except Exception as ex:
+#            utilities.log.error(f'CONTRAILS error {type(ex).__name__}, {ex.args}')
+#            sys.exit(1)
+#        # If choosing non-default locations BOTH variables must be specified
+#        try:
+#            if args.ofile is not None:
+#                dataf=f'%s/contrails_stationdata%s.csv'% (args.ofile,contrails_metadata)
+#                metaf=f'%s/contrails_stationdata_meta%s.csv'% (args.ometafile,contrails_metadata)
+#            else:
+#                dataf=f'./contrails_stationdata%s.csv'%contrails_metadata
+#                metaf=f'./contrails_stationdata_meta%s.csv'%contrails_metadata
+#            df_contrails_data.to_csv(dataf)
+#            meta.to_csv(metaf)
+#            utilities.log.info(f'CONTRAILS data has been stored {dataf},{metaf}')
+#        except Exception as e:
+#            utilities.log.error(f'Error: CONTRAILS: Failed Write {e}')
+#            sys.exit(1)
 
     #NDBC
-    if data_source.upper()=='NDBC':
-        time_range=(starttime,endtime) # Can be directly used by NDBC
-        # Use default station list
-        ndbc_stations=get_ndbc_buoys(args.station_list) if args.station_list is not None else get_ndbc_buoys(fname=os.path.join(os.path.dirname(__file__),'../supporting_data','ndbc_buoys.csv'))
-        ndbc_metadata=f"_{data_product}_{endtime.replace(' ','T')}" # +'_'+starttime.replace(' ','T')
-        data, meta  = process_ndbc_buoys(time_range, ndbc_stations, data_product = data_product)
-        df_ndbc_data = format_data_frames(data, data_product) # Melt the data :s Harvester default format
-        # Output
-        # If choosing non-default locations BOTH variables must be specified
-        try:
-            if args.ofile is not None:
-                dataf=f'%s/ndbc_stationdata%s.csv'% (args.ofile,ndbc_metadata)
-                metaf=f'%s/ndbc_stationdata_meta%s.csv'% (args.ometafile,ndbc_metadata)
-            else:
-                dataf=f'./ndbc_stationdata%s.csv'%ndbc_metadata
-                metaf=f'./ndbc_stationdata_meta%s.csv'%ndbc_metadata
-            df_ndbc_data.to_csv(dataf)
-            meta.to_csv(metaf)
-            utilities.log.info(f'NDBC data has been stored {dataf},{metaf}')
-        except Exception as e:
-            utilities.log.error(f'Error: NDBC: Failed Write {e}')
-            sys.exit(1)
+#    if data_source.upper()=='NDBC':
+#        time_range=(starttime,endtime) # Can be directly used by NDBC
+#        # Use default station list
+#        ndbc_stations=get_ndbc_buoys(args.station_list) if args.station_list is not None else get_ndbc_buoys(fname=os.path.join(os.path.dirname(__file__),'../supporting_data','ndbc_buoys.csv'))
+#        ndbc_metadata=f"_{data_product}_{endtime.replace(' ','T')}" # +'_'+starttime.replace(' ','T')
+#        data, meta  = process_ndbc_buoys(time_range, ndbc_stations, data_product = data_product)
+#        df_ndbc_data = format_data_frames(data, data_product) # Melt the data :s Harvester default format
+#        # Output
+#        # If choosing non-default locations BOTH variables must be specified
+#        try:
+#            if args.ofile is not None:
+#                dataf=f'%s/ndbc_stationdata%s.csv'% (args.ofile,ndbc_metadata)
+#                metaf=f'%s/ndbc_stationdata_meta%s.csv'% (args.ometafile,ndbc_metadata)
+#            else:
+#                dataf=f'./ndbc_stationdata%s.csv'%ndbc_metadata
+#                metaf=f'./ndbc_stationdata_meta%s.csv'%ndbc_metadata
+#            df_ndbc_data.to_csv(dataf)
+#            meta.to_csv(metaf)
+#            utilities.log.info(f'NDBC data has been stored {dataf},{metaf}')
+#        except Exception as e:
+#            utilities.log.error(f'Error: NDBC: Failed Write {e}')
+#            sys.exit(1)
 
-    if data_source.upper()=='NDBC_HISTORIC':
-        time_range=(starttime,endtime) # Can be directly used by NDBC
-        # Use default station list
-        ndbc_stations=get_ndbc_buoys(args.station_list) if args.station_list is not None else get_ndbc_buoys(fname=os.path.join(os.path.dirname(__file__),'../supporting_data','ndbc_buoys.csv'))
-        ndbc_metadata=f"_{data_product}_{endtime.replace(' ','T')}" # +'_'+starttime.replace(' ','T')
-        data, meta  = process_ndbc_historic_buoys(time_range, ndbc_stations, data_product = data_product)
-        df_ndbc_data = format_data_frames(data, data_product) # Melt the data :s Harvester default format
-        # Output
-        # If choosing non-default locations BOTH variables must be specified
-        try:
-            if args.ofile is not None:
-                dataf=f'%s/ndbc_stationdata%s.csv'% (args.ofile,ndbc_metadata)
-                metaf=f'%s/ndbc_stationdata_meta%s.csv'% (args.ometafile,ndbc_metadata)
-            else:
-                dataf=f'./ndbc_stationdata%s.csv'%ndbc_metadata
-                metaf=f'./ndbc_stationdata_meta%s.csv'%ndbc_metadata
-            df_ndbc_data.to_csv(dataf)
-            meta.to_csv(metaf)
-            utilities.log.info(f'NDBC data has been stored {dataf},{metaf}')
-        except Exception as e:
-            utilities.log.error(f'Error: NDBC: Failed Write {e}')
-            sys.exit(1)
+#    if data_source.upper()=='NDBC_HISTORIC':
+#        time_range=(starttime,endtime) # Can be directly used by NDBC
+#        # Use default station list
+#        ndbc_stations=get_ndbc_buoys(args.station_list) if args.station_list is not None else get_ndbc_buoys(fname=os.path.join(os.path.dirname(__file__),'../supporting_data','ndbc_buoys.csv'))
+#        ndbc_metadata=f"_{data_product}_{endtime.replace(' ','T')}" # +'_'+starttime.replace(' ','T')
+#        data, meta  = process_ndbc_historic_buoys(time_range, ndbc_stations, data_product = data_product)
+#        df_ndbc_data = format_data_frames(data, data_product) # Melt the data :s Harvester default format
+#        # Output
+#        # If choosing non-default locations BOTH variables must be specified
+#        try:
+#            if args.ofile is not None:
+#                dataf=f'%s/ndbc_stationdata%s.csv'% (args.ofile,ndbc_metadata)
+#                metaf=f'%s/ndbc_stationdata_meta%s.csv'% (args.ometafile,ndbc_metadata)
+#            else:
+#                dataf=f'./ndbc_stationdata%s.csv'%ndbc_metadata
+#                metaf=f'./ndbc_stationdata_meta%s.csv'%ndbc_metadata
+#            df_ndbc_data.to_csv(dataf)
+#            meta.to_csv(metaf)
+#            utilities.log.info(f'NDBC data has been stored {dataf},{metaf}')
+#        except Exception as e:
+#            utilities.log.error(f'Error: NDBC: Failed Write {e}')
+#            sys.exit(1)
 
     utilities.log.info(f'Finished with data source {data_source}')
     utilities.log.info('Finished')

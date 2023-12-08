@@ -14,9 +14,6 @@ Currently, ADDA requires a specific python environment, but will eventually be e
 - Clone this repo.  This locations is referred to as **PATHTO** below.
 - Make a python virtual environment (venv) with the requirements.txt file, called **adda**.  The actual name of the venv does not matter, as long as the name is speficied correctly in the **data_assimilation.yaml** file (see below).
   - conda create --name adda --file requirements.txt
-- Several required packages are not available through conda.  These need to be pip-installed:
-  - conda activate adda
-  - pip install -r pip.reqs.txt
 - Add ADDA paths to the virtual environment.  Either:
   - Make a conda.pth in "envs/adda/lib/python3.8/site-packages/" that contains:
     - **PATHTO**/adda_for_floodwater
@@ -57,7 +54,8 @@ The configuration_file **data_assimilation.yaml** needs to contain the following
 LOGGING: true
 LOGLEVEL: DEBUG
 rundir: "./adda"
-max_lookback_days: 2
+max_lookback_cycles: 8
+min_lookback_cycles: 2
 venv: adda
 dwlc_filename: "da_error_surface.dat.1"
 addahome: "PATHTO/adda_for_floodwater/"

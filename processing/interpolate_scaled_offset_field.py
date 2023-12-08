@@ -323,14 +323,14 @@ def generic_grid():
     """
     utilities.log.debug('Generating points for surface figure.')
     lowerleft_x = -100
-    lowerleft_y =7 
+    lowerleft_y =5 
     res = .1  # resolution in deg
-    nx = 420
-    ny = 450
+    nx = 500
+    ny = 500
     x = np.arange(lowerleft_x, lowerleft_x + nx * res, res)
     y = np.arange(lowerleft_y, lowerleft_y + ny * res, res)
-    adc_coords = {'LON':x.tolist(), 'LAT':y.tolist()}
-    return adc_coords 
+    coords = {'LON':x.tolist(), 'LAT':y.tolist()}
+    return coords 
 
 def test_interpolation_fit(df_source, df_land_controls=None, df_water_controls=None, cv_splits=5, nearest_neighbors=3, stratified_header_name=None):
     """

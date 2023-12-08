@@ -350,10 +350,10 @@ def main(args):
     utilities.log.debug('Wrote ADCIRC dwlc field PKL {}'.format(adcirc_pkl))
 
     # Test using the generic grid and plot to see the generated offset surface. Use the same model as previously generated
-    adc_plot_grid = interpolate_scaled_offset_field.generic_grid()
-    df_plot_transformed = interpolate_scaled_offset_field.interpolation_model_transform(adc_plot_grid, model=model, input_grid_type='grid',pathpoly=pathpoly) 
-    tempdf=pd.DataFrame.from_dict(df_plot_transformed)
-    print(tempdf)
+    plot_grid = interpolate_scaled_offset_field.generic_grid()
+    df_plot_transformed = interpolate_scaled_offset_field.interpolation_model_transform(plot_grid, model=model, input_grid_type='grid',pathpoly=pathpoly) 
+    #tempdf=pd.DataFrame.from_dict(df_plot_transformed)
+    #print(tempdf)
 
     # Write out the model 
     newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'interpolate_linear_model.h5')
@@ -365,11 +365,16 @@ def main(args):
         utilities.log.error('Could not dump model file to disk '+ newfilename)
 
 ##
-## Apply the model to a 400x500 grid and plot the surface, stations, clamps
+## Apply the model to the regular grid and plot the surface, stations, clamps
 ##
-    newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'surface.png')
-    adda_visualization_plots.save_plot_model( adc_plot_grid=adc_plot_grid, df_surface=df_plot_transformed, df_stations=df_stations, df_land_control=df_land_controls, df_water_control=df_water_controls, filename=newfilename, plot_now=False)
-    utilities.log.info('Saved debug image to {}'.format(newfilename))
+    #newfilename = io_utilities.get_full_filename_with_subdirectory_prepended(rootdir, iosubdir, 'surface.png')
+    plotfilename = 'surface.png'
+    plottitle=args.current_time # f'{obs_starttime} : {obs_endtime}'
+    adda_visualization_plots.save_plot_model(plot_grid=plot_grid, df_surface=df_plot_transformed, 
+                                             df_stations=df_stations, df_land_control=df_land_controls,
+                                             df_water_control=df_water_controls, filename=plotfilename, 
+                                             plot_now=False, title=plottitle)
+    utilities.log.info('Saved image to {}'.format(plotfilename))
 
     utilities.log.info('Finished')
 

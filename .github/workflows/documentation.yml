@@ -1,6 +1,3 @@
-
-            
-
 name: Build sphinx docs
 on:
   push:
@@ -18,7 +15,8 @@ jobs:
         docs-folder: "doc/"
     - uses: actions/upload-pages-artifact@v1
       with:
-        path: doc/build/html/
+        path: "doc/"
+        
   deploy:
     # Add a dependency to the build job
     needs: build

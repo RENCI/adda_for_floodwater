@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ammaraskar/sphinx-action@master
+    - uses: ammaraskar/sphinx-action@0.4
       with:
         pre-build-command: "pip3 install sphinx-rtd-theme"
         docs-folder: "doc/"
@@ -34,4 +34,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v1            

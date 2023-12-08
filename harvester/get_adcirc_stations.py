@@ -289,7 +289,7 @@ class get_adcirc_stations(object):
         self.sitename = fetch_adcirc_data.strip_sitename_from_url(urls, fill='NoSite')
         self.stormnumber = fetch_adcirc_data.strip_storm_number_from_url(urls, fill='NoNumber')
         self.timemark=fetch_adcirc_data.strip_time_from_url(urls)
-        
+
         try:
             if self.source.upper()=='TDS':
                 adc_stations=self.station_list

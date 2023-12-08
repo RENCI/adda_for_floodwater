@@ -19,21 +19,34 @@ import utilities.io_utilities as io_utilities
 
 import joblib
 
+# defaults
+def_minCycles=2
+def_maxCycles=8
+
 def main(args):
     """
     """
 
+    if args.da_config_file is None:
+        print('da_config_file cannot be None.')
+        sys.exit(1)
+
     config = utilities.init_logging(subdir=None, config_file=args.da_config_file)
+    utilities.log.info(f'Processing config file {args.da_config_file}')
     #utilities.log.debug('\n'.join(sys.path))
     utilities.log.debug(f'config={config}')
 
     map_file=config['mapfile']
-    maxCycles=int(config['max_lookback_cycles'])
-    minCycles=int(config['min_lookback_cycles'])
+    if not os.path.exists(map_file):
+        utilities.log.error(f'map_file {map_file} not found.')
+        sys.exit(1)
+    
     rootdir=config['rundir'] 
     dwlc_filename=config['dwlc_filename'] 
+    maxCycles =int(config.get('max_lookback_cycles', def_maxCycles))
+    minCycles =int(config.get('min_lookback_cycles', def_minCycles))
 
-    # Basic checks
+    # more config checks
     if args.gridname is None:
         utilities.log.error('Input gridname cannot be None')
         sys.exit(1)
@@ -150,7 +163,8 @@ def main(args):
     file_land_controls = grid_to_station_maps.find_land_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)
     file_water_controls = grid_to_station_maps.find_water_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)
 
-    rpl = get_adcirc_stations.get_adcirc_stations(source='TDS', product=args.data_product,
+    rpl = get_adcirc_stations.get_adcirc_stations(source='TDS', 
+                product=args.data_product,
                 station_list_file=station_file, 
                 knockout_dict=None, fort63_style=fort63_style )
 

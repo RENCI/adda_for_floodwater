@@ -21,6 +21,7 @@ extensions = [
     "sphinx.ext.imgmath",
     "sphinx.ext.mathjax",
     "sphinx_rtd_theme",
+#     "myst_parser"
 ]
 
 templates_path = ["_templates"]
@@ -29,7 +30,7 @@ exclude_patterns = ['build']
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "classic" # "sphinx_rtd_theme" # "classic"
+html_theme = "sphinx_rtd_theme" # "classic"
 html_static_path = []
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.

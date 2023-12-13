@@ -21,6 +21,7 @@ extensions = [
     "sphinx.ext.imgmath",
     "sphinx.ext.mathjax",
     "sphinx_rtd_theme",
+#     "myst_parser"
 ]
 
 templates_path = ["_templates"]

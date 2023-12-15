@@ -14,15 +14,7 @@ release = "0.2"
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = [
-    "sphinx.ext.githubpages",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.todo",
-    "sphinx.ext.imgmath",
-    "sphinx.ext.mathjax",
-    "sphinx_rtd_theme",
-#     "myst_parser"
-]
+extensions = [ "myst_parser" ]
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build"]

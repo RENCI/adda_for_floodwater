@@ -1,6 +1,6 @@
 name: ADDA Doc Test, v3
 
-on: [push, pull_request, workflow_dispatch]
+on: [push]
 
 permissions:
   contents: write

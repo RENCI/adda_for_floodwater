@@ -91,7 +91,7 @@ def main(args):
         utilities.log.debug(f'args.met = {args.met}')
 
         if args.met == "nhc": 
-            tdir=f'{fw_dir}/*/adcirc/analysis/fort.63.nc'
+            tdir=f'{fw_dir}/*/adcirc_nonda/analysis/fort.63.nc'
             urls=glob.glob(tdir, recursive = True)
             if not urls:
                 utilities.log.info(f'Initial url list is empty in {tdir}. Exiting ADDA. Surface will be all zeros.')
@@ -103,7 +103,7 @@ def main(args):
                        urls2.append(os.path.join(fw_dir,u))
                 urls=urls2
         else:
-            tdir=f'{fw_dir}/*/*/adcirc/analysis/fort.63.nc'
+            tdir=f'{fw_dir}/*/*/adcirc_nonda/analysis/fort.63.nc'
             urls=glob.glob(tdir, recursive = True)
             if not urls:
                 utilities.log.info(f'Initial url list is empty in {tdir}. Exiting ADDA. Surface will be all zeros.')

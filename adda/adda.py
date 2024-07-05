@@ -159,9 +159,9 @@ def main(args):
 ##
 
     #Note specifying the map_file REQUIRES the listed file to have a fullpathname
-    station_file, fort63_compliant = grid_to_station_maps.find_station_list_from_map(gridname=args.gridname, mapfile=args.map_file, datatype='NOAA_STATIONS')
-    file_land_controls = grid_to_station_maps.find_land_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)
-    file_water_controls = grid_to_station_maps.find_water_control_points_from_map(gridname=args.gridname, mapfile=args.map_file)
+    station_file, fort63_compliant = grid_to_station_maps.find_station_list_from_map(gridname=args.gridname, mapfile=map_file, datatype='NOAA_STATIONS')
+    file_land_controls = grid_to_station_maps.find_land_control_points_from_map(gridname=args.gridname, mapfile=map_file)
+    file_water_controls = grid_to_station_maps.find_water_control_points_from_map(gridname=args.gridname, mapfile=map_file)
 
     rpl = get_adcirc_stations.get_adcirc_stations(source='TDS', 
                 product=args.data_product,

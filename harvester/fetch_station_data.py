@@ -94,7 +94,7 @@ def replace_and_fill(df):
     """
     Replace all Nans with 'None" values with GLOBAL_FILL_VALUE
     """
-    df=df.fillna(GLOBAL_FILL_VALUE)
+    df=df.fillna(GLOBAL_FILL_VALUE).infer_objects(copy=False)
     return df
 
 def stations_resample(df, sample_mins=15)->pd.DataFrame:
@@ -191,7 +191,7 @@ class fetch_station_data(object):
                 timeout = dt.datetime.strptime(max(dx.index+np.timedelta64(n_pad,'h')).strftime(dformat), dformat)
                 # Generate the NEW augmented time range
                 actualRange = dx.index
-                normalRange = pd.date_range(str(timein), str(timeout), freq=f'{sample_mins*60.0}S') # This gets us the stepping we want
+                normalRange = pd.date_range(str(timein), str(timeout), freq=f'{sample_mins*60.0}s') # This gets us the stepping we want
                 datanormal=[x for x in normalRange if x not in actualRange] 
                 # Assemble the union of values for the final data set. Exclude entries that already exist in the real data
                 dappend = pd.concat([dx,pd.DataFrame(index=datanormal)],axis=0)

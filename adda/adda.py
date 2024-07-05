@@ -172,8 +172,8 @@ def main(args):
     data_adc,meta_adc=rpl.fetch_station_product(urls, return_sample_min=args.return_sample_min, fort63_style=fort63_style )
 
     # Revert Harvester filling of nans to -99999 back to nans
-    data_adc.replace('-99999',np.nan,inplace=True)
-    meta_adc.replace('-99999',np.nan,inplace=True)
+    data_adc = data_adc.replace('-99999',np.nan).infer_objects(copy=False)
+    meta_adc = meta_adc.replace('-99999',np.nan).infer_objects(copy=False)
 
     # Get the grid coordinates for the url 
     adc_coords = get_adcirc_stations.extract_adcirc_grid_coords( urls )
@@ -242,15 +242,15 @@ def main(args):
                 knockout_dict=None, station_list_file=station_file)
     # Get data at highest resolution
     data_obs,meta_obs=obs.fetch_station_product((obs_starttime,obs_endtime), return_sample_min=0)
-    data_obs.replace('-99999',np.nan,inplace=True)
-    meta_obs.replace('-99999',np.nan,inplace=True)
+    data_obs = data_obs.replace('-99999',np.nan).infer_objects(copy=False)
+    meta_obs = meta_obs.replace('-99999',np.nan).infer_objects(copy=False)
     temp=io_utilities.write_csv(data_obs, rootdir=rootdir,subdir=iosubdir,fileroot='data_obs')
 
     # Remove stations with too many nans 
     data_thresholded = obs.remove_missingness_stations(data_obs, max_nan_percentage_cutoff=10)  # (Maximum allowable nans %)
     # meta_thresholded = meta_obs.loc[data_thresholded.columns.tolist()]
     meta = set(data_thresholded.columns.tolist()).intersection(meta_obs.index.to_list())
-    meta_thresholded = meta_obs.loc[meta]
+    meta_thresholded = meta_obs.loc[list(meta)]
     # Apply a moving average (smooth) the data performed the required resampling to the desired rate followed by interpolating
     data_obs_smoothed = obs.fetch_smoothed_station_product(data_thresholded, return_sample_min=60, window=11)
     temp=io_utilities.write_csv(data_obs_smoothed, rootdir=rootdir,subdir=iosubdir,fileroot='data_obs_smoothed')
@@ -412,7 +412,7 @@ if __name__ == '__main__':
 
     try:
         main(args)
-    except:
-        pass
+    except Exception as e:
+        utilities.log.error('adda: __main__: An exception occurred: {} - {}'.format(type(e).__name__, e))
 
     sys.exit(0)

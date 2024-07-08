@@ -44,7 +44,7 @@ def interpolate_and_sample( diurnal_range, df_in )-> pd.DataFrame:
     df_out.sort_index(inplace=True) # this is sorted with intervening nans that need to be imputed
     #df_out.to_csv('check_pre.csv',float_format='%.3f')
     #df_out_int = df_out.interpolate(method='linear')
-    df_out_int = df_out.infer_objects(copy=False).interpolate(method='values')
+    df_out_int = df_out.interpolate(method='values')
     #df_out_int.to_csv('check_po1.csv',float_format='%.3f')
     df_out_int = df_out_int.loc[diurnal_range]
     df_out_int.index.name='TIME' 
@@ -217,13 +217,13 @@ class compute_error_field(object):
         n_range = self.adc.index.tolist()
         n_range.sort()
         timein, timeout = n_range[0], n_range[-1]
-        normalRange = pd.date_range(str(timein), str(timeout), freq='3600s') 
+        normalRange = pd.date_range(str(timein), str(timeout), freq='3600S') 
         n_hours_per_period = self.n_hours_per_period
         n_hours_per_tide = self.n_hours_per_tide
         n_pad = self.n_pad # This is used to push inteprlation end-nans to outside the time bounds
 
         time_step =  int(3600*n_hours_per_tide/n_hours_per_period) # Always scale to an hour (3600s)
-        diurnal_range = pd.date_range(timein, timeout+np.timedelta64(n_pad,'h'), freq=str(time_step)+'s').to_list()
+        diurnal_range = pd.date_range(timein, timeout+np.timedelta64(n_pad,'h'), freq=str(time_step)+'S').to_list()
     
         #self.adc.to_csv('check_adc_po3a.csv',float_format='%.3f')
         self.adc = interpolate_and_sample( diurnal_range, self.adc )

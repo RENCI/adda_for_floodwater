@@ -172,8 +172,8 @@ def main(args):
     data_adc,meta_adc=rpl.fetch_station_product(urls, return_sample_min=args.return_sample_min, fort63_style=fort63_style )
 
     # Revert Harvester filling of nans to -99999 back to nans
-    data_adc = data_adc.replace('-99999',np.nan).infer_objects(copy=False)
-    meta_adc = meta_adc.replace('-99999',np.nan).infer_objects(copy=False)
+    data_adc = data_adc.replace('-99999',np.nan)
+    meta_adc = meta_adc.replace('-99999',np.nan)
 
     # Get the grid coordinates for the url 
     adc_coords = get_adcirc_stations.extract_adcirc_grid_coords( urls )
@@ -242,8 +242,8 @@ def main(args):
                 knockout_dict=None, station_list_file=station_file)
     # Get data at highest resolution
     data_obs,meta_obs=obs.fetch_station_product((obs_starttime,obs_endtime), return_sample_min=0)
-    data_obs = data_obs.replace('-99999',np.nan).infer_objects(copy=False)
-    meta_obs = meta_obs.replace('-99999',np.nan).infer_objects(copy=False)
+    data_obs = data_obs.replace('-99999',np.nan)
+    meta_obs = meta_obs.replace('-99999',np.nan)
     temp=io_utilities.write_csv(data_obs, rootdir=rootdir,subdir=iosubdir,fileroot='data_obs')
 
     # Remove stations with too many nans 

@@ -114,7 +114,8 @@ def main(args):
                     if "/".join(u.split('/')[0:2]) <= args.current_time:
                             urls2.append(os.path.join(fw_dir,u))
                 urls=urls2
-        
+    
+        urls = sorted(urls)
         utilities.log.info('URL list before filtering is:\n{}'.format('\n'.join(urls))) 
 
         if not urls:

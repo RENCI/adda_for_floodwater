@@ -95,7 +95,7 @@ def main(args):
             urls=glob.glob(tdir, recursive = True)
             if not urls:
                 utilities.log.info(f'Initial url list is empty in {tdir}. Exiting ADDA. Surface will be all zeros.')
-                sys.exit(1)
+                raise Exception('Insufficient number of cycles')
             if args.current_time is not None:
                 urls2=[]
                 for u in urls:
@@ -107,7 +107,7 @@ def main(args):
             urls=glob.glob(tdir, recursive = True)
             if not urls:
                 utilities.log.info(f'Initial url list is empty in {tdir}. Exiting ADDA. Surface will be all zeros.')
-                sys.exit(1)
+                raise Exception('Insufficient number of cycles')
             if args.current_time is not None:
                 urls2=[]
                 for u in urls:
@@ -120,13 +120,13 @@ def main(args):
 
         if not urls:
             utilities.log.info('Url list is empty before popping first item. Exiting ADDA. Surface will be all zeros.')
-            sys.exit(1)
+            raise Exception('Insufficient number of cycles')
 
         if not args.dont_delete_first_nowcast:
             urls.pop(0)
             if not urls:
                 utilities.log.info('Url list is empty after popping first item. Exiting ADDA. Surface will be all zeros.')
-                sys.exit(1)
+                raise Exception('Insufficient number of cycles')
 
         #remove leading urls if needed
         if len(urls) > maxCycles:
@@ -134,7 +134,7 @@ def main(args):
 
         if len(urls) < minCycles:
             utilities.log.info(f'Not enough cycles for analysis {len(urls),minCycles}. Exiting ADDA. Surface will be all zeros.')
-            sys.exit(1)
+            raise Exception('Insufficient number of cycles')
     
         utilities.log.info(f'URL list length = {len(urls)}') 
         utilities.log.info('URL list after filtering is:\n{}'.format('\n'.join(urls))) 
@@ -145,7 +145,7 @@ def main(args):
         # assume "input_url" is a file of urls.
         if not os.path.exists(args.input_url):
             utilities.log.error(f'Input_url file {args.input_url} not found.') 
-            sys.exit(1)
+            raise Exception('Input_url file not found')
         with open(args.input_url) as f:
             urls = f.read().splitlines()
         utilities.log.info('URL list is:\n{}'.format('\n'.join(urls))) 

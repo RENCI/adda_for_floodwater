@@ -1,0 +1,193 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connecting to Floodwater &mdash; ADCIRC Data Assimilator 0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=10f1778b"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="grid_to_stationfile_maps.yml" href="gridmap.html" />
+    <link rel="prev" title="Installation / Virtual Env" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ADCIRC Data Assimilator
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation / Virtual Env</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Connecting to Floodwater</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#data-assimilation-yaml-file"><strong>data_assimilation.yaml</strong> File</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-details">Configuration details:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gridmap.html"><strong>grid_to_stationfile_maps.yml</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ADCIRC Data Assimilator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Connecting to Floodwater</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/connect2fw.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="connecting-to-floodwater">
+<h1>Connecting to Floodwater<a class="headerlink" href="#connecting-to-floodwater" title="Link to this heading"></a></h1>
+<p><a class="reference external" href="https://waterinstitute.github.io/floodwater/index.html">Floodwater</a> has been instrumented with hooks to include a dynamic water level correction (DWLC) surface based on error analysis over previous analysis cycles.  To turn this capability on, include the following in a <a class="reference external" href="https://waterinstitute.github.io/floodwater/configuration_files.html#suite-configuration-file">Floodwater suite config yaml file</a>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">models</span><span class="p">:</span>
+<span class="c1">#...ADCIRC module configuration</span>
+<span class="nt">adcirc</span><span class="p">:</span>
+<span class="w">  </span><span class="c1">#...Set the data assimilation options</span>
+<span class="w">  </span><span class="nt">data_assimilation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">configuration_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PATHTO/ecflow_configs/da/data_assimilation.yaml</span>
+<span class="w">    </span><span class="nt">run_non_da_forecast</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>To turn off the DA, set both enabled and run_non_da_forecast to false.</p>
+</section>
+<section id="data-assimilation-yaml-file">
+<h1><strong>data_assimilation.yaml</strong> File<a class="headerlink" href="#data-assimilation-yaml-file" title="Link to this heading"></a></h1>
+<p>The configuration_file <strong>data_assimilation.yaml</strong> contains the following, with <strong>addahome</strong> and <strong>mapfile</strong> adjusted to the local environment (<strong>PATHTO</strong>):</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">LOGGING</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">LOGLEVEL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DEBUG</span>
+<span class="nt">rundir</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./adda&quot;</span>
+<span class="nt">max_lookback_cycles</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="nt">min_lookback_cycles</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">venv</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">adda</span>
+<span class="nt">dwlc_filename</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;da_error_surface.dat&quot;</span>
+<span class="nt">addahome</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;PATHTO/adda_for_floodwater/&quot;</span>
+<span class="nt">mapfile</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;PATHTO/adda_for_floodwater/gridmap/grid_to_stationfile_maps.yml&quot;</span>
+</pre></div>
+</div>
+<section id="configuration-details">
+<h2>Configuration details:<a class="headerlink" href="#configuration-details" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><dl class="simple">
+<dt>LOGGING</dt><dd><p>turn logging on (recommended) or off (not recommended)0</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>LOGLEVEL</dt><dd><p>log output detail.  INFO or DEBUG</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>rundir</dt><dd><p>output directory, relative to FLOODWATER archive directory, for the current cycle’s ADDA results</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>max_lookback_cycles</dt><dd><p>maximum number of analysis (nowcast) cycles to use for error calculations</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>min_lookback_cycles</dt><dd><p>minimum number of analysis (nowcast) cycles to use for error calculations</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>venv</dt><dd><p>virtual python environment name built for ADDA</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>dwlc_filename</dt><dd><p>name of the file to contain the error surface.  Currently hardwired in Floodwater to “da_error_surface.dat”.  I.e., do not change.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>addahome</dt><dd><p>path to the installation of adda_for_floodwater</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>mapfile</dt><dd><p>path/file to the grid-to-station mapping file</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation / Virtual Env" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gridmap.html" class="btn btn-neutral float-right" title="grid_to_stationfile_maps.yml" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, RENCI.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

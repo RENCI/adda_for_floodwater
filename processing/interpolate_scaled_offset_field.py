@@ -309,6 +309,141 @@ def interpolation_model_transform(adc_combined, model=None, input_grid_type='poi
         df = pd.DataFrame(d,columns=['LON','LAT','VAL'])
         if pathpoly is not None: df.loc[notinpolyg,'VAL']=0
     return df
+
+def mask_grid_with_polygons(
+    df_grid: pd.DataFrame,
+    mask_polygons_file: str,
+    grid_crs: str = 'EPSG:4326',
+    mask_value: float = 0.0,
+    inplace: bool = False
+) -> pd.DataFrame:
+    """
+    Mask grid points that fall inside polygons from a geospatial file.
+    
+    This function reads polygons from a geospatial file (gpkg, shapefile, GeoJSON, etc.)
+    and sets the VAL column to mask_value for all points that fall inside any of the polygons.
+    The function handles coordinate system transformations between the grid CRS and the
+    polygon file CRS.
+    
+    Parameters:
+        df_grid: DataFrame with columns ['LON', 'LAT', 'VAL'] containing grid points
+        mask_polygons_file: Path to geospatial file containing polygons (gpkg, shapefile, GeoJSON, etc.)
+        grid_crs: EPSG code for the grid coordinate system (default: 'EPSG:4326')
+            Can be specified as 'EPSG:4326' or just '4326'
+        mask_value: Value to set for masked points (default: 0.0)
+        inplace: If True, modify df_grid in place; if False, return a copy (default: False)
+    
+    Returns:
+        DataFrame with masked values applied. If inplace=True, returns the same DataFrame object.
+        If inplace=False, returns a new DataFrame.
+    
+    Raises:
+        ImportError: If geopandas is not installed
+        FileNotFoundError: If mask_polygons_file does not exist
+        ValueError: If df_grid does not have required columns or CRS is invalid
+    """
+    try:
+        import geopandas as gpd
+        from pyproj import CRS
+    except ImportError as e:
+        utilities.log.error('mask_grid_with_polygons: geopandas or pyproj not available. Please install: pip install geopandas pyproj')
+        raise ImportError('geopandas and pyproj are required for polygon masking') from e
+    
+    # Validate input DataFrame
+    required_columns = ['LON', 'LAT', 'VAL']
+    if not all(col in df_grid.columns for col in required_columns):
+        missing = [col for col in required_columns if col not in df_grid.columns]
+        utilities.log.error(f'mask_grid_with_polygons: DataFrame missing required columns: {missing}')
+        raise ValueError(f'DataFrame must have columns: {required_columns}')
+    
+    # Check if file exists
+    if not os.path.exists(mask_polygons_file):
+        utilities.log.error(f'mask_grid_with_polygons: Mask polygons file not found: {mask_polygons_file}')
+        raise FileNotFoundError(f'Mask polygons file not found: {mask_polygons_file}')
+    
+    # Create a copy if not inplace
+    if not inplace:
+        df_result = df_grid.copy()
+    else:
+        df_result = df_grid
+    
+    utilities.log.info(f'mask_grid_with_polygons: Reading polygons from {mask_polygons_file}')
+    
+    # Read polygons from geospatial file
+    try:
+        gdf_polygons = gpd.read_file(mask_polygons_file)
+        utilities.log.info(f'mask_grid_with_polygons: Read {len(gdf_polygons)} polygon(s) from file')
+    except Exception as e:
+        utilities.log.error(f'mask_grid_with_polygons: Failed to read polygons from {mask_polygons_file}: {e}')
+        raise
+    
+    if len(gdf_polygons) == 0:
+        utilities.log.warning('mask_grid_with_polygons: No polygons found in file. No masking applied.')
+        return df_result
+    
+    # Normalize CRS string (handle both 'EPSG:4326' and '4326' formats)
+    if grid_crs.startswith('EPSG:'):
+        grid_epsg = grid_crs.split(':')[1]
+    else:
+        grid_epsg = grid_crs
+    
+    try:
+        grid_epsg_int = int(grid_epsg)
+    except ValueError:
+        utilities.log.error(f'mask_grid_with_polygons: Invalid CRS format: {grid_crs}. Expected EPSG code.')
+        raise ValueError(f'Invalid CRS format: {grid_crs}')
+    
+    # Create GeoDataFrame from grid points
+    gdf_points = gpd.GeoDataFrame(
+        df_result,
+        geometry=gpd.points_from_xy(df_result['LON'], df_result['LAT']),
+        crs=CRS.from_epsg(grid_epsg_int)
+    )
+    
+    # Transform polygons to grid CRS if needed
+    if gdf_polygons.crs is None:
+        utilities.log.warning('mask_grid_with_polygons: Polygon file has no CRS. Assuming same as grid CRS.')
+        gdf_polygons.set_crs(CRS.from_epsg(grid_epsg_int), inplace=True)
+    else:
+        # Check if CRS transformation is needed
+        try:
+            polygon_epsg = gdf_polygons.crs.to_epsg()
+            if polygon_epsg is None:
+                # CRS doesn't have an EPSG code, try to transform anyway
+                utilities.log.info(f'mask_grid_with_polygons: Polygon CRS {gdf_polygons.crs} has no EPSG code. Attempting transformation to EPSG:{grid_epsg_int}')
+                gdf_polygons = gdf_polygons.to_crs(epsg=grid_epsg_int)
+            elif polygon_epsg != grid_epsg_int:
+                utilities.log.info(f'mask_grid_with_polygons: Transforming polygons from EPSG:{polygon_epsg} to EPSG:{grid_epsg_int}')
+                gdf_polygons = gdf_polygons.to_crs(epsg=grid_epsg_int)
+        except Exception as e:
+            utilities.log.warning(f'mask_grid_with_polygons: Could not determine polygon CRS EPSG code: {e}. Attempting transformation anyway.')
+            try:
+                gdf_polygons = gdf_polygons.to_crs(epsg=grid_epsg_int)
+            except Exception as transform_error:
+                utilities.log.error(f'mask_grid_with_polygons: Failed to transform polygons: {transform_error}')
+                raise
+    
+    # Combine all polygons into a single geometry (union)
+    # This handles cases where there are multiple polygons in the file
+    if len(gdf_polygons) > 1:
+        utilities.log.info(f'mask_grid_with_polygons: Combining {len(gdf_polygons)} polygons into union')
+        combined_polygon = gdf_polygons.unary_union
+    else:
+        combined_polygon = gdf_polygons.geometry.iloc[0]
+    
+    # Find points inside polygons
+    utilities.log.info('mask_grid_with_polygons: Identifying points inside polygons')
+    points_inside = gdf_points.geometry.within(combined_polygon)
+    
+    # Count how many points will be masked
+    n_masked = points_inside.sum()
+    utilities.log.info(f'mask_grid_with_polygons: Masking {n_masked} out of {len(df_result)} points')
+    
+    # Apply mask
+    df_result.loc[points_inside, 'VAL'] = mask_value
+    
+    return df_result
+
 ##
 ## Potential use methods for quick testing of new interpolation models
 ##

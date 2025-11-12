@@ -341,6 +341,24 @@ def main(args):
     # Interpolate to grid
     df_ADCIRC_GRID = interpolate_scaled_offset_field.interpolation_model_transform(adc_coords, model=model, input_grid_type='points',pathpoly=pathpoly)
 
+    # Apply polygon masking if configured
+    mask_polygons_file = config.get('mask_polygons_file')
+    if mask_polygons_file:
+        adcirc_grid_crs = config.get('adcirc_grid_crs', 'EPSG:4326')
+        utilities.log.info(f'Applying polygon masking from {mask_polygons_file} with grid CRS {adcirc_grid_crs}')
+        try:
+            df_ADCIRC_GRID = interpolate_scaled_offset_field.mask_grid_with_polygons(
+                df_ADCIRC_GRID,
+                mask_polygons_file=mask_polygons_file,
+                grid_crs=adcirc_grid_crs,
+                mask_value=-99999.0,
+            )
+            utilities.log.info('Polygon masking completed successfully')
+        except Exception as e:
+            utilities.log.error(f'Failed to apply polygon masking: {e}')
+            utilities.log.error('Continuing without polygon masking')
+            # Continue execution without masking if it fails
+
 ##
 ## Write out datafiles 
 #

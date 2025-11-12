@@ -1405,7 +1405,7 @@ class noaa_web_fetch_data(fetch_station_data):
         datalist=list()
         periods = self.return_list_of_daily_timeranges(time_range)
         for tstart,tend in periods:
-            utilities.log.debug('Start time is {}, end time is {}, station is {}'.format(tstart,tend,station))
+            utilities.log.debug('Start time is {}, end time is {}, station is {}, datum is {}'.format(tstart,tend,station,self._datum))
             indict = {'product': self._product,
                  'station': station,
                  'datum':self._datum,

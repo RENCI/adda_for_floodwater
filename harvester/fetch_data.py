@@ -208,7 +208,7 @@ def process_noaa_stations(time_range, noaa_stations, interval=None, data_product
         utilities.log.error(f'Error: NOAA: {e}')
     return df_noaa_data, df_noaa_meta
 
-def process_noaaweb_stations(time_range, noaa_stations, interval=None, data_product='water_level', resample_mins=15 ):
+def process_noaaweb_stations(time_range, noaa_stations, interval=None, data_product='water_level', resample_mins=15, datum='MSL' ):
     """
     Helper function to take an input list of times, stations, and product and return a data set and associated metadata set
 
@@ -218,7 +218,8 @@ def process_noaaweb_stations(time_range, noaa_stations, interval=None, data_prod
         interval: <str> (def=None) A NOAA specific interval setting
         data_product: <str >(def water_level). A generic AST named data product ( Not the True NOAA data product name) 
         resample_mins: <int> Returned time series with a sampling of resample_mins
-
+        datum: <str> (def MSL). Datum to use for the data
+        
     Returns:
         df_noaa_data: DataFrame (time x station)
         df_noaa_meta: DataFrame (station x metadata)
@@ -229,7 +230,7 @@ def process_noaaweb_stations(time_range, noaa_stations, interval=None, data_prod
         if not data_product in noaa_products:
             utilities.log.error(f'NOAA WEB: data product can only be {noaa_products}')
             #sys.exit(1)
-        noaanos = noaa_web_fetch_data(noaa_stations, time_range, product=data_product, interval=interval, resample_mins=resample_mins)
+        noaanos = noaa_web_fetch_data(noaa_stations, time_range, product=data_product, interval=interval, datum=datum, resample_mins=resample_mins)
         df_noaa_data = noaanos.aggregate_station_data()
         df_noaa_meta = noaanos.aggregate_station_metadata()
         df_noaa_data,df_noaa_meta = intersect_stations(df_noaa_data.copy(),df_noaa_meta.copy())

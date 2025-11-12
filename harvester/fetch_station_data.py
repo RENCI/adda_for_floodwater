@@ -1408,7 +1408,7 @@ class noaa_web_fetch_data(fetch_station_data):
             utilities.log.debug('Start time is {}, end time is {}, station is {}'.format(tstart,tend,station))
             indict = {'product': self._product,
                  'station': station,
-                 'datum':'MSL',
+                 'datum':self._datum,
                  'time_zone': GLOBAL_TIMEZONE,
                  'units':'metric', 'format':'csv',
                  'application':'DataAPI_Sample',

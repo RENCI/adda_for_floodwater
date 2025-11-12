@@ -45,6 +45,7 @@ def main(args):
     dwlc_filename=config['dwlc_filename'] 
     maxCycles =int(config.get('max_lookback_cycles', def_maxCycles))
     minCycles =int(config.get('min_lookback_cycles', def_minCycles))
+    datum=config.get('datum', 'MSL')
 
     # more config checks
     if args.gridname is None:
@@ -242,7 +243,7 @@ def main(args):
                 contrails_yamlname='None',
                 knockout_dict=None, station_list_file=station_file)
     # Get data at highest resolution
-    data_obs,meta_obs=obs.fetch_station_product((obs_starttime,obs_endtime), return_sample_min=0)
+    data_obs,meta_obs=obs.fetch_station_product((obs_starttime,obs_endtime), return_sample_min=0, datum=datum)
     data_obs = data_obs.replace('-99999',np.nan)
     meta_obs = meta_obs.replace('-99999',np.nan)
     temp=io_utilities.write_csv(data_obs, rootdir=rootdir,subdir=iosubdir,fileroot='data_obs')
@@ -409,6 +410,9 @@ if __name__ == '__main__':
                         help='Location of FloodWater archive dir for the suite.')
     parser.add_argument('--met', action='store', dest='met', default=None, type=str,
                         help='Met type, nhc, gfs, etc ')
+    parser.add_argument('--datum', action='store', dest='datum', default='MSL', type=str, 
+                        choices=['MSL', 'NAVD'],
+                        help='Datum to use for the data (MSL or NAVD)')
     args = parser.parse_args()
 
     try:

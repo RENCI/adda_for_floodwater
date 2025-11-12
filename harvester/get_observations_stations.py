@@ -193,7 +193,7 @@ class get_obs_stations(object):
 # Choosing a sampling min is non-trivial and depends on the data product selected. Underestimating is better than overestimating
 # Since we will do a rolling averager later followed by a final resampling at 1 hour freq.
 
-    def fetch_station_product(self, time_range, return_sample_min=0, interval=None):
+    def fetch_station_product(self, time_range, return_sample_min=0, interval=None, datum='MSL'):
         """
         Fetch the data. The main information is part of the class (sources, products, etc.). However, one must still specify the return_sample_minutes
         to sample the data. This harvesting code will read the raw data for the selected product. Perform an interpolation (it doesn't pad nans), and then
@@ -216,6 +216,10 @@ class get_obs_stations(object):
 
         data=np.nan
         meta=np.nan
+        
+        if datum != 'MSL' and self.source.upper() != 'NOAAWEB':
+            utilities.log.error(f'Datum {datum} is not supported for {self.source}')
+            #sys.exit(1)
 
         time_range=(starttime,endtime)
         if self.source.upper()=='NOAA':
@@ -235,7 +239,7 @@ class get_obs_stations(object):
             noaa_stations=self.station_list
             noaa_metadata=f"_{endtime.replace(' ','T')}"
             try:
-                data, meta = fetch_data.process_noaaweb_stations(time_range, noaa_stations, data_product=self.product, interval=interval, resample_mins=return_sample_min)
+                data, meta = fetch_data.process_noaaweb_stations(time_range, noaa_stations, data_product=self.product, interval=interval, resample_mins=return_sample_min, datum=datum)
             except Exception as ex:
                 utilities.log.error(f'NOAA error {template.format(type(ex).__name__, ex.args)}')
                 #sys.exit(1)

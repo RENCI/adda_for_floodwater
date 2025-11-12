@@ -377,6 +377,16 @@ def main(args):
                                              plot_now=False, title=plottitle)
     utilities.log.info('Saved image to {}'.format(plotfilename))
 
+    # Adding a new plot for a NC coastal area
+    plotfilename = 'surface_nc.png'
+    plottitle=args.current_time # f'{obs_starttime} : {obs_endtime}'
+    adda_visualization_plots.save_plot_model(plot_grid=plot_grid, df_surface=df_plot_transformed, 
+                                             df_stations=df_stations, df_land_control=df_land_controls,
+                                             df_water_control=df_water_controls, filename=plotfilename, 
+                                             plot_now=False, title=plottitle,
+                                             vmax=0.2, vmin=-0.2, xlim=[-78.5, -75.1], ylim=[33.7, 37])
+    utilities.log.info('Saved image to {}'.format(plotfilename))
+
     utilities.log.info('Finished')
 
 if __name__ == '__main__':

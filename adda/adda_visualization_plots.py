@@ -8,16 +8,17 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-vmax=0.5
-vmin=-vmax
-xlim=[-100, -50]
-ylim=[5, 55]
+_vmax=0.2
+_vmin=-_vmax
+_xlim=[-100, -50]
+_ylim=[5, 55]
 N=20
 #base_cmap='tab20c' # Or simply use None tab20c is also okay
 #cmap= plt.cm.get_cmap('jet', N)
 
 def save_plot_model(plot_grid=None, df_surface=None, df_stations=None, df_land_control=None, df_water_control=None, 
-                    filename=None, plot_now=False, title=None):
+                    filename=None, plot_now=False, title=None,
+                    vmax=None, vmin=None, xlim=None, ylim=None):
     """
     Wrapper to take generated plt file and save to disk
     """
@@ -28,10 +29,12 @@ def save_plot_model(plot_grid=None, df_surface=None, df_stations=None, df_land_c
     plt_data = plot_model(plot_grid=plot_grid, 
                           df_surface=df_surface, df_stations=df_stations, 
                           df_land_control=df_land_control, df_water_control=df_water_control, 
-                          plot_now=plot_now, title=title)
+                          plot_now=plot_now, title=title,
+                          vmax=vmax, vmin=vmin, xlim=xlim, ylim=ylim)
     plt_data.savefig(filename, bbox_inches='tight')
 
-def plot_model(plot_grid=None, df_surface=None, df_stations=None, df_land_control=None, df_water_control=None, plot_now=True, title=None):
+def plot_model(plot_grid=None, df_surface=None, df_stations=None, df_land_control=None, df_water_control=None, plot_now=True, title=None,
+               vmax=None, vmin=None, xlim=None, ylim=None):
     """
     Basic plotter to display the error field. 
 
@@ -48,6 +51,15 @@ def plot_model(plot_grid=None, df_surface=None, df_stations=None, df_land_contro
     Results:
         A plot 
     """
+    if vmax is None:
+        vmax = _vmax
+    if vmin is None:
+        vmin = _vmin
+    if xlim is None:
+        xlim = _xlim
+    if ylim is None:
+        ylim = _ylim
+        
     coastline=np.loadtxt(os.path.join(os.path.dirname(__file__), "misc", "coarse_us_coast.dat"))
 
     #

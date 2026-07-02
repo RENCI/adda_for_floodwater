@@ -1432,6 +1432,11 @@ class noaa_web_fetch_data(fetch_station_data):
         except Exception as e:
             utilities.log.warn('noaa-web failed concat: error: {}'.format(e))
             df_data=np.nan
+        try:
+            df_data = df_data.astype(float)
+        except Exception as e:
+            utilities.log.warning(f'NOAA/WEB station data warning: {e}')
+            df_data = np.nan
         return df_data
 
     def fetch_single_metadata(self, station) -> pd.DataFrame:      

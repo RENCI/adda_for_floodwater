@@ -217,7 +217,7 @@ class compute_error_field(object):
         n_range = self.adc.index.tolist()
         n_range.sort()
         timein, timeout = n_range[0], n_range[-1]
-        normalRange = pd.date_range(str(timein), str(timeout), freq='3600S') 
+        normalRange = pd.date_range(str(timein), str(timeout), freq='3600s')
         n_hours_per_period = self.n_hours_per_period
         n_hours_per_tide = self.n_hours_per_tide
         n_pad = self.n_pad # This is used to push inteprlation end-nans to outside the time bounds

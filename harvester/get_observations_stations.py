@@ -330,14 +330,16 @@ class get_obs_stations(object):
             df_smoothed: dataframe (time x stations) smoothed and possibly resampled.
         """
         utilities.log.info(f'Smoothing requested. Window of {window}')
+        df_in = df_in.apply(pd.to_numeric, errors='coerce')
         df_smooth = df_in.rolling(window=window, center=True).mean()
         # Double check if completely empty stations persist
-        indlist = df_smooth.loc[df_smooth.isnull().all(1)].index # Only if ALL columns are nan
-        df_smooth.loc[indlist] = df_in.loc[indlist] 
+        indlist = df_smooth.loc[df_smooth.isnull().all(axis=1)].index # Only if ALL columns are nan
+        if len(indlist) > 0:
+            df_smooth.loc[indlist, :] = df_in.loc[indlist, :].to_numpy()
         # Optional Resample
         if return_sample_min > 0:
             timesampling = f'{return_sample_min}min'
-            df_smooth.interpolate(method='polynomial', order=1, limit=1, inplace=True) 
+            df_smooth.interpolate(method='time', limit=1, inplace=True)
             df_smooth=df_smooth.resample(timesampling).asfreq()
             df_smooth = self.remove_columns_with_onevalue(df_smooth)
             utilities.log.debug(f'Averaged data has been resampled and then interpolated to {return_sample_min}mins')

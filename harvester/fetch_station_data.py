@@ -234,6 +234,10 @@ class fetch_station_data(object):
             #utilities.log.info(station)    
             try:
                 dx = self.fetch_single_product(station, self._periods)
+                if not isinstance(dx, pd.DataFrame) or dx.empty:
+                    utilities.log.warn(f'No data for station {station}; skipping')
+                    excludedStations.append(station)
+                    continue
                 try:
                     if use_new_interpolation:
                         if perform_interpolation:
@@ -1286,6 +1290,9 @@ class noaa_web_fetch_data(fetch_station_data):
                         'wind':' Speed'
     }
 
+    def _datum_rejected_by_noaa(self, response_text)->bool:
+        return 'supported Datum values' in response_text
+
     def __init__(self, station_id_list, periods, product='water_level', interval=None, units='metric',
                 datum='MSL', resample_mins=15):
         """
@@ -1402,6 +1409,7 @@ class noaa_web_fetch_data(fetch_station_data):
         Returns:
             dataframe of time (timestamps) vs values for the requested station
         """
+        empty_frame = pd.DataFrame(columns=[str(station)])
         datalist=list()
         periods = self.return_list_of_daily_timeranges(time_range)
         for tstart,tend in periods:
@@ -1416,7 +1424,19 @@ class noaa_web_fetch_data(fetch_station_data):
             url = self.build_url_for_noaaweb_station(self._domain,indict)
             try:
                 response = requests.get(url)
-                csvStringIO = StringIO(response.text)
+                response_text = response.text.strip()
+                if not response_text or 'Date Time' not in response_text:
+                    if self._datum_rejected_by_noaa(response_text):
+                        utilities.log.error(
+                            f'noaa-web: Datum {self._datum} is not supported by the NOAA API for station {station}'
+                        )
+                        return empty_frame
+                    utilities.log.warn(
+                        f'noaa-web: No water_level data for station {station} ({tstart} to {tend}): '
+                        f'{response_text[:200]}'
+                    )
+                    continue
+                csvStringIO = StringIO(response_text)
                 df = pd.read_csv(csvStringIO, sep=",", header=0) 
                 dx=df[['Date Time',self.web_return_columns[self._product]]]
                 dx.columns=['TIME',self._product]
@@ -1427,16 +1447,19 @@ class noaa_web_fetch_data(fetch_station_data):
                 datalist.append(dx)
             except Exception as e:
                 utilities.log.warn(f'noaa-web response data error: Perhaps empty data contribution: station {station}: {e} ')
+        if len(datalist) == 0:
+            utilities.log.warn(f'noaa-web: No data returned for station {station}')
+            return empty_frame
         try:
             df_data = pd.concat(datalist)
         except Exception as e:
             utilities.log.warn('noaa-web failed concat: error: {}'.format(e))
-            df_data=np.nan
+            return empty_frame
         try:
             df_data = df_data.astype(float)
         except Exception as e:
             utilities.log.warning(f'NOAA/WEB station data warning: {e}')
-            df_data = np.nan
+            return empty_frame
         return df_data
 
     def fetch_single_metadata(self, station) -> pd.DataFrame:      

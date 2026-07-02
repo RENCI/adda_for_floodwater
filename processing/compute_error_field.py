@@ -223,7 +223,7 @@ class compute_error_field(object):
         n_pad = self.n_pad # This is used to push inteprlation end-nans to outside the time bounds
 
         time_step =  int(3600*n_hours_per_tide/n_hours_per_period) # Always scale to an hour (3600s)
-        diurnal_range = pd.date_range(timein, timeout+np.timedelta64(n_pad,'h'), freq=str(time_step)+'S').to_list()
+        diurnal_range = pd.date_range(timein, timeout+np.timedelta64(n_pad,'h'), freq=f'{time_step}s').to_list()
     
         #self.adc.to_csv('check_adc_po3a.csv',float_format='%.3f')
         self.adc = interpolate_and_sample( diurnal_range, self.adc )

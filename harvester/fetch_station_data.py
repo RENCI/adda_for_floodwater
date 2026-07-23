@@ -1496,7 +1496,7 @@ class noaa_web_fetch_data(fetch_station_data):
             df_meta.columns = [str(station)]
         except Exception as e:
             utilities.log.exception(f'NOAA WEB response meta error: {station} {response.text}: error is {e}')
-            #sys.exit(1)
+            raise
         return df_meta
 
 #####################################################################################

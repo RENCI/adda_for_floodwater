@@ -22,6 +22,7 @@
 import traceback
 
 import os,sys
+import time
 import numpy as np
 import numpy.ma as ma
 import pandas as pd
@@ -1424,6 +1425,7 @@ class noaa_web_fetch_data(fetch_station_data):
             url = self.build_url_for_noaaweb_station(self._domain,indict)
             try:
                 response = requests.get(url)
+                time.sleep(1)  # Pause between NOAA requests to avoid rate limiting
                 response_text = response.text.strip()
                 if not response_text or 'Date Time' not in response_text:
                     if self._datum_rejected_by_noaa(response_text):
@@ -1479,6 +1481,7 @@ class noaa_web_fetch_data(fetch_station_data):
         meta=dict() 
         try:
             response = requests.get(f'{domain}/{station}.json')
+            time.sleep(1)  # Pause between NOAA requests to avoid rate limiting
             metares=response.text
             json_meta=json.loads(metares)
             meta['LAT'] = json_meta['stations'][0]['lat'] 

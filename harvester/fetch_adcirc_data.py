@@ -41,7 +41,7 @@ def get_adcirc_stations_fort63_style(fname=None)->pd.DataFrame:
     if fname is None:
         utilities.log.error(f'No Fort63_style ADCIRC station file assigned {fname}: Abort with status 0')
         sys.exit(0)
-    df = pd.read_csv(fname, index_col=0, header=0, skiprows=[1], sep=',',dtype=str)
+    df = pd.read_csv(fname, index_col=0, header=0, sep=',',dtype=str)
     try:
         df["Node"]=df["Node"].astype(int)
     except IndexError as e:

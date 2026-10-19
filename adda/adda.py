@@ -91,30 +91,31 @@ def main(args):
         os.chdir(fw_dir)
         utilities.log.debug(f'args.met = {args.met}')
 
+        # Glob relative to archive/ so current_time compares against the
+        # cycle path (YYYYMMDD/hour_HH or advisory_???) rather than the
+        # absolute filesystem prefix.
         if args.met == "nhc": 
-            tdir=f'{fw_dir}/*/adcirc_nonda/analysis/fort.63.nc'
+            tdir='*/adcirc_nonda/analysis/fort.63.nc'
             urls=glob.glob(tdir, recursive = True)
             if not urls:
-                utilities.log.info(f'Initial url list is empty in {tdir}. Exiting ADDA. Surface will be all zeros.')
+                utilities.log.info(f'Initial url list is empty in {os.path.join(fw_dir, tdir)}. Exiting ADDA. Surface will be all zeros.')
                 raise Exception('Insufficient number of cycles')
-            if args.current_time is not None:
-                urls2=[]
-                for u in urls:
-                    if u.split('/')[0] <= args.current_time:
-                       urls2.append(os.path.join(fw_dir,u))
-                urls=urls2
+            urls2=[]
+            for u in urls:
+                if args.current_time is None or u.split('/')[0] <= args.current_time:
+                   urls2.append(os.path.join(fw_dir,u))
+            urls=urls2
         else:
-            tdir=f'{fw_dir}/*/*/adcirc_nonda/analysis/fort.63.nc'
+            tdir='*/*/adcirc_nonda/analysis/fort.63.nc'
             urls=glob.glob(tdir, recursive = True)
             if not urls:
-                utilities.log.info(f'Initial url list is empty in {tdir}. Exiting ADDA. Surface will be all zeros.')
+                utilities.log.info(f'Initial url list is empty in {os.path.join(fw_dir, tdir)}. Exiting ADDA. Surface will be all zeros.')
                 raise Exception('Insufficient number of cycles')
-            if args.current_time is not None:
-                urls2=[]
-                for u in urls:
-                    if "/".join(u.split('/')[0:2]) <= args.current_time:
-                            urls2.append(os.path.join(fw_dir,u))
-                urls=urls2
+            urls2=[]
+            for u in urls:
+                if args.current_time is None or "/".join(u.split('/')[0:2]) <= args.current_time:
+                        urls2.append(os.path.join(fw_dir,u))
+            urls=urls2
     
         urls = sorted(urls)
         utilities.log.info('URL list before filtering is:\n{}'.format('\n'.join(urls))) 
